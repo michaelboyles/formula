@@ -1,6 +1,7 @@
 import { FormSchema } from "./lib";
 import { useField } from "./useField";
 import { useForm } from "./useForm";
+import { useState } from "react";
 
 const schema = new FormSchema({})
     .withString("title", { type: "string" })
@@ -22,7 +23,9 @@ export function Test1() {
             }
         })
     });
-    const { value: title } = useField(form.get("title"));
+    const [a, setA] = useState(1)
+
+    const { value: title, setValue: setTitle } = useField(form.get("title"));
     const { value: numLikes } = useField(form.get("numLikes"));
 
     return (
@@ -30,6 +33,10 @@ export function Test1() {
             <h1>Test 1</h1>
             Title { title }
             Num Likes { numLikes }
+
+
+            <button onClick={() => setTitle("New title")}>Set Title</button>
+            <button onClick={() => setA(prev => prev + 1)}>Update { a }</button>
         </div>
     )
 }

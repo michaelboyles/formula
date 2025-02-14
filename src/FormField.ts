@@ -16,6 +16,10 @@ export class StringField {
     getValue(): string {
         return this.form.getValue(this.path);
     }
+
+    setValue(value: string) {
+        return this.form.setValue(this.path, value);
+    }
 }
 export class NumberField {
     path: string
@@ -31,6 +35,10 @@ export class NumberField {
 
     getValue(): number {
         return this.form.getValue(this.path);
+    }
+
+    setValue(value: string) {
+        return this.form.setValue(this.path, value);
     }
 }
 export class ObjectField<T> {
