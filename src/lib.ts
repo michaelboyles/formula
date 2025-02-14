@@ -73,7 +73,19 @@ export class StringField {
     }
 }
 export class NumberField {
+    path: string
+    form: Form<any>
+
+    constructor(path: string) {
+        this.path = path;
+    }
+
     setForm(form: Form<any>) {
+        this.form = form;
+    }
+
+    getValue(): number {
+        return this.form.getValue(this.path);
     }
 }
 export class ObjectField<T> {

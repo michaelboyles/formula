@@ -22,13 +22,14 @@ export function Test1() {
             }
         })
     });
-    const title = form.get("title");
-    const { value } = useField(title);
+    const { value: title } = useField(form.get("title"));
+    const { value: numLikes } = useField(form.get("numLikes"));
 
     return (
         <div>
             <h1>Test 1</h1>
-            Title { value }
+            Title { title }
+            Num Likes { numLikes }
         </div>
     )
 }

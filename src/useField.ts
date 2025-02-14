@@ -1,7 +1,16 @@
 import { useSyncExternalStore } from "react";
-import { StringField } from "./lib";
+import { NumberField, StringField } from "./lib";
 
-export function useField(field: StringField) {
+type StringReturn = {
+    value: string
+}
+type NumberReturn = {
+    value: number
+}
+
+export function useField(field: StringField): StringReturn;
+export function useField(field: NumberField): NumberReturn;
+export function useField(field) {
     const value = useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {

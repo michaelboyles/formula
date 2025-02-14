@@ -4,6 +4,7 @@ import {
     FormSchema,
     FormSchemaElement,
     NumberElement,
+    NumberField,
     ObjectElement,
     StringElement,
     StringField,
@@ -45,6 +46,9 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>) {
             const element = value as FormSchemaElement;
             if (element.type === "string") {
                 fields[key] = new StringField(key);
+            }
+            else if (element.type === "number") {
+                fields[key] = new NumberField(key);
             }
         }
 
