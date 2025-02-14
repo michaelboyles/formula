@@ -8,22 +8,30 @@ export class FormSchema<T extends Record<string, FormSchemaElement>> {
     }
 
     withString<K extends string>(key: K, elem: StringElement): FormSchema<T & Record<K, StringElement>> {
-        // @ts-ignore
+        if (this.elements[key]) {
+            throw new Error("Trying to re-specify schema element with name " + key);
+        }
         return new FormSchema({ ...this.elements, [key]: elem });
     }
 
     withNumber<K extends string>(key: K, elem: NumberElement): FormSchema<T & Record<K, NumberElement>> {
-        // @ts-ignore
+        if (this.elements[key]) {
+            throw new Error("Trying to re-specify schema element with name " + key);
+        }
         return new FormSchema({ ...this.elements, [key]: elem });
     }
 
     withArray<K extends string, E extends FormSchemaElement>(key: K, elem: ArrayElement<E>): FormSchema<T & Record<K, ArrayElement<E>>> {
-        // @ts-ignore
+        if (this.elements[key]) {
+            throw new Error("Trying to re-specify schema element with name " + key);
+        }
         return new FormSchema({ ...this.elements, [key]: elem });
     }
 
     withObject<K extends string, O extends Record<string, FormSchemaElement>>(key: K, elem: ObjectElement<O>): FormSchema<T & Record<K, ObjectElement<O>>> {
-        // @ts-ignore
+        if (this.elements[key]) {
+            throw new Error("Trying to re-specify schema element with name " + key);
+        }
         return new FormSchema({ ...this.elements, [key]: elem });
     }
 
