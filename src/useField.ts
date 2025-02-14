@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { NumberField, StringField } from "./lib";
+import { NumberField, StringField } from "./FormField";
 
 type StringReturn = {
     value: string

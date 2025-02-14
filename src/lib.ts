@@ -1,28 +1,4 @@
-import { Form } from "./useForm";
-
-export type StringElement = {
-    type: "string"
-}
-export type NumberElement = {
-    type: "number"
-}
-export type ArrayElement<E extends FormSchemaElement> = {
-    type: "array"
-    item: E
-}
-export type ObjectElement<T extends Record<string, FormSchemaElement>> = {
-    type: "object",
-    properties: T
-}
-export type FormSchemaElement = StringElement | NumberElement | ArrayElement<any> | ObjectElement<any>;
-
-export type Test<T> = {
-    [K in keyof T]:
-    T[K] extends StringElement ? StringField :
-        T[K] extends NumberElement ? NumberField :
-            T[K] extends ObjectElement<infer O> ? ObjectField<O> :
-                T[K] extends ArrayElement<infer A> ? ArrayField<A> : never
-}
+import { ArrayElement, FormSchemaElement, NumberElement, ObjectElement, StringElement } from "./FormSchemaElement";
 
 export class FormSchema<T extends Record<string, FormSchemaElement>> {
     elements: T
@@ -55,49 +31,6 @@ export class FormSchema<T extends Record<string, FormSchemaElement>> {
         return this.elements[a];
     }
 }
-
-export class StringField {
-    path: string
-    form: Form<any>
-
-    constructor(path: string) {
-        this.path = path;
-    }
-
-    setForm(form: Form<any>) {
-        this.form = form;
-    }
-
-    getValue(): string {
-        return this.form.getValue(this.path);
-    }
-}
-export class NumberField {
-    path: string
-    form: Form<any>
-
-    constructor(path: string) {
-        this.path = path;
-    }
-
-    setForm(form: Form<any>) {
-        this.form = form;
-    }
-
-    getValue(): number {
-        return this.form.getValue(this.path);
-    }
-}
-export class ObjectField<T> {
-    setForm(form: Form<any>) {
-    }
-}
-export class ArrayField<E> {
-    setForm(form: Form<any>) {
-    }
-}
-export type Field = StringField | NumberField | ObjectField<any> | ArrayField<any>;
-
 
 function main() {
     const strType: StringElement = { type: "string" };

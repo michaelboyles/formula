@@ -1,16 +1,7 @@
-import {
-    ArrayElement,
-    Field,
-    FormSchema,
-    FormSchemaElement,
-    NumberElement,
-    NumberField,
-    ObjectElement,
-    StringElement,
-    StringField,
-    Test
-} from "./lib";
+import { FormSchema } from "./lib";
 import { useCallback, useMemo, useRef } from "react";
+import { ArrayElement, FormSchemaElement, NumberElement, ObjectElement, StringElement } from "./FormSchemaElement";
+import { FormField, NumberField, StringField } from "./FormField";
 
 type SchemaElementSet = Record<string, FormSchemaElement>;
 
@@ -53,15 +44,14 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>) {
         }
 
         // @ts-ignore
-        return new Form<Test<T>>(fields, getValue);
+        return new Form<FieldFromElem<T>>(fields, getValue);
 
     }, [schema]);
 
     return form;
 }
 
-
-export class Form<T extends Record<string, Field>> {
+export class Form<T extends Record<string, FormField>> {
     fields: T
     _valueGetter: (path: string) => any
 
