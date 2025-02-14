@@ -22,6 +22,7 @@ type InitialValues<T extends SchemaElementSet> = {
 
 export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<FieldFromElem<T>> {
     const data = useRef<Record<string, any>>({  });
+    const pathToSubscriber = useRef<Record<string, Subscriber[]>>({});
 
     const { schema, getInitialValues } = opts;
 
@@ -31,6 +32,21 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
 
     const setValue = useCallback((path: string, value: any) => {
         data.current[path] = value;
+
+        const subscribers = pathToSubscriber.current[path];
+        if (subscribers) {
+            subscribers.forEach(subscriber => {
+                subscriber()
+            })
+        }
+    }, []);
+
+    const subscribe = useCallback((path: string, subscriber: Subscriber) => {
+        const p2s = pathToSubscriber.current;
+        if (!p2s[path]) {
+            p2s[path] = [];
+        }
+        p2s[path].push(subscriber);
     }, []);
 
     const form = useMemo(() => {
@@ -46,7 +62,9 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
                 fields[key] = new NumberField(key);
             }
         }
-        return new Form<FieldFromElem<T>>(fields as any, getValue, setValue);
+        return new Form<FieldFromElem<T>>(
+            fields as any, getValue, setValue, subscribe
+        );
 
     }, [schema]);
 
@@ -57,12 +75,17 @@ export class Form<T extends Record<string, FormField>> {
     fields: T
     _valueGetter: (path: string) => any
     _valueSetter: (path: string, value: any) => void
+    _subscribe: (path: string, subscriber: Subscriber) => void
 
-
-    constructor(fields: T, valueGetter: (path: string) => any, valueSetter: (path: string, value: any) => void) {
+    constructor(fields: T,
+                valueGetter: (path: string) => any,
+                valueSetter: (path: string, value: any) => void,
+                subscribe: (path: string, subscriber: Subscriber) => void
+    ) {
         this.fields = fields;
         this._valueGetter = valueGetter;
         this._valueSetter = valueSetter;
+        this._subscribe = subscribe;
         for (const field of Object.values(this.fields)) {
             field.setForm(this);
         }
@@ -72,8 +95,8 @@ export class Form<T extends Record<string, FormField>> {
         return this.fields[a];
     }
 
-    subscribe() {
-
+    subscribe(path: string, subscriber: Subscriber) {
+        this._subscribe(path, subscriber);
     }
 
     getValue(path: string): any {
@@ -84,3 +107,5 @@ export class Form<T extends Record<string, FormField>> {
         return this._valueSetter(path, value);
     }
 }
+
+export type Subscriber = () => void;

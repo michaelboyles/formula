@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { NumberField, StringField } from "./FormField";
+import { FormField, NumberField, StringField } from "./FormField";
 
 type StringReturn = {
     value: string
@@ -13,11 +13,14 @@ type Return = StringReturn | NumberReturn;
 
 export function useField(field: StringField): StringReturn;
 export function useField(field: NumberField): NumberReturn;
-export function useField(field): Return {
+export function useField(field: FormField): Return {
     const value = useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {
-            return () => {}
+            field.subscribe(onStoreChange);
+
+            return () => {
+            }
         },
         // Get snapshot
         () => field.getValue()

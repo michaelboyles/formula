@@ -1,4 +1,4 @@
-import { Form } from "./useForm";
+import { Form, Subscriber } from "./useForm";
 import { ArrayElement, NumberElement, ObjectElement, StringElement } from "./FormSchemaElement";
 
 export class StringField {
@@ -20,6 +20,10 @@ export class StringField {
     setValue(value: string) {
         return this.form.setValue(this.path, value);
     }
+
+    subscribe(subscriber: Subscriber) {
+        return this.form.subscribe(this.path, subscriber);
+    }
 }
 export class NumberField {
     path: string
@@ -40,13 +44,37 @@ export class NumberField {
     setValue(value: string) {
         return this.form.setValue(this.path, value);
     }
+
+    subscribe(subscriber: Subscriber) {
+        return this.form.subscribe(this.path, subscriber);
+    }
 }
 export class ObjectField<T> {
     setForm(form: Form<any>) {
     }
+
+    getValue(): T {
+        return {} as any;
+    }
+
+    setValue(value: T) {
+    }
+
+    subscribe(subscriber: Subscriber) {
+    }
 }
 export class ArrayField<E> {
     setForm(form: Form<any>) {
+    }
+
+    getValue(): E[] {
+        return [];
+    }
+
+    setValue(value: E[]) {
+    }
+
+    subscribe(subscriber: Subscriber) {
     }
 }
 export type FormField = StringField | NumberField | ObjectField<any> | ArrayField<any>;
