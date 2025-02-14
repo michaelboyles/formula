@@ -25,7 +25,7 @@ export function Test1() {
     });
     const [a, setA] = useState(1)
 
-    const { value: title, setValue: setTitle } = useField(form.get("title"));
+    const { value: title, setValue: setTitle, Input: TitleInput } = useField(form.get("title"));
     const { value: numLikes } = useField(form.get("numLikes"));
 
     return (
@@ -34,7 +34,7 @@ export function Test1() {
             Title { title }
             Num Likes { numLikes }
 
-
+            <TitleInput />
             <button onClick={() => setTitle("New title")}>Set Title</button>
             <button onClick={() => setA(prev => prev + 1)}>Update { a }</button>
         </div>
