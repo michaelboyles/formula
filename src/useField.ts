@@ -17,9 +17,9 @@ export function useField(field: FormField): Return {
     const value = useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {
-            field.subscribe(onStoreChange);
-
+            const unsubscribe = field.subscribe(onStoreChange);
             return () => {
+                unsubscribe();
             }
         },
         // Get snapshot

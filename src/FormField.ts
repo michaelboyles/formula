@@ -61,6 +61,7 @@ export class ObjectField<T> {
     }
 
     subscribe(subscriber: Subscriber) {
+        return () => {};
     }
 }
 export class ArrayField<E> {
@@ -75,6 +76,7 @@ export class ArrayField<E> {
     }
 
     subscribe(subscriber: Subscriber) {
+        return () => {};
     }
 }
 export type FormField = StringField | NumberField | ObjectField<any> | ArrayField<any>;

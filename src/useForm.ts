@@ -47,6 +47,13 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
             p2s[path] = [];
         }
         p2s[path].push(subscriber);
+
+        return () => {
+            const p2s = pathToSubscriber.current;
+            if (p2s[path]) {
+                p2s[path] = p2s[path].filter(s => s !== subscriber);
+            }
+        }
     }, []);
 
     const form = useMemo(() => {
@@ -75,12 +82,12 @@ export class Form<T extends Record<string, FormField>> {
     fields: T
     _valueGetter: (path: string) => any
     _valueSetter: (path: string, value: any) => void
-    _subscribe: (path: string, subscriber: Subscriber) => void
+    _subscribe: (path: string, subscriber: Subscriber) => Unsubscribe
 
     constructor(fields: T,
                 valueGetter: (path: string) => any,
                 valueSetter: (path: string, value: any) => void,
-                subscribe: (path: string, subscriber: Subscriber) => void
+                subscribe: (path: string, subscriber: Subscriber) => Unsubscribe
     ) {
         this.fields = fields;
         this._valueGetter = valueGetter;
@@ -95,8 +102,8 @@ export class Form<T extends Record<string, FormField>> {
         return this.fields[a];
     }
 
-    subscribe(path: string, subscriber: Subscriber) {
-        this._subscribe(path, subscriber);
+    subscribe(path: string, subscriber: Subscriber): Unsubscribe {
+        return this._subscribe(path, subscriber);
     }
 
     getValue(path: string): any {
@@ -108,4 +115,5 @@ export class Form<T extends Record<string, FormField>> {
     }
 }
 
+export type Unsubscribe = () => void;
 export type Subscriber = () => void;
