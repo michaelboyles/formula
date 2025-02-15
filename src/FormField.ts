@@ -5,6 +5,7 @@ import {
     NumberElement,
     ObjectElement,
     SchemaElementSet,
+    SchemaValue,
     StringElement
 } from "./FormSchemaElement";
 import { FieldPath } from "./FieldPath";
@@ -73,7 +74,7 @@ export class ObjectField<T> {
         return () => {};
     }
 }
-export class ArrayField<E> {
+export class ArrayField<E extends FormSchemaElement> {
     path: FieldPath
     form: Form<any> | undefined
 
@@ -85,11 +86,11 @@ export class ArrayField<E> {
         this.form = form;
     }
 
-    getValue(): E[] {
+    getValue(): SchemaValue<E>[] {
         return this.form!.getValue(this.path);
     }
 
-    setValue(value: E[]) {
+    setValue(value: SchemaValue<E>[]) {
         return this.form!.setValue(this.path, value);
     }
 
