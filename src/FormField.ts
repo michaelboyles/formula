@@ -1,4 +1,4 @@
-import { Form, Subscriber } from "./useForm";
+import { Form } from "./useForm";
 import {
     ArrayElement,
     FormSchemaElement,
@@ -7,12 +7,14 @@ import {
     SchemaElementSet,
     StringElement
 } from "./FormSchemaElement";
+import { FieldPath } from "./FieldPath";
+import { Subscriber } from "./SubscriberSet";
 
 export class StringField {
-    path: string
+    path: FieldPath
     form: Form<any> | undefined
 
-    constructor(path: string) {
+    constructor(path: FieldPath) {
         this.path = path;
     }
 
@@ -33,10 +35,10 @@ export class StringField {
     }
 }
 export class NumberField {
-    path: string
+    path: FieldPath
     form: Form<any> | undefined
 
-    constructor(path: string) {
+    constructor(path: FieldPath) {
         this.path = path;
     }
 
@@ -72,10 +74,10 @@ export class ObjectField<T> {
     }
 }
 export class ArrayField<E> {
-    path: string
+    path: FieldPath
     form: Form<any> | undefined
 
-    constructor(path: string) {
+    constructor(path: FieldPath) {
         this.path = path;
     }
 

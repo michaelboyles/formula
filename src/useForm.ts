@@ -2,6 +2,8 @@ import { FormSchema } from "./lib";
 import { useCallback, useMemo, useRef } from "react";
 import { FormSchemaElement, SchemaElementSet, SchemaValue } from "./FormSchemaElement";
 import { ArrayField, FieldSetFromElementSet, FormField, NumberField, StringField } from "./FormField";
+import { FieldPath } from "./FieldPath";
+import { Subscriber, SubscriberSet, Unsubscribe } from "./SubscriberSet";
 
 type UseFormOpts<T extends SchemaElementSet> = {
     schema: FormSchema<T>
@@ -14,54 +16,63 @@ type InitialValues<T extends SchemaElementSet> = {
 
 export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<FieldSetFromElementSet<T>> {
     const data = useRef<Record<string, any>>({  });
-    const pathToSubscriber = useRef<Record<string, Subscriber[]>>({});
+    const subscriberSet = useRef<SubscriberSet>(new SubscriberSet());
 
     const { schema, getInitialValues } = opts;
 
-    const getValue = useCallback((path: string) => {
-        return data.current[path];
-    }, []);
-
-    const setValue = useCallback((path: string, value: any) => {
-        data.current[path] = value;
-
-        const subscribers = pathToSubscriber.current[path];
-        if (subscribers) {
-            subscribers.forEach(subscriber => {
-                subscriber()
-            })
-        }
-    }, []);
-
-    const subscribe = useCallback((path: string, subscriber: Subscriber) => {
-        const p2s = pathToSubscriber.current;
-        if (!p2s[path]) {
-            p2s[path] = [];
-        }
-        p2s[path].push(subscriber);
-
-        return () => {
-            const p2s = pathToSubscriber.current;
-            if (p2s[path]) {
-                p2s[path] = p2s[path].filter(s => s !== subscriber);
+    const getValue = useCallback((path: FieldPath) => {
+        let formData = data.current;
+        path.forEachNode(node => {
+            switch (node.type) {
+                case "property": {
+                    formData = formData[node.name];
+                }
             }
-        }
+        });
+        return formData;
+    }, []);
+
+    const setValue = useCallback((path: FieldPath, value: any) => {
+        let formData = data.current;
+        path.forEachNode((node, { isLast }) => {
+            if (!isLast) {
+                switch (node.type) {
+                    case "property": {
+                        formData = formData[node.name];
+                    }
+                }
+            }
+            else {
+                switch (node.type) {
+                    case "property": {
+                        formData[node.name] = value;
+                    }
+                }
+            }
+        });
+        subscriberSet.current.notify(path);
+    }, []);
+
+    const subscribe = useCallback((path: FieldPath, subscriber: Subscriber) => {
+        subscriberSet.current.subscribe(path, subscriber);
+        return () => subscriberSet.current.unsubscribe(path, subscriber);
     }, []);
 
     const form = useMemo(() => {
         data.current = getInitialValues();
 
         const fields: Record<string, FormField> = {};
+        let path = FieldPath.create();
         for (const [key, value] of Object.entries(schema.elements)) {
             const element = value as FormSchemaElement;
             if (element.type === "string") {
-                fields[key] = new StringField(key);
+                fields[key] = new StringField(path.withProperty(key));
             }
             else if (element.type === "number") {
-                fields[key] = new NumberField(key);
+                fields[key] = new NumberField(path.withProperty(key));
             }
             else if (element.type === "array") {
-                fields[key] = new ArrayField(key);
+                fields[key] = new ArrayField(path.withProperty(key));
             }
         }
         return new Form<FieldSetFromElementSet<T>>(
@@ -75,14 +86,14 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
 
 export class Form<T extends Record<string, FormField>> {
     fields: T
-    _valueGetter: (path: string) => any
-    _valueSetter: (path: string, value: any) => void
-    _subscribe: (path: string, subscriber: Subscriber) => Unsubscribe
+    _valueGetter: (path: FieldPath) => any
+    _valueSetter: (path: FieldPath, value: any) => void
+    _subscribe: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     constructor(fields: T,
-                valueGetter: (path: string) => any,
-                valueSetter: (path: string, value: any) => void,
-                subscribe: (path: string, subscriber: Subscriber) => Unsubscribe
+                valueGetter: (path: FieldPath) => any,
+                valueSetter: (path: FieldPath, value: any) => void,
+                subscribe: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
     ) {
         this.fields = fields;
         this._valueGetter = valueGetter;
@@ -97,18 +108,15 @@ export class Form<T extends Record<string, FormField>> {
         return this.fields[a];
     }
 
-    subscribe(path: string, subscriber: Subscriber): Unsubscribe {
+    subscribe(path: FieldPath, subscriber: Subscriber): Unsubscribe {
         return this._subscribe(path, subscriber);
     }
 
-    getValue(path: string): any {
+    getValue(path: FieldPath): any {
         return this._valueGetter(path);
     }
 
-    setValue(path: string, value: any) {
+    setValue(path: FieldPath, value: any) {
         return this._valueSetter(path, value);
     }
 }
-
-export type Unsubscribe = () => void;
-export type Subscriber = () => void;
