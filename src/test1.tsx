@@ -27,7 +27,7 @@ export function Test1() {
 
     const { value: title, setValue: setTitle, Input: TitleInput } = useField(form.get("title"));
     const { value: numLikes } = useField(form.get("numLikes"));
-
+    const { value: tags, setValue: setTags } = useField(form.get("tags"));
     return (
         <div>
             <h1>Test 1</h1>
@@ -37,6 +37,10 @@ export function Test1() {
             <TitleInput />
             <button onClick={() => setTitle("New title")}>Set Title</button>
             <button onClick={() => setA(prev => prev + 1)}>Update { a }</button>
+            <button onClick={() => setTags(["test"])}>Set tags</button>
+            {
+                tags.map(tag => <div>{ tag } { tag.length }</div>)
+            }
         </div>
     )
 }

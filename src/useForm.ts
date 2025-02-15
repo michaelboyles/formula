@@ -1,7 +1,7 @@
 import { FormSchema } from "./lib";
 import { useCallback, useMemo, useRef } from "react";
 import { ArrayElement, FormSchemaElement, NumberElement, ObjectElement, StringElement } from "./FormSchemaElement";
-import { FieldFromElem, FormField, NumberField, StringField } from "./FormField";
+import { ArrayField, FieldSetFromElementSet, FormField, NumberField, StringField } from "./FormField";
 
 type SchemaElementSet = Record<string, FormSchemaElement>;
 
@@ -10,7 +10,7 @@ type UseFormOpts<T extends SchemaElementSet> = {
     getInitialValues(): InitialValues<T>
 }
 
-type SchemaValue<T extends FormSchemaElement> =
+export type SchemaValue<T extends FormSchemaElement> =
     T extends StringElement ? string :
         T extends NumberElement ? number :
             T extends ObjectElement<infer O> ? { [K in keyof O]: SchemaValue<O[K]> }:
@@ -20,7 +20,7 @@ type InitialValues<T extends SchemaElementSet> = {
     [K in keyof T]: SchemaValue<T[K]>
 };
 
-export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<FieldFromElem<T>> {
+export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<FieldSetFromElementSet<T>> {
     const data = useRef<Record<string, any>>({  });
     const pathToSubscriber = useRef<Record<string, Subscriber[]>>({});
 
@@ -68,8 +68,11 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
             else if (element.type === "number") {
                 fields[key] = new NumberField(key);
             }
+            else if (element.type === "array") {
+                fields[key] = new ArrayField(key);
+            }
         }
-        return new Form<FieldFromElem<T>>(
+        return new Form<FieldSetFromElementSet<T>>(
             fields as any, getValue, setValue, subscribe
         );
 

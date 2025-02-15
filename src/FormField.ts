@@ -3,7 +3,7 @@ import { ArrayElement, NumberElement, ObjectElement, StringElement } from "./For
 
 export class StringField {
     path: string
-    form: Form<any>
+    form: Form<any> | undefined
 
     constructor(path: string) {
         this.path = path;
@@ -14,20 +14,20 @@ export class StringField {
     }
 
     getValue(): string {
-        return this.form.getValue(this.path);
+        return this.form!.getValue(this.path);
     }
 
     setValue(value: string) {
-        return this.form.setValue(this.path, value);
+        return this.form!.setValue(this.path, value);
     }
 
     subscribe(subscriber: Subscriber) {
-        return this.form.subscribe(this.path, subscriber);
+        return this.form!.subscribe(this.path, subscriber);
     }
 }
 export class NumberField {
     path: string
-    form: Form<any>
+    form: Form<any> | undefined
 
     constructor(path: string) {
         this.path = path;
@@ -38,15 +38,15 @@ export class NumberField {
     }
 
     getValue(): number {
-        return this.form.getValue(this.path);
+        return this.form!.getValue(this.path);
     }
 
     setValue(value: string) {
-        return this.form.setValue(this.path, value);
+        return this.form!.setValue(this.path, value);
     }
 
     subscribe(subscriber: Subscriber) {
-        return this.form.subscribe(this.path, subscriber);
+        return this.form!.subscribe(this.path, subscriber);
     }
 }
 export class ObjectField<T> {
@@ -65,26 +65,36 @@ export class ObjectField<T> {
     }
 }
 export class ArrayField<E> {
+    path: string
+    form: Form<any> | undefined
+
+    constructor(path: string) {
+        this.path = path;
+    }
+
     setForm(form: Form<any>) {
+        this.form = form;
     }
 
     getValue(): E[] {
-        return [];
+        return this.form!.getValue(this.path);
     }
 
     setValue(value: E[]) {
+        return this.form!.setValue(this.path, value);
     }
 
     subscribe(subscriber: Subscriber) {
-        return () => {};
+        return this.form!.subscribe(this.path, subscriber);
     }
 }
 export type FormField = StringField | NumberField | ObjectField<any> | ArrayField<any>;
 
-export type FieldFromElem<T> = {
-    [K in keyof T]:
-    T[K] extends StringElement ? StringField :
-        T[K] extends NumberElement ? NumberField :
-            T[K] extends ObjectElement<infer O> ? ObjectField<O> :
-                T[K] extends ArrayElement<infer A> ? ArrayField<A> : never
+export type FieldSetFromElementSet<T> = {
+    [K in keyof T]: FieldFromElement<T[K]>
 }
+
+export type FieldFromElement<T> = T extends StringElement ? StringField :
+    T extends NumberElement ? NumberField :
+        T extends ObjectElement<infer O> ? ObjectField<O> :
+            T extends ArrayElement<infer A> ? ArrayField<A> : never;
