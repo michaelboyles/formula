@@ -7,18 +7,18 @@ export class FormSchema<T extends Record<string, FormSchemaElement>> {
         this.elements = elements
     }
 
-    withString<K extends string>(key: K, elem: StringElement): FormSchema<T & Record<K, StringElement>> {
+    withString<K extends string>(key: K): FormSchema<T & Record<K, StringElement>> {
         if (this.elements[key]) {
             throw new Error("Trying to re-specify schema element with name " + key);
         }
-        return new FormSchema({ ...this.elements, [key]: elem });
+        return new FormSchema({ ...this.elements, [key]: { type: "string" }});
     }
 
-    withNumber<K extends string>(key: K, elem: NumberElement): FormSchema<T & Record<K, NumberElement>> {
+    withNumber<K extends string>(key: K): FormSchema<T & Record<K, NumberElement>> {
         if (this.elements[key]) {
             throw new Error("Trying to re-specify schema element with name " + key);
         }
-        return new FormSchema({ ...this.elements, [key]: elem });
+        return new FormSchema({ ...this.elements, [key]: { type: "number" }});
     }
 
     withArray<K extends string, E extends FormSchemaElement>(key: K, elem: ArrayElement<E>): FormSchema<T & Record<K, ArrayElement<E>>> {
@@ -57,8 +57,8 @@ function main() {
     }
 
     const schema = new FormSchema({})
-        .withString("a", { type: "string" })
-        .withNumber("b", { type: "number" })
+        .withString("a")
+        .withNumber("b")
         .withArray("c", arrayOfArrayOfStr)
         .withObject("d", obj);
 

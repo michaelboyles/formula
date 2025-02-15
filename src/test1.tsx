@@ -4,8 +4,8 @@ import { useForm } from "./useForm";
 import { useState } from "react";
 
 const schema = new FormSchema({})
-    .withString("title", { type: "string" })
-    .withNumber("numLikes", { type: "number" })
+    .withString("title")
+    .withNumber("numLikes")
     .withArray("tags", { type: "array", item: { type: "string" } })
     .withObject("meta", { type: "object", properties: {
         createdAt: { type: "string" },
