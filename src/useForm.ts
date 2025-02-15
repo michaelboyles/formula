@@ -1,20 +1,12 @@
 import { FormSchema } from "./lib";
 import { useCallback, useMemo, useRef } from "react";
-import { ArrayElement, FormSchemaElement, NumberElement, ObjectElement, StringElement } from "./FormSchemaElement";
+import { FormSchemaElement, SchemaElementSet, SchemaValue } from "./FormSchemaElement";
 import { ArrayField, FieldSetFromElementSet, FormField, NumberField, StringField } from "./FormField";
-
-type SchemaElementSet = Record<string, FormSchemaElement>;
 
 type UseFormOpts<T extends SchemaElementSet> = {
     schema: FormSchema<T>
     getInitialValues(): InitialValues<T>
 }
-
-export type SchemaValue<T extends FormSchemaElement> =
-    T extends StringElement ? string :
-        T extends NumberElement ? number :
-            T extends ObjectElement<infer O> ? { [K in keyof O]: SchemaValue<O[K]> }:
-                T extends ArrayElement<infer A> ? SchemaValue<A>[] : never;
 
 type InitialValues<T extends SchemaElementSet> = {
     [K in keyof T]: SchemaValue<T[K]>

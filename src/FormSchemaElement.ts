@@ -13,3 +13,11 @@ export type ObjectElement<T extends Record<string, FormSchemaElement>> = {
     properties: T
 }
 export type FormSchemaElement = StringElement | NumberElement | ArrayElement<any> | ObjectElement<any>;
+
+export type SchemaElementSet = Record<string, FormSchemaElement>;
+
+export type SchemaValue<T extends FormSchemaElement> =
+    T extends StringElement ? string :
+        T extends NumberElement ? number :
+            T extends ObjectElement<infer O> ? { [K in keyof O]: SchemaValue<O[K]> }:
+                T extends ArrayElement<infer A> ? SchemaValue<A>[] : never;

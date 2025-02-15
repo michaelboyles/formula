@@ -1,7 +1,6 @@
 import { ReactNode, useCallback, useSyncExternalStore } from "react";
 import { ArrayField, FormField, NumberField, StringField } from "./FormField";
-import { FormSchemaElement } from "./FormSchemaElement";
-import { SchemaValue } from "./useForm";
+import { FormSchemaElement, SchemaValue } from "./FormSchemaElement";
 
 type StringReturn = {
     value: string
