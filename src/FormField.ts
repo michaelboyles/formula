@@ -1,5 +1,12 @@
 import { Form, Subscriber } from "./useForm";
-import { ArrayElement, NumberElement, ObjectElement, StringElement } from "./FormSchemaElement";
+import {
+    ArrayElement,
+    FormSchemaElement,
+    NumberElement,
+    ObjectElement,
+    SchemaElementSet,
+    StringElement
+} from "./FormSchemaElement";
 
 export class StringField {
     path: string
@@ -90,11 +97,11 @@ export class ArrayField<E> {
 }
 export type FormField = StringField | NumberField | ObjectField<any> | ArrayField<any>;
 
-export type FieldSetFromElementSet<T> = {
+export type FieldSetFromElementSet<T extends SchemaElementSet> = {
     [K in keyof T]: FieldFromElement<T[K]>
 }
 
-export type FieldFromElement<T> = T extends StringElement ? StringField :
+export type FieldFromElement<T extends FormSchemaElement> = T extends StringElement ? StringField :
     T extends NumberElement ? NumberField :
         T extends ObjectElement<infer O> ? ObjectField<O> :
             T extends ArrayElement<infer A> ? ArrayField<A> : never;
