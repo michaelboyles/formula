@@ -26,6 +26,11 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
             switch (node.type) {
                 case "property": {
                     formData = formData[node.name];
+                    break;
+                }
+                case "index": {
+                    formData = formData[node.index];
+                    break;
                 }
             }
         });
@@ -39,6 +44,11 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
                 switch (node.type) {
                     case "property": {
                         formData = formData[node.name];
+                        break;
+                    }
+                    case "index": {
+                        formData = formData[node.index];
+                        break;
                     }
                 }
             }
@@ -46,6 +56,11 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
                 switch (node.type) {
                     case "property": {
                         formData[node.name] = value;
+                        break;
+                    }
+                    case "index": {
+                        formData[node.index] = value;
+                        break;
                     }
                 }
             }
@@ -65,15 +80,7 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
         let path = FieldPath.create();
         for (const [key, value] of Object.entries(schema.elements)) {
             const element = value as FormSchemaElement;
-            if (element.type === "string") {
-                fields[key] = new StringField(path.withProperty(key));
-            }
-            else if (element.type === "number") {
-                fields[key] = new NumberField(path.withProperty(key));
-            }
-            else if (element.type === "array") {
-                fields[key] = new ArrayField(path.withProperty(key));
-            }
+            fields[key] = mapElementToField(element, path.withProperty(key));
         }
         return new Form<FieldSetFromElementSet<T>>(
             fields as any, getValue, setValue, subscribe
@@ -82,6 +89,23 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
     }, [schema]);
 
     return form;
+}
+
+function mapElementToField(element: FormSchemaElement, path: FieldPath): FormField {
+    if (element.type === "string") {
+        return new StringField(path);
+    }
+    else if (element.type === "number") {
+        return new NumberField(path);
+    }
+    else if (element.type === "array") {
+        return new ArrayField(path, idx => mapElementToField(element.item, path.withArrayIndex(idx)));
+    }
+    else if (element.type === "object") {
+        // TODO 2
+        return new StringField(path);
+    }
+    throw new Error(`Unsupported element: ${element satisfies never}`);
 }
 
 export class Form<T extends Record<string, FormField>> {

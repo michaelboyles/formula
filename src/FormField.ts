@@ -74,12 +74,16 @@ export class ObjectField<T> {
         return () => {};
     }
 }
+
+type ArrayElemFactory<E> = (idx: number) => E;
 export class ArrayField<E extends FormSchemaElement> {
     path: FieldPath
     form: Form<any> | undefined
+    elementFactory: ArrayElemFactory<FieldFromElement<E>>
 
-    constructor(path: FieldPath) {
+    constructor(path: FieldPath, elementFactory: ArrayElemFactory<FieldFromElement<E>>) {
         this.path = path;
+        this.elementFactory = elementFactory;
     }
 
     setForm(form: Form<any>) {
@@ -96,6 +100,12 @@ export class ArrayField<E extends FormSchemaElement> {
 
     subscribe(subscriber: Subscriber) {
         return this.form!.subscribe(this.path, subscriber);
+    }
+
+    element(idx: number): FieldFromElement<E> {
+        const field = this.elementFactory(idx);
+        field.setForm(this.form!);
+        return field;
     }
 }
 export type FormField = StringField | NumberField | ObjectField<any> | ArrayField<any>;

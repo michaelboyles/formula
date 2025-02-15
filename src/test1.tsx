@@ -2,6 +2,9 @@ import { FormSchema } from "./lib";
 import { useField } from "./useField";
 import { useForm } from "./useForm";
 import { useState } from "react";
+import { useElements } from "./useElements";
+import { ArrayField, StringField } from "./FormField";
+import { StringElement } from "./FormSchemaElement";
 
 const schema = new FormSchema({})
     .withString("title")
@@ -41,6 +44,25 @@ export function Test1() {
             {
                 tags.map(tag => <div>{ tag } { tag.length }</div>)
             }
+
+            <Tags field={form.get("tags")} />
         </div>
+    )
+}
+
+function Tags(props: { field: ArrayField<StringElement> }) {
+    const elemns = useElements(props.field);
+    return (
+        <>
+            <h2>Tags</h2>
+            { elemns.map(((e, idx) => <Tag key={idx} a={e} />) )}
+        </>
+    );
+}
+
+function Tag(props: { a: StringField }) {
+    const { Input: TagInput } = useField(props.a);
+    return (
+        <div>Tag: <TagInput /></div>
     )
 }

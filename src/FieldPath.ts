@@ -13,6 +13,10 @@ export class FieldPath {
         return new FieldPath([...this.#nodes, { type: "property", name }]);
     }
 
+    withArrayIndex(index: number): FieldPath {
+        return new FieldPath([...this.#nodes, { type: "index", index }])
+    }
+
     toString(): string {
         return JSON.stringify(this.#nodes);
     }
@@ -23,6 +27,9 @@ export class FieldPath {
 }
 
 export type FieldNode = {
-    type: "property",
-    name: string
+    readonly type: "property",
+    readonly name: string
+} | {
+    readonly type: "index"
+    readonly index: number
 }

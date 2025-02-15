@@ -8,10 +8,20 @@ export class SubscriberSet {
         path.forEachNode(pathPart => {
             switch (pathPart.type) {
                 case "property": {
-                    if (!node.propertyToNode[pathPart.name]) {
-                        node.propertyToNode[pathPart.name] = emptySubscriptionNode();
+                    const name = pathPart.name;
+                    if (!node.propertyToNode[name]) {
+                        node.propertyToNode[name] = emptySubscriptionNode();
                     }
-                    node = node.propertyToNode[pathPart.name];
+                    node = node.propertyToNode[name];
+                    break;
+                }
+                case "index": {
+                    const index = pathPart.index;
+                    if (!node.indexToNode[index]) {
+                        node.indexToNode[index] = emptySubscriptionNode();
+                    }
+                    node = node.indexToNode[index];
+                    break;
                 }
             }
         });
@@ -34,6 +44,19 @@ export class SubscriberSet {
                             node.subscribers = node.subscribers.filter(s => s !== subscriber)
                         }
                     }
+                    break;
+                }
+                case "index": {
+                    if (!node.indexToNode[pathPart.index]) {
+                        stop = true;
+                    }
+                    else {
+                        node = node.indexToNode[pathPart.index];
+                        if (isLast) {
+                            node.subscribers = node.subscribers.filter(s => s !== subscriber)
+                        }
+                    }
+                    break;
                 }
             }
         });
@@ -49,6 +72,11 @@ export class SubscriberSet {
             switch (pathPart.type) {
                 case "property": {
                     currentNode = currentNode.propertyToNode[pathPart.name];
+                    break;
+                }
+                case "index": {
+                    currentNode = currentNode.indexToNode[pathPart.index];
+                    break;
                 }
             }
             if (currentNode) {
@@ -61,12 +89,14 @@ export class SubscriberSet {
 function emptySubscriptionNode(): SubscriptionNode {
     return {
         propertyToNode: {},
+        indexToNode: {},
         subscribers: []
     }
 }
 
 type SubscriptionNode = {
     propertyToNode: Record<string, SubscriptionNode>
+    indexToNode: Record<number, SubscriptionNode>
     subscribers: Subscriber[]
 }
 
