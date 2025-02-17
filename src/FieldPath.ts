@@ -1,5 +1,5 @@
 export class FieldPath {
-    #nodes: FieldNode[];
+    readonly #nodes: FieldNode[];
 
     constructor(nodes: FieldNode[]) {
         this.#nodes = nodes;
@@ -10,15 +10,49 @@ export class FieldPath {
     }
 
     withProperty(name: string): FieldPath {
-        return new FieldPath([...this.#nodes, { type: "property", name }]);
+        const node: FieldNode = Object.freeze({ type: "property", name });
+        return new FieldPath([...this.#nodes, node]);
     }
 
     withArrayIndex(index: number): FieldPath {
-        return new FieldPath([...this.#nodes, { type: "index", index }])
+        const node: FieldNode = Object.freeze({ type: "index", index });
+        return new FieldPath([...this.#nodes, node]);
     }
 
     toString(): string {
-        return JSON.stringify(this.#nodes);
+        let str = "<root>";
+        for (const node of this.#nodes) {
+            if (node.type === "property") {
+                str += `.${node.name}`;
+            }
+            else if (node.type === "index") {
+                str += `[${node.index}]`;
+            }
+        }
+        return str;
+    }
+
+    getData(root: any): any {
+        let data = root;
+        for (const node of this.#nodes) {
+            switch (node.type) {
+                case "property": {
+                    if (typeof data !== "object") {
+                        throw new Error("Not an object")
+                    }
+                    data = data[node.name];
+                    break;
+                }
+                case "index": {
+                    if (!Array.isArray(data)) {
+                        throw new Error("Not an array");
+                    }
+                    data = data[node.index];
+                    break;
+                }
+            }
+        }
+        return data;
     }
 
     forEachNode(iterator: (node: FieldNode, meta: { isLast: boolean }) => void) {

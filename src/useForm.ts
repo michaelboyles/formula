@@ -20,22 +20,7 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
 
     const { schema, getInitialValues } = opts;
 
-    const getValue = useCallback((path: FieldPath) => {
-        let formData = data.current;
-        path.forEachNode(node => {
-            switch (node.type) {
-                case "property": {
-                    formData = formData[node.name];
-                    break;
-                }
-                case "index": {
-                    formData = formData[node.index];
-                    break;
-                }
-            }
-        });
-        return formData;
-    }, []);
+    const getValue = useCallback((path: FieldPath) => path.getData(data.current), []);
 
     const setValue = useCallback((path: FieldPath, value: any) => {
         let formData = data.current;
