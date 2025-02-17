@@ -1,14 +1,4 @@
-import {
-    array,
-    ArrayElement,
-    FormSchemaElement,
-    NumberElement,
-    object,
-    ObjectElement,
-    ObjectSchema,
-    string,
-    StringElement
-} from "./FormSchemaElement";
+import { array, FormSchemaElement, number, object, string, } from "./FormSchemaElement";
 
 export class FormSchema<T extends Record<string, FormSchemaElement>> {
     elements: T
@@ -17,32 +7,11 @@ export class FormSchema<T extends Record<string, FormSchemaElement>> {
         this.elements = elements
     }
 
-    withString<K extends string>(key: K): FormSchema<T & Record<K, StringElement>> {
+    with<K extends string, F extends FormSchemaElement>(key: K, field: F): FormSchema<T & Record<K, F>> {
         if (this.elements[key]) {
             throw new Error("Trying to re-specify schema element with name " + key);
         }
-        return new FormSchema({ ...this.elements, [key]: { type: "string" }});
-    }
-
-    withNumber<K extends string>(key: K): FormSchema<T & Record<K, NumberElement>> {
-        if (this.elements[key]) {
-            throw new Error("Trying to re-specify schema element with name " + key);
-        }
-        return new FormSchema({ ...this.elements, [key]: { type: "number" }});
-    }
-
-    withArray<K extends string, E extends FormSchemaElement>(key: K, elem: ArrayElement<E>): FormSchema<T & Record<K, ArrayElement<E>>> {
-        if (this.elements[key]) {
-            throw new Error("Trying to re-specify schema element with name " + key);
-        }
-        return new FormSchema({ ...this.elements, [key]: elem });
-    }
-
-    withObject<K extends string, O extends ObjectElement<ObjectSchema>>(key: K, elem: O): FormSchema<T & Record<K, O>> {
-        if (this.elements[key]) {
-            throw new Error("Trying to re-specify schema element with name " + key);
-        }
-        return new FormSchema({ ...this.elements, [key]: elem });
+        return new FormSchema({ ...this.elements, [key]: field });
     }
 
     get<K extends keyof T>(a: K): T[K] {
@@ -59,10 +28,10 @@ function main() {
     });
 
     const schema = new FormSchema({})
-        .withString("a")
-        .withNumber("b")
-        .withArray("c", arrayOfArrayOfStr)
-        .withObject("d", obj);
+        .with("a", string())
+        .with("b", number())
+        .with("c", arrayOfArrayOfStr)
+        .with("d", obj);
 
     const a = schema.get("a");
     const b = schema.get("b");

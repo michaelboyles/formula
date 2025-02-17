@@ -4,7 +4,7 @@ import { useForm } from "./useForm";
 import { useState } from "react";
 import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
-import { array, object, string, StringElement } from "./FormSchemaElement";
+import { array, number, object, string, StringElement } from "./FormSchemaElement";
 import { Input } from "./Input";
 
 const category = object({
@@ -13,10 +13,10 @@ const category = object({
 });
 
 const schema = new FormSchema({})
-    .withString("title")
-    .withNumber("numLikes")
-    .withArray("tags", array(string()))
-    .withObject("category", category);
+    .with("title", string())
+    .with("numLikes", number())
+    .with("tags", array(string()))
+    .with("category", category);
 
 export function Test1() {
     const form = useForm({
