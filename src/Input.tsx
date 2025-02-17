@@ -1,11 +1,12 @@
 import { FormField, StringField } from "./FormField";
-import { useCallback, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
-export function useInput(field: StringField) {
-    return useCallback(() => {
-        const value = useSyncFormValue(field);
-        return <input type="text" onChange={(e) => field.setValue(e.target.value)} value={value} />
-    }, [field])
+export type Props = {
+    field: StringField
+}
+export function Input({ field }: Props) {
+    const value = useSyncFormValue(field);
+    return <input type="text" onChange={(e) => field.setValue(e.target.value)} value={value} />
 }
 
 function useSyncFormValue(field: FormField) {

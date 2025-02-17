@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
 import { StringElement } from "./FormSchemaElement";
-import { useInput } from "./useInput";
+import { Input } from "./Input";
 
 const schema = new FormSchema({})
     .withString("title")
@@ -33,14 +33,13 @@ export function Test1() {
     const { value: numLikes } = useField(form.get("numLikes"));
     const { value: tags, setValue: setTags } = useField(form.get("tags"));
 
-    const TitleInput = useInput(form.get("title"));
     return (
         <div>
             <h1>Test 1</h1>
             Title { title }
             Num Likes { numLikes }
 
-            <TitleInput />
+            <Input field={form.get("title")} />
             <button onClick={() => setTitle("New title")}>Set Title</button>
             <button onClick={() => setA(prev => prev + 1)}>Update { a }</button>
             <button onClick={() => setTags(["test"])}>Set tags</button>
@@ -58,14 +57,13 @@ function Tags(props: { field: ArrayField<StringElement> }) {
     return (
         <>
             <h2>Tags</h2>
-            { elemns.map(((e, idx) => <Tag key={idx} a={e} />) )}
+            { elemns.map(((tag, idx) => <Tag key={idx} field={tag} />) )}
         </>
     );
 }
 
-function Tag(props: { a: StringField }) {
-    const TagInput = useInput(props.a);
+function Tag(props: { field: StringField }) {
     return (
-        <div>Tag: <TagInput /></div>
+        <div>Tag: <Input field={props.field} /></div>
     )
 }
