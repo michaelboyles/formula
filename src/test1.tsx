@@ -44,7 +44,10 @@ export function Test1() {
     const { value } = useField(createdAt);
 
     return (
-        <div>
+        <form onSubmit={e => {
+            e.preventDefault();
+            console.log(form.getData())
+        }}>
             <h1>Test 1</h1>
             Title { title }
             Num Likes { numLikes }
@@ -60,7 +63,9 @@ export function Test1() {
             <label>Created at <Input field={createdAt} /></label>
             <label>Public? <Checkbox field={form.get("isPublic")}/></label>
             <Tags field={form.get("tags")}/>
-        </div>
+
+            <button type="submit">Submit</button>
+        </form>
     )
 }
 

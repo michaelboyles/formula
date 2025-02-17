@@ -1,5 +1,10 @@
 import { useCallback, useMemo, useRef } from "react";
-import { FormSchemaElement, ObjectSchema, SchemaElementSet, SchemaValue } from "./FormSchemaElement";
+import {
+    FormSchemaElement,
+    ObjectSchema,
+    SchemaElementSet,
+    SchemaValue,
+} from "./FormSchemaElement";
 import {
     ArrayField,
     BooleanField,
@@ -15,15 +20,15 @@ import { FormSchema } from "./FormSchema";
 
 type UseFormOpts<T extends SchemaElementSet> = {
     schema: FormSchema<T>
-    getInitialValues(): InitialValues<T>
+    getInitialValues(): FormData<T>
 }
 
-type InitialValues<T extends SchemaElementSet> = {
+type FormData<T extends SchemaElementSet> = {
     [K in keyof T]: SchemaValue<T[K]>
 };
 
-export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<FieldSetFromElementSet<T>> {
-    const data = useRef<Record<string, any>>({  });
+export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<FormData<T>, FieldSetFromElementSet<T>> {
+    const data = useRef<FormData<T>>({} as any);
     const subscriberSet = useRef<SubscriberSet>(new SubscriberSet());
 
     const { schema, getInitialValues } = opts;
@@ -59,6 +64,9 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
         return {
             get(key: any) {
                 return fields[key as string] as any;
+            },
+            getData() {
+                return data.current;
             }
         };
     }, [schema]);
@@ -94,8 +102,10 @@ function mapElementToField(element: FormSchemaElement, path: FieldPath): FormFie
     throw new Error(`Unsupported element: ${element satisfies never}`);
 }
 
-export type Form<T extends Record<string, FormField>> = {
+export type Form<D, T extends Record<string, FormField>> = {
     get<K extends keyof T>(key: K): T[K]
+
+    getData(): D
 }
 
 export type FormAccess = {
