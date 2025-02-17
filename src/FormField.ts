@@ -22,11 +22,11 @@ export class FormField<Value = any> {
     }
 
     getValue(): Value {
-        return this._form!.getValue(this._path);
+        return this._getForm().getValue(this._path);
     }
 
     setValue(value: Value) {
-        return this._form!.setValue(this._path, value);
+        return this._getForm().setValue(this._path, value);
     }
 
     setForm(form: Form<any>) {
@@ -34,7 +34,15 @@ export class FormField<Value = any> {
     }
 
     subscribe(subscriber: Subscriber) {
-        return this._form!.subscribe(this._path, subscriber);
+        return this._getForm().subscribe(this._path, subscriber);
+    }
+
+    _getForm(): Form<any> {
+        const form = this._form;
+        if (!form) {
+            throw new Error("Form is not set for field " + this._path.toString());
+        }
+        return form;
     }
 }
 
@@ -65,7 +73,7 @@ export class ObjectField<T extends ObjectSchema> extends FormField<SchemaValueFo
             throw new Error("No such key " + attemptedPath.toString());
         }
         const element = factory();
-        element.setForm(this._form!);
+        element.setForm(this._getForm());
         return element;
     }
 }
@@ -81,7 +89,7 @@ export class ArrayField<E extends FormSchemaElement> extends FormField<SchemaVal
 
     element(idx: number): FieldFromElement<E> {
         const field = this.elementFactory(idx);
-        field.setForm(this._form!);
+        field.setForm(this._getForm());
         return field;
     }
 }
