@@ -12,7 +12,7 @@ const category = object({
     subcategories: () => array(category)
 });
 
-const schema = new FormSchema({})
+const schema = FormSchema.create()
     .with("title", string())
     .with("isPublic", boolean())
     .with("numLikes", number())

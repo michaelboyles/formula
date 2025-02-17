@@ -1,4 +1,4 @@
-import { array, FormSchemaElement, number, object, string, } from "./FormSchemaElement";
+import { array, number, object, string, } from "./FormSchemaElement";
 import { FormSchema } from "./FormSchema";
 
 function main() {
@@ -9,7 +9,7 @@ function main() {
         "b": arrayOfArrayOfStr
     });
 
-    const schema = new FormSchema({})
+    const schema = FormSchema.create()
         .with("a", string())
         .with("b", number())
         .with("c", arrayOfArrayOfStr)
