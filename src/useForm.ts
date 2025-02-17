@@ -1,6 +1,14 @@
 import { useCallback, useMemo, useRef } from "react";
 import { FormSchemaElement, ObjectSchema, SchemaElementSet, SchemaValue } from "./FormSchemaElement";
-import { ArrayField, FieldSetFromElementSet, FormField, NumberField, ObjectField, StringField } from "./FormField";
+import {
+    ArrayField,
+    BooleanField,
+    FieldSetFromElementSet,
+    FormField,
+    NumberField,
+    ObjectField,
+    StringField
+} from "./FormField";
 import { FieldPath } from "./FieldPath";
 import { Subscriber, SubscriberSet, Unsubscribe } from "./SubscriberSet";
 import { FormSchema } from "./FormSchema";
@@ -67,6 +75,9 @@ function mapElementToField(element: FormSchemaElement, path: FieldPath): FormFie
     }
     else if (element.type === "number") {
         return new NumberField(path);
+    }
+    else if (element.type === "bool") {
+        return new BooleanField(path);
     }
     else if (element.type === "array") {
         return new ArrayField(path, idx => mapElementToField(element.item, path.withArrayIndex(idx)));

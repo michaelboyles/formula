@@ -1,15 +1,15 @@
-import { StringField } from "./FormField";
+import { BooleanField } from "./FormField";
 import { useSyncExternalStore } from "react";
 
 export type Props = {
-    field: StringField
+    field: BooleanField
 }
-export function Input({ field }: Props) {
+export function Checkbox({ field }: Props) {
     const value = useSyncFormValue(field);
-    return <input type="text" onChange={e => field.setValue(e.target.value)} value={value} />
+    return <input type="checkbox" onChange={e => field.setValue(e.target.checked)} checked={value} />
 }
 
-function useSyncFormValue(field: StringField) {
+function useSyncFormValue(field: BooleanField) {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {

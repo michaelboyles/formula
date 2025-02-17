@@ -1,11 +1,11 @@
 import { useField } from "./useField";
 import { useForm } from "./useForm";
-import { useState } from "react";
 import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
-import { array, number, object, string, StringElement } from "./FormSchemaElement";
+import { array, boolean, number, object, string, StringElement } from "./FormSchemaElement";
 import { Input } from "./Input";
 import { FormSchema } from "./FormSchema";
+import { Checkbox } from "./Checkbox";
 
 const category = object({
     name: string(),
@@ -14,6 +14,7 @@ const category = object({
 
 const schema = new FormSchema({})
     .with("title", string())
+    .with("isPublic", boolean())
     .with("numLikes", number())
     .with("tags", array(string()))
     .with("category", category);
@@ -23,6 +24,7 @@ export function Test1() {
         schema,
         getInitialValues: () => ({
             title: "My Blog Post",
+            isPublic: true,
             numLikes: 10,
             tags: ["news", "something"],
             category: {
@@ -33,7 +35,6 @@ export function Test1() {
             }
         })
     });
-    const [a, setA] = useState(1)
 
     const { value: title, setValue: setTitle } = useField(form.get("title"));
     const { value: numLikes } = useField(form.get("numLikes"));
@@ -57,7 +58,8 @@ export function Test1() {
             }
 
             <label>Created at <Input field={createdAt} /></label>
-            <Tags field={form.get("tags")} />
+            <label>Public? <Checkbox field={form.get("isPublic")}/></label>
+            <Tags field={form.get("tags")}/>
         </div>
     )
 }

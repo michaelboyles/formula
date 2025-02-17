@@ -56,6 +56,11 @@ export class NumberField extends FormField<number> {
         super(path);
     }
 }
+export class BooleanField extends FormField<boolean> {
+    constructor(path: FieldPath) {
+        super(path);
+    }
+}
 
 type ObjectPropertyFactories<T extends ObjectSchema> = { [K in keyof T]: () => FieldFromElement<T[K]> };
 export class ObjectField<T extends ObjectSchema> extends FormField<SchemaValueForObject<T>>{
