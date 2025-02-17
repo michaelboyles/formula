@@ -20,7 +20,7 @@ export class FieldPath {
     }
 
     toString(): string {
-        let str = "<root>";
+        let str = "<form>";
         for (const node of this.#nodes) {
             if (node.type === "property") {
                 str += `.${node.name}`;

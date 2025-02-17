@@ -60,3 +60,10 @@ describe("getDataWithValue", () => {
         expect(initial[2]).toBe(result[2]);
     })
 })
+
+describe("toString", () => {
+    test("basic", () => {
+        const path = FieldPath.create().withProperty("foo").withArrayIndex(1);
+        expect(path.toString()).toStrictEqual("<form>.foo[1]")
+    })
+})
