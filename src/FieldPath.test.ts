@@ -1,33 +1,62 @@
 import { test, expect, describe } from 'vitest';
 import { FieldPath } from "./FieldPath";
 
-describe("getData", () => {
+describe("getValue", () => {
     test('Single object property', () => {
         const path = FieldPath.create().withProperty("foo");
-        expect(path.getData({ foo: "bar" })).toBe("bar");
+        expect(path.getValue({ foo: "bar" })).toBe("bar");
     })
 
-    test('Multiple object properties', () => {
+    test("Multiple object properties", () => {
         const path = FieldPath.create().withProperty("foo").withProperty("bar");
-        expect(path.getData({ foo: { bar: "baz" } })).toBe("baz");
+        expect(path.getValue({ foo: { bar: "baz" } })).toBe("baz");
     })
 
-    test('Single array index', () => {
+    test("Single array index", () => {
         const path = FieldPath.create().withArrayIndex(1);
-        expect(path.getData(["a", "B", "c"])).toBe("B");
+        expect(path.getValue(["a", "B", "c"])).toBe("B");
     })
-
-
 })
 
-describe("getData for invalid path", () => {
-    test('Object property for number', () => {
+describe("getValue for invalid path", () => {
+    test("Object property for number", () => {
         const path = FieldPath.create().withProperty("foo");
-        expect(() => path.getData(3)).toThrow();
+        expect(() => path.getValue(3)).toThrow();
     })
 
-    test('Array index for number', () => {
+    test("Array index for number", () => {
         const path = FieldPath.create().withArrayIndex(1);
-        expect(() => path.getData(3)).toThrow();
+        expect(() => path.getValue(3)).toThrow();
+    })
+})
+
+describe("getDataWithValue", () => {
+    test("Set object property", () => {
+        const path = FieldPath.create().withProperty("foo");
+
+        const initial = {foo: "bar"};
+        const result = path.getDataWithValue(initial, "baz");
+        expect(result).toStrictEqual({ foo: "baz"});
+        expect(result).toSatisfy(() => initial !== result);
+    })
+
+    test("Set array index", () => {
+        const path = FieldPath.create().withArrayIndex(1);
+
+        const initial = ["a", "X", "c"];
+        const result = path.getDataWithValue(initial, "B");
+        expect(result).toStrictEqual(["a", "B", "c"]);
+        expect(result).toSatisfy(() => initial !== result);
+    })
+
+    test("Set nested array index", () => {
+        const path = FieldPath.create().withArrayIndex(1).withArrayIndex(0);
+
+        const initial = [["a"], ["b", "c"], ["d"]];
+        const result = path.getDataWithValue(initial, "X");
+        expect(result).toStrictEqual([["a"], ["X", "c"], ["d"]]);
+        expect(result).toSatisfy(() => initial !== result);
+        expect(initial[0]).toBe(result[0]);
+        expect(initial[2]).toBe(result[2]);
     })
 })

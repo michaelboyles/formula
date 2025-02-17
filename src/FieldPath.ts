@@ -32,27 +32,54 @@ export class FieldPath {
         return str;
     }
 
-    getData(root: any): any {
+    getValue(root: any): any {
         let data = root;
         for (const node of this.#nodes) {
-            switch (node.type) {
-                case "property": {
-                    if (typeof data !== "object") {
-                        throw new Error("Not an object")
-                    }
-                    data = data[node.name];
-                    break;
-                }
-                case "index": {
-                    if (!Array.isArray(data)) {
-                        throw new Error("Not an array");
-                    }
-                    data = data[node.index];
-                    break;
-                }
-            }
+            data = FieldPath.#getValue(data, node)
         }
         return data;
+    }
+
+    static #getValue(data: any, node: FieldNode): any {
+        switch (node.type) {
+            case "property": {
+                if (typeof data !== "object") {
+                    throw new Error("Not an object")
+                }
+                return data[node.name];
+            }
+            case "index": {
+                if (!Array.isArray(data)) {
+                    throw new Error("Not an array");
+                }
+                return data[node.index];
+            }
+            default: {
+                throw new Error(`Unknown node type ${node satisfies never}`);
+            }
+        }
+    }
+
+    // Produce a new copy of the given data, but with the value at the specified path. This will replace the objects
+    // along the path with new values (i.e. changing an object property will produce a new object), but will not copy
+    // elements in the tree which haven't changed.
+    getDataWithValue(data: any, newValue: any): any {
+        return this.#getDataWithValue(data, newValue, 0);
+    }
+
+    #getDataWithValue(data: any, newValue: any, nodeIdx: number): any {
+        if (nodeIdx === this.#nodes.length) return newValue;
+        const node = this.#nodes[nodeIdx];
+        const newPart = this.#getDataWithValue(FieldPath.#getValue(data, node), newValue, nodeIdx + 1);
+
+        if (node.type === "property") {
+            return {...data, [node.name]: newPart};
+        }
+        else if (node.type === "index") {
+            const arr: any[] = data;
+            return [...data.slice(0, node.index), newPart, ...data.slice(node.index + 1, arr.length)];
+        }
+        throw new Error(`Unknown node type ${node satisfies never}`);
     }
 
     forEachNode(iterator: (node: FieldNode, meta: { isLast: boolean }) => void) {
