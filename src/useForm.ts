@@ -43,23 +43,24 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
     const form = useMemo(() => {
         data.current = getInitialValues();
 
+        const formAccess: FormAccess = {
+            getValue: getValue,
+            setValue: setValue,
+            subscribe: subscribe
+        }
+
         const fields: Record<string, FormField> = {};
         let path = FieldPath.create();
         for (const [key, value] of Object.entries(schema.elements)) {
             const element = value as FormSchemaElement;
             fields[key] = mapElementToField(element, path.withProperty(key));
+            fields[key].setFormAccess(formAccess);
         }
-
-        const form: Form<FieldSetFromElementSet<T>> = {
-            get(key) {
+        return {
+            get(key: any) {
                 return fields[key as string] as any;
-            },
-            getValue,
-            setValue,
-            subscribe
-        }
-        Object.values(fields).forEach(field => field.setForm(form));
-        return form;
+            }
+        };
     }, [schema]);
 
     return form;
@@ -94,8 +95,10 @@ function mapElementToField(element: FormSchemaElement, path: FieldPath): FormFie
 }
 
 export type Form<T extends Record<string, FormField>> = {
-    get<K extends keyof T>(key: K): T[K];
+    get<K extends keyof T>(key: K): T[K]
+}
 
+export type FormAccess = {
     subscribe(path: FieldPath, subscriber: Subscriber): Unsubscribe;
 
     getValue(path: FieldPath): any;

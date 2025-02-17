@@ -1,4 +1,4 @@
-import { Form } from "./useForm";
+import { FormAccess } from "./useForm";
 import {
     ArrayElement,
     FormSchemaElement,
@@ -15,29 +15,29 @@ import { Subscriber } from "./SubscriberSet";
 
 export class FormField<Value = any> {
     readonly _path: FieldPath
-    _form: Form<any> | undefined
+    _form: FormAccess | undefined
 
     constructor(path: FieldPath) {
         this._path = path;
     }
 
     getValue(): Value {
-        return this._getForm().getValue(this._path);
+        return this._getFormAccess().getValue(this._path);
     }
 
     setValue(value: Value) {
-        return this._getForm().setValue(this._path, value);
+        return this._getFormAccess().setValue(this._path, value);
     }
 
-    setForm(form: Form<any>) {
+    setFormAccess(form: FormAccess) {
         this._form = form;
     }
 
     subscribe(subscriber: Subscriber) {
-        return this._getForm().subscribe(this._path, subscriber);
+        return this._getFormAccess().subscribe(this._path, subscriber);
     }
 
-    _getForm(): Form<any> {
+    _getFormAccess(): FormAccess {
         const form = this._form;
         if (!form) {
             throw new Error("Form is not set for field " + this._path.toString());
@@ -78,7 +78,7 @@ export class ObjectField<T extends ObjectSchema> extends FormField<SchemaValueFo
             throw new Error("No such key " + attemptedPath.toString());
         }
         const element = factory();
-        element.setForm(this._getForm());
+        element.setFormAccess(this._getFormAccess());
         return element;
     }
 }
@@ -94,7 +94,7 @@ export class ArrayField<E extends FormSchemaElement> extends FormField<SchemaVal
 
     element(idx: number): FieldFromElement<E> {
         const field = this.elementFactory(idx);
-        field.setForm(this._getForm());
+        field.setFormAccess(this._getFormAccess());
         return field;
     }
 }
