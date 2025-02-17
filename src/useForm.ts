@@ -28,7 +28,7 @@ type FormData<T extends SchemaElementSet> = {
 };
 
 export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<FormData<T>, FieldSetFromElementSet<T>> {
-    const data = useRef<FormData<T>>({} as any);
+    const data = useRef<FormData<T>>(opts.getInitialValues());
     const subscriberSet = useRef<SubscriberSet>(new SubscriberSet());
 
     const { schema, getInitialValues } = opts;
@@ -46,8 +46,6 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
     }, []);
 
     const form = useMemo(() => {
-        data.current = getInitialValues();
-
         const formAccess: FormAccess = {
             getValue: getValue,
             setValue: setValue,
@@ -70,6 +68,9 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
             },
             setData(data: any) {
                 setValue(rootPath, data);
+            },
+            resetData() {
+                setValue(rootPath, getInitialValues());
             }
         };
     }, [schema]);
@@ -111,6 +112,8 @@ export type Form<D, T extends Record<string, FormField>> = {
     getData(): D
 
     setData(data: D): void
+
+    resetData(): void
 }
 
 export type FormAccess = {
