@@ -13,128 +13,78 @@ import {
 import { FieldPath } from "./FieldPath";
 import { Subscriber } from "./SubscriberSet";
 
-export class StringField {
-    path: FieldPath
-    form: Form<any> | undefined
+export class FormField<Value = any> {
+    readonly _path: FieldPath
+    _form: Form<any> | undefined
 
     constructor(path: FieldPath) {
-        this.path = path;
+        this._path = path;
+    }
+
+    getValue(): Value {
+        return this._form!.getValue(this._path);
+    }
+
+    setValue(value: Value) {
+        return this._form!.setValue(this._path, value);
     }
 
     setForm(form: Form<any>) {
-        this.form = form;
-    }
-
-    getValue(): string {
-        return this.form!.getValue(this.path);
-    }
-
-    setValue(value: string) {
-        return this.form!.setValue(this.path, value);
+        this._form = form;
     }
 
     subscribe(subscriber: Subscriber) {
-        return this.form!.subscribe(this.path, subscriber);
+        return this._form!.subscribe(this._path, subscriber);
     }
 }
-export class NumberField {
-    path: FieldPath
-    form: Form<any> | undefined
 
+export class StringField extends FormField<string> {
     constructor(path: FieldPath) {
-        this.path = path;
+        super(path);
     }
-
-    setForm(form: Form<any>) {
-        this.form = form;
-    }
-
-    getValue(): number {
-        return this.form!.getValue(this.path);
-    }
-
-    setValue(value: string) {
-        return this.form!.setValue(this.path, value);
-    }
-
-    subscribe(subscriber: Subscriber) {
-        return this.form!.subscribe(this.path, subscriber);
+}
+export class NumberField extends FormField<number> {
+    constructor(path: FieldPath) {
+        super(path);
     }
 }
 
 type ObjectPropertyFactories<T extends ObjectSchema> = { [K in keyof T]: () => FieldFromElement<T[K]> };
-export class ObjectField<T extends ObjectSchema> {
-    path: FieldPath
-    form: Form<any> | undefined
+export class ObjectField<T extends ObjectSchema> extends FormField<SchemaValueForObject<T>>{
     keyToFactory: ObjectPropertyFactories<T>
 
     constructor(path: FieldPath, keyToFactory: ObjectPropertyFactories<T>) {
-        this.path = path;
+        super(path);
         this.keyToFactory = keyToFactory;
-    }
-
-    setForm(form: Form<any>) {
-        this.form = form;
-    }
-
-    getValue(): SchemaValueForObject<T> {
-        return this.form!.getValue(this.path);
-    }
-
-    setValue(value: SchemaValueForObject<T>) {
-        return this.form!.setValue(this.path, value);
-    }
-
-    subscribe(subscriber: Subscriber) {
-        return this.form!.subscribe(this.path, subscriber);
     }
 
     property<K extends keyof T>(key: K): FieldFromElement<T[K]> {
         const factory = this.keyToFactory[key];
         if (!factory) {
-            const attemptedPath = this.path.withProperty(key as string);
+            const attemptedPath = this._path.withProperty(key as string);
             throw new Error("No such key " + attemptedPath.toString());
         }
         const element = factory();
-        element.setForm(this.form!);
+        element.setForm(this._form!);
         return element;
     }
 }
 
 type ArrayElemFactory<E> = (idx: number) => E;
-export class ArrayField<E extends FormSchemaElement> {
-    path: FieldPath
-    form: Form<any> | undefined
+export class ArrayField<E extends FormSchemaElement> extends FormField<SchemaValue<E>[]> {
     elementFactory: ArrayElemFactory<FieldFromElement<E>>
 
     constructor(path: FieldPath, elementFactory: ArrayElemFactory<FieldFromElement<E>>) {
-        this.path = path;
+        super(path);
         this.elementFactory = elementFactory;
-    }
-
-    setForm(form: Form<any>) {
-        this.form = form;
-    }
-
-    getValue(): SchemaValue<E>[] {
-        return this.form!.getValue(this.path);
-    }
-
-    setValue(value: SchemaValue<E>[]) {
-        return this.form!.setValue(this.path, value);
-    }
-
-    subscribe(subscriber: Subscriber) {
-        return this.form!.subscribe(this.path, subscriber);
     }
 
     element(idx: number): FieldFromElement<E> {
         const field = this.elementFactory(idx);
-        field.setForm(this.form!);
+        field.setForm(this._form!);
         return field;
     }
 }
-export type FormField = StringField | NumberField | ObjectField<any> | ArrayField<any>;
 
 export type FieldSetFromElementSet<T extends SchemaElementSet> = {
     [K in keyof T]: FieldFromElement<T[K]>
