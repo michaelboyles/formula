@@ -1,16 +1,16 @@
 export type StringElement = {
-    type: "string"
+    readonly type: "string"
 }
 export type NumberElement = {
-    type: "number"
+    readonly type: "number"
 }
 export type ArrayElement<E extends FormSchemaElement> = {
-    type: "array"
-    item: E
+    readonly type: "array"
+    readonly item: E
 }
 export type ObjectElement<T extends ObjectSchema> = {
-    type: "object",
-    properties: T
+    readonly type: "object",
+    readonly properties: T
 }
 export type FormSchemaElement = StringElement | NumberElement | ArrayElement<any> | ObjectElement<any>;
 
@@ -24,3 +24,19 @@ export type SchemaValue<T extends FormSchemaElement> =
 
 export type ObjectSchema = Record<string, FormSchemaElement>;
 export type SchemaValueForObject<T extends ObjectSchema> = { [K in keyof T]: SchemaValue<T[K]> };
+
+export function string(): StringElement {
+    return { type: "string" }
+}
+
+export function number(): NumberElement {
+    return { type: "number" }
+}
+
+export function array<T extends FormSchemaElement>(items: T): ArrayElement<T> {
+    return { type: "array", item: items }
+}
+
+export function object<T extends Record<string, FormSchemaElement>>(properties: T): ObjectElement<T> {
+    return { type: "object", properties }
+}

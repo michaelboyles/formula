@@ -4,16 +4,16 @@ import { useForm } from "./useForm";
 import { useState } from "react";
 import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
-import { StringElement } from "./FormSchemaElement";
+import { array, object, string, StringElement } from "./FormSchemaElement";
 import { Input } from "./Input";
 
 const schema = new FormSchema({})
     .withString("title")
     .withNumber("numLikes")
-    .withArray("tags", { type: "array", item: { type: "string" } })
-    .withObject("meta", { type: "object", properties: {
-        createdAt: { type: "string" },
-    }})
+    .withArray("tags", array(string()))
+    .withObject("meta", object({
+        createdAt: string(),
+    }));
 
 export function Test1() {
     const form = useForm({

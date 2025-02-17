@@ -1,4 +1,13 @@
-import { ArrayElement, FormSchemaElement, NumberElement, ObjectElement, StringElement } from "./FormSchemaElement";
+import {
+    array,
+    ArrayElement,
+    FormSchemaElement,
+    NumberElement,
+    object,
+    ObjectElement,
+    string,
+    StringElement
+} from "./FormSchemaElement";
 
 export class FormSchema<T extends Record<string, FormSchemaElement>> {
     elements: T
@@ -41,20 +50,12 @@ export class FormSchema<T extends Record<string, FormSchemaElement>> {
 }
 
 function main() {
-    const strType: StringElement = { type: "string" };
-    const arrayOfStr: ArrayElement<StringElement> = {
-        type: "array", item: strType,
-    }
-    const arrayOfArrayOfStr: ArrayElement<typeof arrayOfStr> = {
-        type: "array", item: arrayOfStr
-    }
+    const arrayOfArrayOfStr = array(array(string()));
 
-    const obj: ObjectElement<{ "a": typeof strType, "b": typeof arrayOfArrayOfStr} > = {
-        type: "object", properties: {
-            "a": strType,
-            "b": arrayOfArrayOfStr
-        }
-    }
+    const obj = object({
+        "a": string(),
+        "b": arrayOfArrayOfStr
+    });
 
     const schema = new FormSchema({})
         .withString("a")
