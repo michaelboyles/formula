@@ -5,6 +5,7 @@ import {
     NumberElement,
     object,
     ObjectElement,
+    ObjectSchema,
     string,
     StringElement
 } from "./FormSchemaElement";
@@ -37,7 +38,7 @@ export class FormSchema<T extends Record<string, FormSchemaElement>> {
         return new FormSchema({ ...this.elements, [key]: elem });
     }
 
-    withObject<K extends string, O extends Record<string, FormSchemaElement>>(key: K, elem: ObjectElement<O>): FormSchema<T & Record<K, ObjectElement<O>>> {
+    withObject<K extends string, O extends ObjectElement<ObjectSchema>>(key: K, elem: O): FormSchema<T & Record<K, O>> {
         if (this.elements[key]) {
             throw new Error("Trying to re-specify schema element with name " + key);
         }
