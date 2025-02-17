@@ -41,10 +41,17 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
             const element = value as FormSchemaElement;
             fields[key] = mapElementToField(element, path.withProperty(key));
         }
-        return new Form<FieldSetFromElementSet<T>>(
-            fields as any, getValue, setValue, subscribe
-        );
 
+        const form: Form<FieldSetFromElementSet<T>> = {
+            get(key) {
+                return fields[key as string] as any;
+            },
+            getValue,
+            setValue,
+            subscribe
+        }
+        Object.values(fields).forEach(field => field.setForm(form));
+        return form;
     }, [schema]);
 
     return form;
@@ -75,39 +82,12 @@ function mapElementToField(element: FormSchemaElement, path: FieldPath): FormFie
     throw new Error(`Unsupported element: ${element satisfies never}`);
 }
 
-export class Form<T extends Record<string, FormField>> {
-    fields: T
-    _valueGetter: (path: FieldPath) => any
-    _valueSetter: (path: FieldPath, value: any) => void
-    _subscribe: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+export type Form<T extends Record<string, FormField>> = {
+    get<K extends keyof T>(key: K): T[K];
 
-    constructor(fields: T,
-                valueGetter: (path: FieldPath) => any,
-                valueSetter: (path: FieldPath, value: any) => void,
-                subscribe: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
-    ) {
-        this.fields = fields;
-        this._valueGetter = valueGetter;
-        this._valueSetter = valueSetter;
-        this._subscribe = subscribe;
-        for (const field of Object.values(this.fields)) {
-            field.setForm(this);
-        }
-    }
+    subscribe(path: FieldPath, subscriber: Subscriber): Unsubscribe;
 
-    get<K extends keyof T>(a: K): T[K] {
-        return this.fields[a];
-    }
+    getValue(path: FieldPath): any;
 
-    subscribe(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        return this._subscribe(path, subscriber);
-    }
-
-    getValue(path: FieldPath): any {
-        return this._valueGetter(path);
-    }
-
-    setValue(path: FieldPath, value: any) {
-        return this._valueSetter(path, value);
-    }
+    setValue(path: FieldPath, value: any): void;
 }

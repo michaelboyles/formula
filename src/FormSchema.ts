@@ -11,7 +11,9 @@ export class FormSchema<T extends Record<string, FormSchemaElement>> {
         if (this.elements[key]) {
             throw new Error("Trying to re-specify schema element with name " + key);
         }
-        return new FormSchema({ ...this.elements, [key]: field });
+        return Object.freeze(
+            new FormSchema(Object.freeze({ ...this.elements, [key]: field }))
+        );
     }
 
     get<K extends keyof T>(a: K): T[K] {
