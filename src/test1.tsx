@@ -32,19 +32,21 @@ export function Test1() {
     const { value: title, setValue: setTitle } = useField(form.get("title"));
     const { value: numLikes } = useField(form.get("numLikes"));
     const { value: tags, setValue: setTags } = useField(form.get("tags"));
+    const { value: meta, setValue: setMeta } = useField(form.get("meta"));
 
     return (
         <div>
             <h1>Test 1</h1>
             Title { title }
             Num Likes { numLikes }
+            <pre>{ JSON.stringify(meta) }</pre>
 
             <Input field={form.get("title")} />
             <button onClick={() => setTitle("New title")}>Set Title</button>
-            <button onClick={() => setA(prev => prev + 1)}>Update { a }</button>
+            <button onClick={() => setMeta({ createdAt: "boo" })}>Update meta</button>
             <button onClick={() => setTags(["test"])}>Set tags</button>
             {
-                tags.map(tag => <div>{ tag } { tag.length }</div>)
+                tags.map((tag, idx) => <div key={idx}>{ tag } { tag.length }</div>)
             }
 
             <Tags field={form.get("tags")} />

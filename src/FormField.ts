@@ -4,8 +4,10 @@ import {
     FormSchemaElement,
     NumberElement,
     ObjectElement,
+    ObjectSchema,
     SchemaElementSet,
     SchemaValue,
+    SchemaValueForObject,
     StringElement
 } from "./FormSchemaElement";
 import { FieldPath } from "./FieldPath";
@@ -59,19 +61,28 @@ export class NumberField {
         return this.form!.subscribe(this.path, subscriber);
     }
 }
-export class ObjectField<T> {
+export class ObjectField<T extends ObjectSchema> {
+    path: FieldPath
+    form: Form<any> | undefined
+
+    constructor(path: FieldPath) {
+        this.path = path;
+    }
+
     setForm(form: Form<any>) {
+        this.form = form;
     }
 
-    getValue(): T {
-        return {} as any;
+    getValue(): SchemaValueForObject<T> {
+        return this.form!.getValue(this.path);
     }
 
-    setValue(value: T) {
+    setValue(value: SchemaValueForObject<T>) {
+        return this.form!.setValue(this.path, value);
     }
 
     subscribe(subscriber: Subscriber) {
-        return () => {};
+        return this.form!.subscribe(this.path, subscriber);
     }
 }
 

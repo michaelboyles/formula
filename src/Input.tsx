@@ -1,4 +1,4 @@
-import { FormField, StringField } from "./FormField";
+import { StringField } from "./FormField";
 import { useSyncExternalStore } from "react";
 
 export type Props = {
@@ -9,7 +9,7 @@ export function Input({ field }: Props) {
     return <input type="text" onChange={(e) => field.setValue(e.target.value)} value={value} />
 }
 
-function useSyncFormValue(field: FormField) {
+function useSyncFormValue(field: StringField) {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {

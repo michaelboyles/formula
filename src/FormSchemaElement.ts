@@ -8,7 +8,7 @@ export type ArrayElement<E extends FormSchemaElement> = {
     type: "array"
     item: E
 }
-export type ObjectElement<T extends Record<string, FormSchemaElement>> = {
+export type ObjectElement<T extends ObjectSchema> = {
     type: "object",
     properties: T
 }
@@ -21,3 +21,6 @@ export type SchemaValue<T extends FormSchemaElement> =
         T extends NumberElement ? number :
             T extends ObjectElement<infer O> ? { [K in keyof O]: SchemaValue<O[K]> }:
                 T extends ArrayElement<infer A> ? SchemaValue<A>[] : never;
+
+export type ObjectSchema = Record<string, FormSchemaElement>;
+export type SchemaValueForObject<T extends ObjectSchema> = { [K in keyof T]: SchemaValue<T[K]> };

@@ -1,7 +1,7 @@
 import { FormSchema } from "./lib";
 import { useCallback, useMemo, useRef } from "react";
 import { FormSchemaElement, SchemaElementSet, SchemaValue } from "./FormSchemaElement";
-import { ArrayField, FieldSetFromElementSet, FormField, NumberField, StringField } from "./FormField";
+import { ArrayField, FieldSetFromElementSet, FormField, NumberField, ObjectField, StringField } from "./FormField";
 import { FieldPath } from "./FieldPath";
 import { Subscriber, SubscriberSet, Unsubscribe } from "./SubscriberSet";
 
@@ -61,8 +61,7 @@ function mapElementToField(element: FormSchemaElement, path: FieldPath): FormFie
         return new ArrayField(path, idx => mapElementToField(element.item, path.withArrayIndex(idx)));
     }
     else if (element.type === "object") {
-        // TODO 2
-        return new StringField(path);
+        return new ObjectField(path);
     }
     throw new Error(`Unsupported element: ${element satisfies never}`);
 }
