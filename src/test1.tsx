@@ -53,7 +53,7 @@ export function Test1() {
             Num Likes { numLikes }
             Value { value }
 
-            <Input field={form.get("title")} />
+            <Input field={form.get("title")} placeholder="Title" />
             <button onClick={() => setTitle("New title")}>Set Title</button>
             <button type="button" onClick={() => form.setData({
                 title: "newT",
@@ -72,7 +72,7 @@ export function Test1() {
             }
 
             <label>Created at <Input field={createdAt} /></label>
-            <label>Public? <Checkbox field={form.get("isPublic")}/></label>
+            <label>Public? <Checkbox className="cb" field={form.get("isPublic")}/></label>
             <Tags field={form.get("tags")}/>
 
             <button type="submit">Submit</button>

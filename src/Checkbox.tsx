@@ -1,12 +1,14 @@
 import { BooleanField } from "./FormField";
-import { useSyncExternalStore } from "react";
+import { DetailedHTMLProps, InputHTMLAttributes, useSyncExternalStore } from "react";
 
+type DefaultCheckboxProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
     field: BooleanField
-}
-export function Checkbox({ field }: Props) {
+} & Omit<DefaultCheckboxProps, "type" | "onChange" | "checked">;
+export function Checkbox(props: Props) {
+    const { field, ...rest } = props;
     const value = useSyncFormValue(field);
-    return <input type="checkbox" onChange={e => field.setValue(e.target.checked)} checked={value} />
+    return <input {...rest} type="checkbox" onChange={e => field.setValue(e.target.checked)} checked={value} />
 }
 
 function useSyncFormValue(field: BooleanField) {
