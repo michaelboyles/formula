@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
 import { StringElement } from "./FormSchemaElement";
+import { useInput } from "./useInput";
 
 const schema = new FormSchema({})
     .withString("title")
@@ -28,9 +29,11 @@ export function Test1() {
     });
     const [a, setA] = useState(1)
 
-    const { value: title, setValue: setTitle, Input: TitleInput } = useField(form.get("title"));
+    const { value: title, setValue: setTitle } = useField(form.get("title"));
     const { value: numLikes } = useField(form.get("numLikes"));
     const { value: tags, setValue: setTags } = useField(form.get("tags"));
+
+    const TitleInput = useInput(form.get("title"));
     return (
         <div>
             <h1>Test 1</h1>
@@ -61,7 +64,7 @@ function Tags(props: { field: ArrayField<StringElement> }) {
 }
 
 function Tag(props: { a: StringField }) {
-    const { Input: TagInput } = useField(props.a);
+    const TagInput = useInput(props.a);
     return (
         <div>Tag: <TagInput /></div>
     )

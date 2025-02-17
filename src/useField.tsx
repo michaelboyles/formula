@@ -1,11 +1,10 @@
-import { ReactNode, useCallback, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { ArrayField, FormField, NumberField, StringField } from "./FormField";
 import { FormSchemaElement, SchemaValue } from "./FormSchemaElement";
 
 type StringReturn = {
     value: string
     setValue: (value: string) => void
-    Input: () => ReactNode
 }
 type NumberReturn = {
     value: number
@@ -23,20 +22,11 @@ export function useField<T extends FormSchemaElement>(field: ArrayField<T>): Arr
 export function useField(field: FormField): Return {
     const value = useSyncFormValue(field);
 
-    const Input = useCallback(() => {
-        const value = useSyncFormValue(field);
-        if (field instanceof StringField) {
-            return <input type="text" onChange={(e) => field.setValue(e.target.value)} value={value}/>
-        }
-        return <div>unsupported</div>;
-    }, [field])
-
     return {
         value,
         setValue(value: any) {
             field.setValue(value);
-        },
-        Input
+        }
     };
 }
 
