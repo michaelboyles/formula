@@ -61,12 +61,16 @@ export class NumberField {
         return this.form!.subscribe(this.path, subscriber);
     }
 }
+
+type ObjectPropertyFactories<T extends ObjectSchema> = { [K in keyof T]: () => FieldFromElement<T[K]> };
 export class ObjectField<T extends ObjectSchema> {
     path: FieldPath
     form: Form<any> | undefined
+    keyToFactory: ObjectPropertyFactories<T>
 
-    constructor(path: FieldPath) {
+    constructor(path: FieldPath, keyToFactory: ObjectPropertyFactories<T>) {
         this.path = path;
+        this.keyToFactory = keyToFactory;
     }
 
     setForm(form: Form<any>) {
@@ -83,6 +87,17 @@ export class ObjectField<T extends ObjectSchema> {
 
     subscribe(subscriber: Subscriber) {
         return this.form!.subscribe(this.path, subscriber);
+    }
+
+    property<K extends keyof T>(key: K): FieldFromElement<T[K]> {
+        const factory = this.keyToFactory[key];
+        if (!factory) {
+            const attemptedPath = this.path.withProperty(key as string);
+            throw new Error("No such key " + attemptedPath.toString());
+        }
+        const element = factory();
+        element.setForm(this.form!);
+        return element;
     }
 }
 
