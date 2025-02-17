@@ -4,11 +4,13 @@ import { DetailedHTMLProps, InputHTMLAttributes, useSyncExternalStore } from "re
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
     field: StringField
+    type?: "text" | "password" | "email" | "search" | "tel" | "url"
 } & Omit<DefaultInputProps, "type" | "onChange" | "value">;
 export function Input(props: Props) {
-    const { field, ...rest } = props;
+    let { field, type, ...rest } = props;
     const value = useSyncFormValue(field);
-    return <input {...rest} type="text" onChange={e => field.setValue(e.target.value)} value={value} />;
+    if (!type) type = "text";
+    return <input {...rest} type={type} onChange={e => field.setValue(e.target.value)} value={value} />;
 }
 
 function useSyncFormValue(field: StringField) {
