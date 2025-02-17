@@ -3,8 +3,8 @@ import { ArrayField } from "./FormField";
 import { useSyncExternalStore } from "react";
 
 export function useElements<T extends FormSchemaElement>(field: ArrayField<T>) {
-    const value = useSyncFormValue(field);
-    return value.map((_, idx) => field.element(idx));
+    const length = useSyncFormValue(field);
+    return Array.from(Array(length), (_, idx) => field.element(idx));
 }
 
 function useSyncFormValue<T extends FormSchemaElement>(field: ArrayField<T>) {
@@ -17,6 +17,6 @@ function useSyncFormValue<T extends FormSchemaElement>(field: ArrayField<T>) {
             }
         },
         // Get snapshot
-        () => field.getValue()
+        () => field.getValue().length
     );
 }
