@@ -1,4 +1,3 @@
-import { FormSchema } from "./lib";
 import { useField } from "./useField";
 import { useForm } from "./useForm";
 import { useState } from "react";
@@ -6,6 +5,7 @@ import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
 import { array, number, object, string, StringElement } from "./FormSchemaElement";
 import { Input } from "./Input";
+import { FormSchema } from "./FormSchema";
 
 const category = object({
     name: string(),

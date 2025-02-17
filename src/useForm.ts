@@ -1,9 +1,9 @@
-import { FormSchema } from "./lib";
 import { useCallback, useMemo, useRef } from "react";
 import { FormSchemaElement, ObjectSchema, SchemaElementSet, SchemaValue } from "./FormSchemaElement";
 import { ArrayField, FieldSetFromElementSet, FormField, NumberField, ObjectField, StringField } from "./FormField";
 import { FieldPath } from "./FieldPath";
 import { Subscriber, SubscriberSet, Unsubscribe } from "./SubscriberSet";
+import { FormSchema } from "./FormSchema";
 
 type UseFormOpts<T extends SchemaElementSet> = {
     schema: FormSchema<T>
