@@ -12,15 +12,17 @@ export type ObjectElement<T extends ObjectSchema> = {
     readonly type: "object",
     readonly properties: T
 }
-export type FormSchemaElement = StringElement | NumberElement | ArrayElement<any> | ObjectElement<any>;
+export type LazyElement<T extends FormSchemaElement> = () => T;
+export type FormSchemaElement = StringElement | NumberElement | ArrayElement<any> | ObjectElement<any> | LazyElement<any>;
 
 export type SchemaElementSet = Record<string, FormSchemaElement>;
 
 export type SchemaValue<T extends FormSchemaElement> =
-    T extends StringElement ? string :
-        T extends NumberElement ? number :
-            T extends ObjectElement<infer O> ? { [K in keyof O]: SchemaValue<O[K]> }:
-                T extends ArrayElement<infer A> ? SchemaValue<A>[] : never;
+    T extends () => infer Lazy ? (Lazy extends FormSchemaElement ? SchemaValue<Lazy> : never) :
+        T extends StringElement ? string :
+            T extends NumberElement ? number :
+                T extends ObjectElement<infer Obj> ? { [K in keyof Obj]: SchemaValue<Obj[K]> }:
+                    T extends ArrayElement<infer Arr> ? SchemaValue<Arr>[] : never;
 
 export type ObjectSchema = Record<string, FormSchemaElement>;
 export type SchemaValueForObject<T extends ObjectSchema> = { [K in keyof T]: SchemaValue<T[K]> };

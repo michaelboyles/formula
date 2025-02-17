@@ -7,13 +7,16 @@ import { ArrayField, StringField } from "./FormField";
 import { array, object, string, StringElement } from "./FormSchemaElement";
 import { Input } from "./Input";
 
+const category = object({
+    name: string(),
+    subcategories: () => array(category)
+});
+
 const schema = new FormSchema({})
     .withString("title")
     .withNumber("numLikes")
     .withArray("tags", array(string()))
-    .withObject("meta", object({
-        createdAt: string(),
-    }));
+    .withObject("category", category);
 
 export function Test1() {
     const form = useForm({
@@ -22,8 +25,11 @@ export function Test1() {
             title: "My Blog Post",
             numLikes: 10,
             tags: ["news", "something"],
-            meta: {
-                createdAt: ""
+            category: {
+                name: "news",
+                subcategories: [
+                    { name: "latest", subcategories: [] }
+                ]
             }
         })
     });
@@ -32,13 +38,16 @@ export function Test1() {
     const { value: title, setValue: setTitle } = useField(form.get("title"));
     const { value: numLikes } = useField(form.get("numLikes"));
     const { value: tags, setValue: setTags } = useField(form.get("tags"));
-    const createdAt = form.get("meta").property("createdAt");
+    const createdAt = form.get("category").property("subcategories").element(0).property("name");
+
+    const { value } = useField(createdAt);
 
     return (
         <div>
             <h1>Test 1</h1>
             Title { title }
             Num Likes { numLikes }
+            Value { value }
 
             <Input field={form.get("title")} />
             <button onClick={() => setTitle("New title")}>Set Title</button>

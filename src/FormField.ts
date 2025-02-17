@@ -140,7 +140,9 @@ export type FieldSetFromElementSet<T extends SchemaElementSet> = {
     [K in keyof T]: FieldFromElement<T[K]>
 }
 
-export type FieldFromElement<T extends FormSchemaElement> = T extends StringElement ? StringField :
-    T extends NumberElement ? NumberField :
-        T extends ObjectElement<infer O> ? ObjectField<O> :
-            T extends ArrayElement<infer A> ? ArrayField<A> : never;
+export type FieldFromElement<T extends FormSchemaElement> =
+    T extends () => infer Lazy ? (Lazy extends FormSchemaElement ? FieldFromElement<Lazy> : never) :
+        T extends StringElement ? StringField :
+            T extends NumberElement ? NumberField :
+                T extends ObjectElement<infer Obj> ? ObjectField<Obj> :
+                    T extends ArrayElement<infer Arr> ? ArrayField<Arr> : never;

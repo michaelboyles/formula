@@ -51,6 +51,10 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
 }
 
 function mapElementToField(element: FormSchemaElement, path: FieldPath): FormField {
+    if (typeof element === "function") {
+        return mapElementToField(element(), path);
+    }
+
     if (element.type === "string") {
         return new StringField(path);
     }
