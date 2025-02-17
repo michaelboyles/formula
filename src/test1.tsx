@@ -55,7 +55,18 @@ export function Test1() {
 
             <Input field={form.get("title")} />
             <button onClick={() => setTitle("New title")}>Set Title</button>
-            <button onClick={() => setTags(["test"])}>Set tags</button>
+            <button type="button" onClick={() => form.setData({
+                title: "newT",
+                tags: [],
+                category: {
+                    name: "a",
+                    subcategories: [
+                        { name: "sub 222", subcategories: [] }
+                    ]
+                },
+                isPublic: true,
+                numLikes: 1
+            })}>Set DATA</button>
             {
                 tags.map((tag, idx) => <div key={idx}>{ tag } { tag.length }</div>)
             }

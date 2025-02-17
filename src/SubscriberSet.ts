@@ -64,25 +64,42 @@ export class SubscriberSet {
 
     notify(path: FieldPath) {
         let currentNode = this.#root;
-        currentNode.subscribers.forEach(notifySub => notifySub());
-
-        path.forEachNode(pathPart => {
-            if (!currentNode) return;
-
-            switch (pathPart.type) {
-                case "property": {
-                    currentNode = currentNode.propertyToNode[pathPart.name];
-                    break;
-                }
-                case "index": {
-                    currentNode = currentNode.indexToNode[pathPart.index];
-                    break;
-                }
-            }
-            if (currentNode) {
+        // Descend the tree and notify just the leaves along the way, until the final leaf, then finally notify all
+        // children
+        if (path.isRoot()) {
+            this.#notifyAll(currentNode);
+        }
+        else {
+            path.forEachNode((pathPart, { isLast }) => {
+                if (!currentNode) return;
                 currentNode.subscribers.forEach(notifySub => notifySub());
-            }
-        });
+                if (isLast) {
+                    this.#notifyAll(currentNode);
+                }
+                else {
+                    switch (pathPart.type) {
+                        case "property": {
+                            currentNode = currentNode.propertyToNode[pathPart.name];
+                            break;
+                        }
+                        case "index": {
+                            currentNode = currentNode.indexToNode[pathPart.index];
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    #notifyAll(node: SubscriptionNode) {
+        node.subscribers.forEach(notifySub => notifySub());
+        Object.values(node.propertyToNode).forEach(node => {
+            this.#notifyAll(node);
+        })
+        Object.values(node.indexToNode).forEach(node => {
+            this.#notifyAll(node);
+        })
     }
 }
 

@@ -82,6 +82,10 @@ export class FieldPath {
         throw new Error(`Unknown node type ${node satisfies never}`);
     }
 
+    isRoot(): boolean {
+        return this.#nodes.length === 0;
+    }
+
     forEachNode(iterator: (node: FieldNode, meta: { isLast: boolean }) => void) {
         this.#nodes.forEach((node, i) => iterator(node, { isLast: i === this.#nodes.length - 1 }));
     }

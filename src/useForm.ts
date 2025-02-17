@@ -55,10 +55,10 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
         }
 
         const fields: Record<string, FormField> = {};
-        let path = FieldPath.create();
+        const rootPath = FieldPath.create();
         for (const [key, value] of Object.entries(schema.elements)) {
             const element = value as FormSchemaElement;
-            fields[key] = mapElementToField(element, path.withProperty(key));
+            fields[key] = mapElementToField(element, rootPath.withProperty(key));
             fields[key].setFormAccess(formAccess);
         }
         return {
@@ -67,6 +67,9 @@ export function useForm<T extends SchemaElementSet>(opts: UseFormOpts<T>): Form<
             },
             getData() {
                 return data.current;
+            },
+            setData(data: any) {
+                setValue(rootPath, data);
             }
         };
     }, [schema]);
@@ -106,6 +109,8 @@ export type Form<D, T extends Record<string, FormField>> = {
     get<K extends keyof T>(key: K): T[K]
 
     getData(): D
+
+    setData(data: D): void
 }
 
 export type FormAccess = {
