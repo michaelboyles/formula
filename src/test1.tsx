@@ -1,4 +1,4 @@
-import { useField } from "./useField";
+import { useFormValue } from "./useFormValue";
 import { Form, useForm } from "./useForm";
 import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
@@ -45,12 +45,14 @@ export function Test1() {
         }
     });
 
-    const { value: title, setValue: setTitle } = useField(form.get("title"));
-    const { value: numLikes } = useField(form.get("numLikes"));
-    const { value: tags, setValue: setTags } = useField(form.get("tags"));
+    const titleField = form.get("title");
+    const title = useFormValue(titleField);
+    const numLikes = useFormValue(form.get("numLikes"));
+    const tagsField = form.get("tags");
+    const tags = useFormValue(tagsField);
     const createdAt = form.get("category").property("subcategories").element(0).property("name");
 
-    const { value } = useField(createdAt);
+    const value = useFormValue(createdAt);
 
     return (
         <form onSubmit={form.submit}>
@@ -60,7 +62,7 @@ export function Test1() {
             Value { value }
 
             <Input field={form.get("title")} placeholder="Title" />
-            <button onClick={() => setTitle("New title")}>Set Title</button>
+            <button onClick={() => titleField.setValue("New title")}>Set Title</button>
             <button type="button" onClick={() => form.setData({
                 title: "newT",
                 tags: [],

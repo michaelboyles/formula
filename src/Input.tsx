@@ -1,6 +1,6 @@
 import { StringField } from "./FormField";
 import { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { useSyncFieldValue } from "./useSyncFieldValue";
+import { useFormValue } from "./useFormValue";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
@@ -9,7 +9,7 @@ export type Props = {
 } & Omit<DefaultInputProps, "type" | "onChange" | "value">;
 export function Input(props: Props) {
     let { field, type, ...rest } = props;
-    const value = useSyncFieldValue(field);
+    const value = useFormValue(field);
     if (!type) type = "text";
     return <input {...rest} type={type} onChange={e => field.setValue(e.target.value)} value={value} />;
 }

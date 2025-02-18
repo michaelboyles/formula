@@ -1,6 +1,6 @@
 import { BooleanField } from "./FormField";
 import { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { useSyncFieldValue } from "./useSyncFieldValue";
+import { useFormValue } from "./useFormValue";
 
 type DefaultCheckboxProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
@@ -8,6 +8,6 @@ export type Props = {
 } & Omit<DefaultCheckboxProps, "type" | "onChange" | "checked">;
 export function Checkbox(props: Props) {
     const { field, ...rest } = props;
-    const value = useSyncFieldValue(field);
+    const value = useFormValue(field);
     return <input {...rest} type="checkbox" onChange={e => field.setValue(e.target.checked)} checked={value} />
 }
