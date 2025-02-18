@@ -18,6 +18,7 @@ import {
 import { FieldPath } from "./FieldPath";
 import { Subscriber, SubscriberSet, Unsubscribe } from "./SubscriberSet";
 import { FormSchema } from "./FormSchema";
+import { FormStateType, StateSubscriber, FormStateManager, UnsubscribeFromState } from "./FormStateManager";
 
 type UseFormOpts<T extends SchemaElementSet, R> = {
     schema: FormSchema<T>
@@ -38,7 +39,7 @@ const ROOT_PATH = FieldPath.create();
 export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>): Form<FormData<T>, FieldSetFromElementSet<T>> {
     const data = useRef(opts.getInitialValues());
     const subscriberSet = useRef(new SubscriberSet());
-    const isSubmitting = useRef(false);
+    const stateManager = useRef(new FormStateManager());
 
     const { schema, getInitialValues, submit: submitForm, onSuccess, onError } = opts;
 
@@ -56,11 +57,11 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
 
     const submit = useCallback(async (e: FormEvent) => {
         e.preventDefault();
-        if (isSubmitting.current) {
+        if (stateManager.current.getValue("isSubmitting")) {
             console.log("Skipping dupe submission");
             return;
         }
-        isSubmitting.current = true;
+        stateManager.current.setValue("isSubmitting", true);
 
         try {
             const result = await submitForm(data.current);
@@ -69,7 +70,7 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         catch (e) {
             onError?.(e);
         }
-        isSubmitting.current = false;
+        stateManager.current.setValue("isSubmitting", false);
     }, [submitForm, onSuccess, onError]);
 
     const fields = useMemo(() => {
@@ -88,7 +89,8 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         return fields;
     }, [schema]);
 
-    return {
+    const form: _Form = {
+        [FORM_SYM]: 0,
         get(key: any) {
             return fields[key as string] as any;
         },
@@ -101,8 +103,16 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         resetData() {
             setValue(ROOT_PATH, getInitialValues());
         },
-        submit
+        submit,
+        getState(state: FormStateType): any {
+            return stateManager.current.getValue(state);
+        },
+        subscribeToState(state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState {
+            stateManager.current.subscribe(state, subscriber);
+            return () => stateManager.current.unsubscribe(state, subscriber);
+        }
     };
+    return form;
 }
 
 function mapElementToField(element: FormSchemaElement, path: FieldPath): FormField {
@@ -144,6 +154,20 @@ export type Form<D, T extends FieldSet> = {
 
     submit(e: FormEvent): void
 }
+
+export type _Form = {
+    [FORM_SYM]: 0,
+
+    getState(state: FormStateType): any
+
+    subscribeToState(state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState;
+} & Form<any, any>;
+
+export function isInternalForm<D, F extends FieldSet>(form: Form<D, F>): form is _Form {
+    return Object.hasOwn(form, FORM_SYM);
+}
+
+const FORM_SYM = Symbol.for("FORM");
 
 export type FormAccess = {
     subscribe(path: FieldPath, subscriber: Subscriber): Unsubscribe;

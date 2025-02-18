@@ -1,11 +1,12 @@
 import { useField } from "./useField";
-import { useForm } from "./useForm";
+import { Form, useForm } from "./useForm";
 import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
 import { array, boolean, number, object, string, StringElement } from "./FormSchemaElement";
 import { Input } from "./Input";
 import { FormSchema } from "./FormSchema";
 import { Checkbox } from "./Checkbox";
+import { useIsSubmitting } from "./useIsSubmitting";
 
 const category = object({
     name: string(),
@@ -35,7 +36,9 @@ export function Test1() {
             }
         }),
         async submit(data) {
-            return Promise.resolve("done " + JSON.stringify(data));
+            return new Promise((resolve) => {
+                setTimeout(() => resolve("done" + JSON.stringify(data)), 1_000)
+            })
         },
         onSuccess(result) {
             console.log("Submitted", result);
@@ -78,7 +81,7 @@ export function Test1() {
             <label>Public? <Checkbox className="cb" field={form.get("isPublic")}/></label>
             <Tags field={form.get("tags")}/>
 
-            <button type="submit">Submit</button>
+            <DisableSubmitButton form={form} />
         </form>
     )
 }
@@ -96,5 +99,12 @@ function Tags(props: { field: ArrayField<StringElement> }) {
 function Tag(props: { field: StringField }) {
     return (
         <div>Tag: <Input field={props.field} /></div>
+    )
+}
+
+function DisableSubmitButton(props: { form: Form<any, any> }) {
+    const isSubmitting = useIsSubmitting(props.form);
+    return (
+        <button type="submit" disabled={isSubmitting}>Submit</button>
     )
 }
