@@ -1,5 +1,6 @@
 import { StringField } from "./FormField";
-import { DetailedHTMLProps, InputHTMLAttributes, useSyncExternalStore } from "react";
+import { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import { useSyncFieldValue } from "./useSyncFieldValue";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
@@ -8,21 +9,7 @@ export type Props = {
 } & Omit<DefaultInputProps, "type" | "onChange" | "value">;
 export function Input(props: Props) {
     let { field, type, ...rest } = props;
-    const value = useSyncFormValue(field);
+    const value = useSyncFieldValue(field);
     if (!type) type = "text";
     return <input {...rest} type={type} onChange={e => field.setValue(e.target.value)} value={value} />;
-}
-
-function useSyncFormValue(field: StringField) {
-    return useSyncExternalStore(
-        // Subscribe
-        (onStoreChange) => {
-            const unsubscribe = field.subscribe(onStoreChange);
-            return () => {
-                unsubscribe();
-            }
-        },
-        // Get snapshot
-        () => field.getValue()
-    );
 }
