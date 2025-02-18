@@ -83,8 +83,7 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         const fields: FieldSet = {};
         for (const [key, value] of Object.entries(schema.elements)) {
             const element = value as FormSchemaElement;
-            fields[key] = mapElementToField(element, ROOT_PATH.withProperty(key));
-            fields[key].setFormAccess(formAccess);
+            fields[key] = mapElementToField(element, formAccess, ROOT_PATH.withProperty(key));
         }
         return fields;
     }, [schema]);
@@ -115,30 +114,30 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
     return form;
 }
 
-function mapElementToField(element: FormSchemaElement, path: FieldPath): FormField {
+function mapElementToField(element: FormSchemaElement, formAccess: FormAccess, path: FieldPath): FormField {
     if (typeof element === "function") {
-        return mapElementToField(element(), path);
+        return mapElementToField(element(), formAccess, path);
     }
 
     if (element.type === "string") {
-        return new StringField(path);
+        return new StringField(path, formAccess);
     }
     else if (element.type === "number") {
-        return new NumberField(path);
+        return new NumberField(path, formAccess);
     }
     else if (element.type === "bool") {
-        return new BooleanField(path);
+        return new BooleanField(path, formAccess);
     }
     else if (element.type === "array") {
-        return new ArrayField(path, idx => mapElementToField(element.item, path.withArrayIndex(idx)));
+        return new ArrayField(path, formAccess, idx => mapElementToField(element.item, formAccess, path.withArrayIndex(idx)));
     }
     else if (element.type === "object") {
         const properties: ObjectSchema = element.properties;
         const keyToFactory: any = {};
         for (const [key, value] of Object.entries(properties)) {
-            keyToFactory[key] = () => mapElementToField(value, path.withProperty(key));
+            keyToFactory[key] = () => mapElementToField(value, formAccess, path.withProperty(key));
         }
-        return new ObjectField(path, keyToFactory);
+        return new ObjectField(path, formAccess, keyToFactory);
     }
     throw new Error(`Unsupported element: ${element satisfies never}`);
 }
