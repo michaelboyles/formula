@@ -11,7 +11,7 @@ function useSyncNumElements<T extends FormSchemaElement>(field: ArrayField<T>) {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {
-            const unsubscribe = field.subscribe(onStoreChange);
+            const unsubscribe = field.subscribeToValue(onStoreChange);
             return () => {
                 unsubscribe();
             }

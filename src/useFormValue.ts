@@ -12,7 +12,7 @@ export function useFormValue(field: FormField) {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {
-            const unsubscribe = field.subscribe(onStoreChange);
+            const unsubscribe = field.subscribeToValue(onStoreChange);
             return () => {
                 unsubscribe();
             }

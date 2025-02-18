@@ -16,9 +16,29 @@ import {
     StringField
 } from "./FormField";
 import { FieldPath } from "./FieldPath";
-import { Subscriber, SubscriberSet, Unsubscribe } from "./SubscriberSet";
+import { Subscriber, FormStateTree, Unsubscribe } from "./FormStateTree";
 import { FormSchema } from "./FormSchema";
 import { FormStateType, StateSubscriber, FormStateManager, UnsubscribeFromState } from "./FormStateManager";
+import { Validator, ValidatorReturn } from "./validators";
+
+// type ObjectVisitor<T extends Record<string, any>, D> = {
+//     [K in keyof T]?: T[K] extends string | number | boolean ? Validator<T, D> :
+//         T extends object ? ObjectVisitor<T, D> : never;
+// } & {
+//     __self?: Validator<T, D>;
+// };
+
+export type ArrayValidator<Value, FormValues> = (value: Value, a: { forEachElement: (validator: FieldVisitor<Value, FormValues>) => void }) => ValidatorReturn;
+export type ObjValidator<Value, FormValues> = (value: Value, a: { visit: (visitor: Visitor<Value>) => void }) => ValidatorReturn;
+
+export type FieldVisitor<T, D> =
+    T extends string | number | boolean ? Validator<T, D> :
+        T extends Array<infer A> ? ArrayValidator<A, D> :
+            T extends object ? ObjValidator<T, D> : never;
+
+export type Visitor<T> = {
+    [K in keyof T]?: FieldVisitor<T[K], T>
+}
 
 type UseFormOpts<T extends SchemaElementSet, R> = {
     schema: FormSchema<T>
@@ -28,6 +48,8 @@ type UseFormOpts<T extends SchemaElementSet, R> = {
     // Optional
     onSuccess?(args: { result: R, values: FormData<T> }): void
     onError?(error: unknown): void
+
+    validate?: Visitor<FormData<T>>
 }
 
 type FormData<T extends SchemaElementSet> = {
@@ -41,25 +63,39 @@ const ROOT_PATH = FieldPath.create();
 
 export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>): FormForSchema<FormSchema<T>> {
     const data = useRef(opts.getInitialValues());
-    const subscriberSet = useRef(new SubscriberSet());
+    const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
 
-    const { schema, getInitialValues, submit: submitForm, onSuccess, onError } = opts;
+    const { schema, getInitialValues, submit: submitForm, onSuccess, onError, validate } = opts;
 
     const getValue = useCallback((path: FieldPath) => path.getValue(data.current), []);
 
     const setValue = useCallback((path: FieldPath, value: any) => {
         data.current = path.getDataWithValue(data.current, value);
-        subscriberSet.current.notify(path);
+        stateTree.current.notifyValueChanged(path);
     }, []);
 
-    const subscribe = useCallback((path: FieldPath, subscriber: Subscriber) => {
-        subscriberSet.current.subscribe(path, subscriber);
-        return () => subscriberSet.current.unsubscribe(path, subscriber);
+    const subscribeToValue = useCallback((path: FieldPath, subscriber: Subscriber) => {
+        const unsubscribe = stateTree.current.subscribeToValue(path, subscriber);
+        return () => unsubscribe();
+    }, []);
+
+    const getErrors = useCallback((path: FieldPath) => {
+        return stateTree.current.getErrors(path);
+    }, []);
+
+    const subscribeToErrors = useCallback((path: FieldPath, subscriber: Subscriber) => {
+        const unsubscribe = stateTree.current.subscribeToErrors(path, subscriber);
+        return () => unsubscribe();
     }, []);
 
     const submit = useCallback(async (e: FormEvent) => {
         e.preventDefault();
+        const values = data.current;
+        if (validate) {
+            validateObject(values, values, validate, ROOT_PATH, stateTree.current);
+        }
+
         if (stateManager.current.getValue("isSubmitting")) {
             console.log("Skipping dupe submission");
             return;
@@ -67,7 +103,6 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         stateManager.current.setValue("isSubmitting", true);
         stateManager.current.setValue("submissionError", undefined);
 
-        const values = data.current;
         try {
             const result = await submitForm(values);
             onSuccess?.({ result, values });
@@ -81,9 +116,11 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
 
     const fields = useMemo(() => {
         const formAccess: FormAccess = {
-            getValue: getValue,
-            setValue: setValue,
-            subscribe: subscribe
+            getValue,
+            setValue,
+            subscribeToValue,
+            getErrors,
+            subscribeToErrors,
         }
 
         const fields: FieldSet = {};
@@ -118,6 +155,49 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         }
     };
     return form;
+}
+
+function validateObject<R, T extends Record<string, any>>(rootData: R, data: T, visitor: Visitor<T>, path: FieldPath, tree: FormStateTree) {
+    for (const [key, value] of Object.entries(data)) {
+        const keyVisitor = visitor[key];
+        if (keyVisitor) {
+            validateValue(value, rootData as any, keyVisitor, path.withProperty(key), tree);
+        }
+    }
+}
+
+function validateValue<V, R>(value: V, rootData: R, keyVisitor: FieldVisitor<V, R>, path: FieldPath, tree: FormStateTree) {
+    if (Array.isArray(value)) {
+        const arrVisitor = keyVisitor as ArrayValidator<typeof value, R>;
+        const errors = arrVisitor(
+            value,
+            {
+                forEachElement(validator) {
+                    for (let i = 0; i < value.length; ++i) {
+                        validateValue(value[i], rootData, validator, path.withArrayIndex(i), tree);
+                    }
+                }
+            }
+        );
+        if (errors) {
+            tree.setErrors(path, typeof errors === "string" ? [errors] : errors);
+        }
+    }
+    else if (typeof value === "object" && value !== null) {
+        const objVisitor = keyVisitor as ObjValidator<typeof value, R>;
+        objVisitor(value, {
+            visit(visitor) {
+                validateObject(rootData, value, visitor, path, tree);
+            }
+        });
+    }
+    else {
+        const primitiveVisitor = keyVisitor as Validator<typeof value, R>;
+        const errors = primitiveVisitor(value, rootData);
+        if (errors) {
+            tree.setErrors(path, typeof errors === "string" ? [errors] : errors);
+        }
+    }
 }
 
 function mapElementToField(element: FormSchemaElement, formAccess: FormAccess, path: FieldPath): FormField {
@@ -175,9 +255,10 @@ export function isInternalForm<D, F extends FieldSet>(form: Form<D, F>): form is
 const FORM_SYM = Symbol.for("FORM");
 
 export type FormAccess = {
-    subscribe(path: FieldPath, subscriber: Subscriber): Unsubscribe;
-
     getValue(path: FieldPath): any;
-
     setValue(path: FieldPath, value: any): void;
+    subscribeToValue(path: FieldPath, subscriber: Subscriber): Unsubscribe;
+
+    getErrors(path: FieldPath): string[] | undefined
+    subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe;
 }

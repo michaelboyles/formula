@@ -1,5 +1,5 @@
 import { useFormValue } from "./useFormValue";
-import { Form, useForm } from "./useForm";
+import { Form, useForm, Visitor } from "./useForm";
 import { useElements } from "./useElements";
 import { ArrayField, StringField } from "./FormField";
 import { array, boolean, number, object, string, StringElement } from "./FormSchemaElement";
@@ -7,6 +7,8 @@ import { Input } from "./Input";
 import { FormSchema } from "./FormSchema";
 import { Checkbox } from "./Checkbox";
 import { useIsSubmitting } from "./useIsSubmitting";
+import { allOf, maxLength, required } from "./validators";
+import { useFormErrors } from "./useFormErrors";
 
 const category = object({
     name: string(),
@@ -31,7 +33,9 @@ export function Test1() {
             category: {
                 name: "news",
                 subcategories: [
-                    { name: "latest", subcategories: [] }
+                    { name: "latest", subcategories: [
+                            { name: "name", subcategories: [] }
+                    ] }
                 ]
             }
         }),
@@ -42,6 +46,10 @@ export function Test1() {
         },
         onSuccess({ values, result }) {
             console.log("Submitted", values, result);
+        },
+        validate: {
+            title: allOf(required, maxLength(3)),
+            category: (_category, { visit }) => validateCategory(visit),
         }
     });
 
@@ -50,13 +58,17 @@ export function Test1() {
     const numLikes = useFormValue(form.get("numLikes"));
     const tagsField = form.get("tags");
     const tags = useFormValue(tagsField);
-    const createdAt = form.get("category").property("subcategories").element(0).property("name");
+    const name = form.get("category").property("subcategories").element(0).property("name");
 
-    const value = useFormValue(createdAt);
+    const value = useFormValue(name);
+    const createdAtError = useFormErrors(name);
 
     return (
         <form onSubmit={form.submit}>
             <h1>Test 1</h1>
+
+            <h1>{createdAtError}</h1>
+
             Title { title }
             Num Likes { numLikes }
             Value { value }
@@ -79,13 +91,32 @@ export function Test1() {
                 tags.map((tag, idx) => <div key={idx}>{ tag } { tag.length }</div>)
             }
 
-            <label>Created at <Input field={createdAt} /></label>
+            <label>Sub category name <Input field={name} /></label>
             <label>Public? <Checkbox className="cb" field={form.get("isPublic")}/></label>
             <Tags field={form.get("tags")}/>
 
             <DisableSubmitButton form={form} />
         </form>
     )
+}
+
+type Category = {
+    name: string,
+    subcategories: Category[],
+}
+function validateCategory(visit: (visitor: Visitor<Category>) => void) {
+    visit({
+        name(name) {
+            if (name === "name") {
+                return "BAD";
+            }
+        },
+        subcategories(_subcategories, { forEachElement }) {
+            forEachElement((_subcategory, { visit }) => {
+                validateCategory(visit);
+            })
+        }
+    })
 }
 
 function Tags(props: { field: ArrayField<StringElement> }) {

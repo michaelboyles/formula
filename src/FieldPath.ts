@@ -89,6 +89,10 @@ export class FieldPath {
     forEachNode(iterator: (node: FieldNode, meta: { isLast: boolean }) => void) {
         this.#nodes.forEach((node, i) => iterator(node, { isLast: i === this.#nodes.length - 1 }));
     }
+
+    parts(): FieldNode[] {
+        return this.#nodes;
+    }
 }
 
 export type FieldNode = {

@@ -11,7 +11,7 @@ import {
     StringElement
 } from "./FormSchemaElement";
 import { FieldPath } from "./FieldPath";
-import { Subscriber, Unsubscribe } from "./SubscriberSet";
+import { Subscriber, Unsubscribe } from "./FormStateTree";
 
 export class FormField<Value = any> {
     protected readonly path: FieldPath
@@ -30,8 +30,16 @@ export class FormField<Value = any> {
         return this.form.setValue(this.path, value);
     }
 
-    subscribe(subscriber: Subscriber): Unsubscribe {
-        return this.form.subscribe(this.path, subscriber);
+    subscribeToValue(subscriber: Subscriber): Unsubscribe {
+        return this.form.subscribeToValue(this.path, subscriber);
+    }
+
+    getErrors() {
+        return this.form.getErrors(this.path);
+    }
+
+    subscribeToErrors(subscriber: Subscriber): Unsubscribe {
+        return this.form.subscribeToErrors(this.path, subscriber);
     }
 }
 
