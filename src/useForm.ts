@@ -23,10 +23,10 @@ import { FormStateType, StateSubscriber, FormStateManager, UnsubscribeFromState 
 type UseFormOpts<T extends SchemaElementSet, R> = {
     schema: FormSchema<T>
     getInitialValues(): FormData<T>
-    submit(data: FormData<T>): Promise<R>
+    submit(values: FormData<T>): Promise<R>
 
     // Optional
-    onSuccess?(result: R): void
+    onSuccess?(args: { result: R, values: FormData<T> }): void
     onError?(error: unknown): void
 }
 
@@ -67,9 +67,10 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         stateManager.current.setValue("isSubmitting", true);
         stateManager.current.setValue("submissionError", undefined);
 
+        const values = data.current;
         try {
-            const result = await submitForm(data.current);
-            onSuccess?.(result);
+            const result = await submitForm(values);
+            onSuccess?.({ result, values });
         }
         catch (e) {
             stateManager.current.setValue("submissionError", e);

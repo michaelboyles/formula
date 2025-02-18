@@ -40,8 +40,8 @@ export function Test1() {
                 setTimeout(() => reject("done" + JSON.stringify(data)), 1_000)
             })
         },
-        onSuccess(result) {
-            console.log("Submitted", result);
+        onSuccess({ values, result }) {
+            console.log("Submitted", values, result);
         }
     });
 
