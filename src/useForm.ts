@@ -65,12 +65,14 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
             return;
         }
         stateManager.current.setValue("isSubmitting", true);
+        stateManager.current.setValue("submissionError", undefined);
 
         try {
             const result = await submitForm(data.current);
             onSuccess?.(result);
         }
         catch (e) {
+            stateManager.current.setValue("submissionError", e);
             onError?.(e);
         }
         stateManager.current.setValue("isSubmitting", false);

@@ -36,8 +36,8 @@ export function Test1() {
             }
         }),
         async submit(data) {
-            return new Promise((resolve) => {
-                setTimeout(() => resolve("done" + JSON.stringify(data)), 1_000)
+            return new Promise((resolve, reject) => {
+                setTimeout(() => reject("done" + JSON.stringify(data)), 1_000)
             })
         },
         onSuccess(result) {

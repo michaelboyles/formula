@@ -1,5 +1,6 @@
 export type FormState = {
     isSubmitting: boolean
+    submissionError: any
 }
 export type FormStateType = keyof FormState;
 export type UnsubscribeFromState = () => void;
@@ -8,6 +9,7 @@ export type StateSubscriber = () => void;
 export class FormStateManager {
     #state: FormState = {
         isSubmitting: false,
+        submissionError: undefined,
     }
     #stateToSubscribers: Map<FormStateType, StateSubscriber[]> = new Map();
 
