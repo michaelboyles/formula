@@ -1,6 +1,6 @@
-import { FormSchemaElement } from "./FormSchemaElement";
+import { FormSchemaElement, SchemaElementSet } from "./FormSchemaElement";
 
-export class FormSchema<T extends Record<string, FormSchemaElement>> {
+export class FormSchema<T extends SchemaElementSet> {
     readonly elements: T
 
     constructor(elements: T) {

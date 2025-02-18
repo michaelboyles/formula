@@ -34,9 +34,12 @@ type FormData<T extends SchemaElementSet> = {
     [K in keyof T]: SchemaValue<T[K]>
 };
 
+export type FormForSchema<T extends FormSchema<any>> = T extends FormSchema<infer A> ? Form<FormData<A>, FieldSetFromElementSet<A>> : never;
+export type FormDataForSchema<T extends FormSchema<any>> = T extends FormSchema<infer A> ? FormData<A> : never;
+
 const ROOT_PATH = FieldPath.create();
 
-export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>): Form<FormData<T>, FieldSetFromElementSet<T>> {
+export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>): FormForSchema<FormSchema<T>> {
     const data = useRef(opts.getInitialValues());
     const subscriberSet = useRef(new SubscriberSet());
     const stateManager = useRef(new FormStateManager());
