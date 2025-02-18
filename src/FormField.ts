@@ -11,36 +11,36 @@ import {
     StringElement
 } from "./FormSchemaElement";
 import { FieldPath } from "./FieldPath";
-import { Subscriber } from "./SubscriberSet";
+import { Subscriber, Unsubscribe } from "./SubscriberSet";
 
 export class FormField<Value = any> {
-    readonly _path: FieldPath
-    _form: FormAccess | undefined
+    protected readonly path: FieldPath
+    protected form: FormAccess | undefined
 
     constructor(path: FieldPath) {
-        this._path = path;
+        this.path = path;
     }
 
     getValue(): Value {
-        return this._getFormAccess().getValue(this._path);
+        return this.getFormAccess().getValue(this.path);
     }
 
     setValue(value: Value) {
-        return this._getFormAccess().setValue(this._path, value);
+        return this.getFormAccess().setValue(this.path, value);
     }
 
     setFormAccess(form: FormAccess) {
-        this._form = form;
+        this.form = form;
     }
 
-    subscribe(subscriber: Subscriber) {
-        return this._getFormAccess().subscribe(this._path, subscriber);
+    subscribe(subscriber: Subscriber): Unsubscribe {
+        return this.getFormAccess().subscribe(this.path, subscriber);
     }
 
-    _getFormAccess(): FormAccess {
-        const form = this._form;
+    protected getFormAccess(): FormAccess {
+        const form = this.form;
         if (!form) {
-            throw new Error("Form is not set for field " + this._path.toString());
+            throw new Error("Form is not set for field " + this.path.toString());
         }
         return form;
     }
@@ -64,7 +64,7 @@ export class BooleanField extends FormField<boolean> {
 
 type ObjectPropertyFactories<T extends ObjectSchema> = { [K in keyof T]: () => FieldFromElement<T[K]> };
 export class ObjectField<T extends ObjectSchema> extends FormField<SchemaValueForObject<T>>{
-    keyToFactory: ObjectPropertyFactories<T>
+    private readonly keyToFactory: ObjectPropertyFactories<T>
 
     constructor(path: FieldPath, keyToFactory: ObjectPropertyFactories<T>) {
         super(path);
@@ -74,18 +74,18 @@ export class ObjectField<T extends ObjectSchema> extends FormField<SchemaValueFo
     property<K extends keyof T>(key: K): FieldFromElement<T[K]> {
         const factory = this.keyToFactory[key];
         if (!factory) {
-            const attemptedPath = this._path.withProperty(key as string);
+            const attemptedPath = this.path.withProperty(key as string);
             throw new Error("No such key " + attemptedPath.toString());
         }
         const element = factory();
-        element.setFormAccess(this._getFormAccess());
+        element.setFormAccess(this.getFormAccess());
         return element;
     }
 }
 
 type ArrayElemFactory<E> = (idx: number) => E;
 export class ArrayField<E extends FormSchemaElement> extends FormField<SchemaValue<E>[]> {
-    elementFactory: ArrayElemFactory<FieldFromElement<E>>
+    private readonly elementFactory: ArrayElemFactory<FieldFromElement<E>>
 
     constructor(path: FieldPath, elementFactory: ArrayElemFactory<FieldFromElement<E>>) {
         super(path);
@@ -94,7 +94,7 @@ export class ArrayField<E extends FormSchemaElement> extends FormField<SchemaVal
 
     element(idx: number): FieldFromElement<E> {
         const field = this.elementFactory(idx);
-        field.setFormAccess(this._getFormAccess());
+        field.setFormAccess(this.getFormAccess());
         return field;
     }
 }
