@@ -33,7 +33,13 @@ export function Test1() {
                     { name: "latest", subcategories: [] }
                 ]
             }
-        })
+        }),
+        async submit(data) {
+            return Promise.resolve("done " + JSON.stringify(data));
+        },
+        onSuccess(result) {
+            console.log("Submitted", result);
+        }
     });
 
     const { value: title, setValue: setTitle } = useField(form.get("title"));
@@ -44,10 +50,7 @@ export function Test1() {
     const { value } = useField(createdAt);
 
     return (
-        <form onSubmit={e => {
-            e.preventDefault();
-            console.log(form.getData())
-        }}>
+        <form onSubmit={form.submit}>
             <h1>Test 1</h1>
             Title { title }
             Num Likes { numLikes }
