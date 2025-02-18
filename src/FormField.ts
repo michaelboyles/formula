@@ -99,6 +99,8 @@ export class ArrayField<E extends FormSchemaElement> extends FormField<SchemaVal
     }
 }
 
+export type FieldSet = Record<string, FormField>;
+
 export type FieldSetFromElementSet<T extends SchemaElementSet> = {
     [K in keyof T]: FieldFromElement<T[K]>
 }

@@ -8,6 +8,7 @@ import {
 import {
     ArrayField,
     BooleanField,
+    FieldSet,
     FieldSetFromElementSet,
     FormField,
     NumberField,
@@ -78,7 +79,7 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
             subscribe: subscribe
         }
 
-        const fields: Record<string, FormField> = {};
+        const fields: FieldSet = {};
         for (const [key, value] of Object.entries(schema.elements)) {
             const element = value as FormSchemaElement;
             fields[key] = mapElementToField(element, ROOT_PATH.withProperty(key));
@@ -132,7 +133,7 @@ function mapElementToField(element: FormSchemaElement, path: FieldPath): FormFie
     throw new Error(`Unsupported element: ${element satisfies never}`);
 }
 
-export type Form<D, T extends Record<string, FormField>> = {
+export type Form<D, T extends FieldSet> = {
     get<K extends keyof T>(key: K): T[K]
 
     getData(): D
