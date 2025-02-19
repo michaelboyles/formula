@@ -34,7 +34,7 @@ export class FormStateTree {
 
     private getOrCreateNode(path: FieldPath): TreeNode {
         let node = this.#root;
-        path.forEachNode(pathPart => {
+        for (const pathPart of path.nodes) {
             switch (pathPart.type) {
                 case "property": {
                     let propertyToNode = node.propertyToNode;
@@ -69,13 +69,13 @@ export class FormStateTree {
                     break;
                 }
             }
-        });
+        }
         return node;
     }
 
     private getNode(path: FieldPath): TreeNode | undefined {
         let node = this.#root;
-        for (const pathPart of path.parts()) {
+        for (const pathPart of path.nodes) {
             switch (pathPart.type) {
                 case "property": {
                     const next = node.propertyToNode?.[pathPart.name];
@@ -100,27 +100,27 @@ export class FormStateTree {
         // children
         if (path.isRoot()) {
             this.notifyAll(currentNode, n => n.subscribers);
+            return;
         }
-        else {
-            path.forEachNode((pathPart, { isLast }) => {
-                if (!currentNode) return;
-                currentNode.subscribers?.forEach(notifySub => notifySub());
-                if (isLast) {
-                    this.notifyAll(currentNode, n => n.subscribers);
-                }
-                else {
-                    switch (pathPart.type) {
-                        case "property": {
-                            currentNode = currentNode.propertyToNode?.[pathPart.name];
-                            break;
-                        }
-                        case "index": {
-                            currentNode = currentNode.indexToNode?.[pathPart.index];
-                            break;
-                        }
+        for (let i = 0; i < path.nodes.length; i++) {
+            if (!currentNode) return;
+            currentNode.subscribers?.forEach(notifySub => notifySub());
+            if (i === path.nodes.length - 1) {
+                this.notifyAll(currentNode, n => n.subscribers);
+            }
+            else {
+                const node = path.nodes[i];
+                switch (node.type) {
+                    case "property": {
+                        currentNode = currentNode.propertyToNode?.[node.name];
+                        break;
+                    }
+                    case "index": {
+                        currentNode = currentNode.indexToNode?.[node.index];
+                        break;
                     }
                 }
-            });
+            }
         }
     }
 
