@@ -138,7 +138,9 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
     const form: _Form = {
         [FORM_SYM]: 0,
         get(key: any) {
-            return fields[key as string] as any;
+            const field = fields[key as string];
+            if (!field) throw new Error("No field with path: " + key);
+            return field as any;
         },
         getData() {
             return data.current;
