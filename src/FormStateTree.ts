@@ -1,7 +1,7 @@
 import { FieldPath } from "./FieldPath";
 
 export class FormStateTree {
-    #root: TreeNode = emptyNode();
+    #root: TreeNode = {}
 
     getErrors(path: FieldPath): string[] | undefined {
         const node = this.getNode(path);
@@ -13,22 +13,22 @@ export class FormStateTree {
     setErrors(path: FieldPath, errors: string[]) {
         const node = this.getOrCreateNode(path);
         node.errors = [...errors];
-        node.errorSubscribers.forEach(notify => notify());
+        node.errorSubscribers?.forEach(notify => notify());
     }
 
     subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe {
         const node = this.getOrCreateNode(path);
-        node.errorSubscribers.push(subscriber);
+        node.errorSubscribers = pushOrCreateArray(node.errorSubscribers, subscriber);
         return () => {
-            node.errorSubscribers = node.errorSubscribers.filter(s => s !== subscriber);
+            node.errorSubscribers = removeFromArray(node.errorSubscribers, subscriber);
         }
     }
 
     subscribeToValue(path: FieldPath, subscriber: Subscriber): Unsubscribe {
         const node = this.getOrCreateNode(path);
-        node.subscribers.push(subscriber);
+        node.subscribers = pushOrCreateArray(node.subscribers, subscriber);
         return () => {
-            node.subscribers = node.subscribers.filter(s => s !== subscriber);
+            node.subscribers = node.subscribers?.filter(s => s !== subscriber);
         }
     }
 
@@ -37,19 +37,35 @@ export class FormStateTree {
         path.forEachNode(pathPart => {
             switch (pathPart.type) {
                 case "property": {
-                    const name = pathPart.name;
-                    if (!node.propertyToNode[name]) {
-                        node.propertyToNode[name] = emptyNode();
+                    let propertyToNode = node.propertyToNode;
+                    if (!propertyToNode) {
+                        propertyToNode = {};
+                        node.propertyToNode = propertyToNode;
                     }
-                    node = node.propertyToNode[name];
+
+                    const name = pathPart.name;
+                    let next = propertyToNode[name];
+                    if (!next) {
+                        next = {};
+                        propertyToNode[name] = next;
+                    }
+                    node = next;
                     break;
                 }
                 case "index": {
-                    const index = pathPart.index;
-                    if (!node.indexToNode[index]) {
-                        node.indexToNode[index] = emptyNode();
+                    let indexToNode = node.indexToNode;
+                    if (!indexToNode) {
+                        indexToNode = {};
+                        node.indexToNode = indexToNode;
                     }
-                    node = node.indexToNode[index];
+
+                    const index = pathPart.index;
+                    let next = indexToNode[index];
+                    if (!next) {
+                        next = {};
+                        indexToNode[index] = next;
+                    }
+                    node = next;
                     break;
                 }
             }
@@ -62,13 +78,13 @@ export class FormStateTree {
         for (const pathPart of path.parts()) {
             switch (pathPart.type) {
                 case "property": {
-                    const next = node.propertyToNode[pathPart.name];
+                    const next = node.propertyToNode?.[pathPart.name];
                     if (!next) return;
                     node = next;
                     break;
                 }
                 case "index": {
-                    const next = node.indexToNode[pathPart.index];
+                    const next = node.indexToNode?.[pathPart.index];
                     if (!next) return;
                     node = next;
                     break;
@@ -79,7 +95,7 @@ export class FormStateTree {
     }
 
     notifyValueChanged(path: FieldPath) {
-        let currentNode = this.#root;
+        let currentNode: TreeNode | undefined = this.#root;
         // Descend the tree and notify just the leaves along the way, until the final leaf, then finally notify all
         // children
         if (path.isRoot()) {
@@ -88,18 +104,18 @@ export class FormStateTree {
         else {
             path.forEachNode((pathPart, { isLast }) => {
                 if (!currentNode) return;
-                currentNode.subscribers.forEach(notifySub => notifySub());
+                currentNode.subscribers?.forEach(notifySub => notifySub());
                 if (isLast) {
                     this.notifyAll(currentNode, n => n.subscribers);
                 }
                 else {
                     switch (pathPart.type) {
                         case "property": {
-                            currentNode = currentNode.propertyToNode[pathPart.name];
+                            currentNode = currentNode.propertyToNode?.[pathPart.name];
                             break;
                         }
                         case "index": {
-                            currentNode = currentNode.indexToNode[pathPart.index];
+                            currentNode = currentNode.indexToNode?.[pathPart.index];
                             break;
                         }
                     }
@@ -108,35 +124,42 @@ export class FormStateTree {
         }
     }
 
-    private notifyAll(node: TreeNode, which: (n: TreeNode) => Subscriber[]) {
+    private notifyAll(node: TreeNode, which: (n: TreeNode) => Subscriber[] | undefined) {
         const subscribers = which(node);
-        subscribers.forEach(notifySub => notifySub());
-        Object.values(node.propertyToNode).forEach(node => {
+        subscribers?.forEach(notifySub => notifySub());
+        node.propertyToNode && Object.values(node.propertyToNode).forEach(node => {
             this.notifyAll(node, which);
         })
-        Object.values(node.indexToNode).forEach(node => {
+        node.indexToNode && Object.values(node.indexToNode).forEach(node => {
             this.notifyAll(node, which);
         })
-    }
-}
-
-function emptyNode(): TreeNode {
-    return {
-        propertyToNode: {},
-        indexToNode: {},
-        subscribers: [],
-        errors: [],
-        errorSubscribers: []
     }
 }
 
 type TreeNode = {
-    propertyToNode: Record<string, TreeNode>
-    indexToNode: Record<number, TreeNode>
-    subscribers: Subscriber[]
-    errors: string[],
-    errorSubscribers: Subscriber[]
+    propertyToNode?: Record<string, TreeNode>
+    indexToNode?: Record<number, TreeNode>
+    subscribers?: Subscriber[]
+    errors?: string[],
+    errorSubscribers?: Subscriber[]
 }
 
 export type Unsubscribe = () => void;
 export type Subscriber = () => void;
+
+function removeFromArray<T>(items: T[] | undefined, item: T): T[] | undefined {
+    if (!items) return undefined;
+    const newItems = items.filter(i => i !== item);
+    if (newItems.length === 0) {
+        return undefined;
+    }
+    return newItems;
+}
+
+function pushOrCreateArray<T>(items: T[] | undefined, item: T): T[] {
+    if (items) {
+        items.push(item);
+        return items;
+    }
+    return [item];
+}
