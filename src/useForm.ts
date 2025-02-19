@@ -94,6 +94,10 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         const values = data.current;
         if (validate) {
             validateObject(values, values, validate, ROOT_PATH, stateTree.current);
+            if (stateTree.current.hasError()) {
+                console.log("Failed to submit because of validation errors");
+                return;
+            }
         }
 
         if (stateManager.current.getValue("isSubmitting")) {

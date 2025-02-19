@@ -3,6 +3,10 @@ import { FieldPath } from "./FieldPath";
 export class FormStateTree {
     #root: TreeNode = {}
 
+    hasError() {
+        return hasError(this.#root);
+    }
+
     getErrors(path: FieldPath): string[] | undefined {
         const node = this.getNode(path);
         if (node) {
@@ -146,6 +150,21 @@ type TreeNode = {
 
 export type Unsubscribe = () => void;
 export type Subscriber = () => void;
+
+function hasError(start: TreeNode) {
+    if (start.errors?.length) return true;
+    if (start.propertyToNode) {
+        for (const node of Object.values(start.propertyToNode)) {
+            if (hasError(node)) return true;
+        }
+    }
+    if (start.indexToNode) {
+        for (const node of Object.values(start.indexToNode)) {
+            if (hasError(node)) return true;
+        }
+    }
+    return false;
+}
 
 function removeFromArray<T>(items: T[] | undefined, item: T): T[] | undefined {
     if (!items) return undefined;
