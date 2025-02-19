@@ -62,8 +62,17 @@ describe("getDataWithValue", () => {
 })
 
 describe("toString", () => {
-    test("basic", () => {
+    test("root", () => {
+        expect(FieldPath.create().toString()).toStrictEqual("<form-root>");
+    })
+
+    test("property > array", () => {
         const path = FieldPath.create().withProperty("foo").withArrayIndex(1);
-        expect(path.toString()).toStrictEqual("<form>.foo[1]")
+        expect(path.toString()).toStrictEqual("foo[1]")
+    })
+
+    test("property > array > property", () => {
+        const path = FieldPath.create().withProperty("foo").withArrayIndex(2).withProperty("bar")
+        expect(path.toString()).toStrictEqual("foo[2].bar")
     })
 })

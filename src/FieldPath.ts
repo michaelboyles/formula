@@ -20,10 +20,14 @@ export class FieldPath {
     }
 
     toString(): string {
-        let str = "<form>";
+        if (this.#nodes.length === 0) {
+            return "<form-root>";
+        }
+        let str = "";
         for (const node of this.#nodes) {
             if (node.type === "property") {
-                str += `.${node.name}`;
+                if (str.length) str += ".";
+                str += node.name;
             }
             else if (node.type === "index") {
                 str += `[${node.index}]`;
