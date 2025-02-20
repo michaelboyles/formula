@@ -42,7 +42,7 @@ export class FormFieldImpl<Value = any> implements FormField<Value> {
 
 export type FormField<Value = any> = {
     getValue(): Value
-    setValue(value: Value): void
+    setValue: (value: Value) => void
     subscribeToValue(subscriber: Subscriber): Unsubscribe
     getErrors(): string[] | undefined
     subscribeToErrors(subscriber: Subscriber): Unsubscribe
@@ -69,7 +69,7 @@ type MaybeArrayField<T> = {
 } & FormField<T | undefined>;
 
 export type FieldFromNative<T> =
-    undefined extends T ? MaybeField<NonNullable<T>> :
+    T extends undefined ? MaybeField<NonNullable<T>> :
         [T] extends [Array<infer Arr>] ? ArrayField<Arr> :
             [T] extends [Record<any, any>] ? ObjectField<T> :
                 FormField<T>;
