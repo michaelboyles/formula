@@ -38,8 +38,14 @@ export class FieldPath {
 
     getValue(root: any): any {
         let data = root;
-        for (const node of this.nodes) {
-            data = getValueForNode(data, node)
+        for (let i = 0; i < this.nodes.length; i++) {
+            const node = this.nodes[i];
+            try {
+                data = getPropertyOrIndex(data, node)
+            }
+            catch (e) {
+                throw new Error(`${this.sliceTo(i).toString()} ${e}`)
+            }
         }
         return data;
     }
@@ -54,7 +60,7 @@ export class FieldPath {
     private _getDataWithValue(data: any, newValue: any, nodeIdx: number): any {
         if (nodeIdx === this.nodes.length) return newValue;
         const node = this.nodes[nodeIdx];
-        const newPart = this._getDataWithValue(getValueForNode(data, node), newValue, nodeIdx + 1);
+        const newPart = this._getDataWithValue(getPropertyOrIndex(data, node), newValue, nodeIdx + 1);
 
         if (node.type === "property") {
             return {...data, [node.name]: newPart};
@@ -69,6 +75,13 @@ export class FieldPath {
     isRoot(): boolean {
         return this.nodes.length === 0;
     }
+
+    private sliceTo(parts: number): FieldPath {
+        if (parts > this.nodes.length) {
+            throw new Error(`Can't slice ${this.toString()} into ${parts} part(s)`)
+        }
+        return new FieldPath([...this.nodes.slice(0, parts)]);
+    }
 }
 
 export type FieldNode = {
@@ -79,24 +92,27 @@ export type FieldNode = {
     readonly index: number
 }
 
-function getValueForNode(data: any, node: FieldNode): any {
+function getPropertyOrIndex(data: any, node: FieldNode): any {
     switch (node.type) {
         case "property": {
             if (data == null) return undefined;
             if (typeof data !== "object") {
-                throw new Error("Not an object")
+                throw "is not an object";
+            }
+            if (Array.isArray(data)) {
+                throw "is an array, not an object";
             }
             return data[node.name];
         }
         case "index": {
             if (data == null) return undefined;
             if (!Array.isArray(data)) {
-                throw new Error("Not an array");
+                throw "is not an array";
             }
             return data[node.index];
         }
         default: {
-            throw new Error(`Unknown node type ${node satisfies never}`);
+            throw `has unknown node type ${node satisfies never}`;
         }
     }
 }

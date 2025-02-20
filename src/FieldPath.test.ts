@@ -16,6 +16,16 @@ describe("getValue", () => {
         const path = FieldPath.create().withArrayIndex(1);
         expect(path.getValue(["a", "B", "c"])).toBe("B");
     })
+
+    test("Try to access array element when root is object", () => {
+        const path = FieldPath.create().withArrayIndex(2);
+        expect(() => path.getValue({})).toThrow("<form-root> is not an array");
+    })
+
+    test("Try to access property when root is array", () => {
+        const path = FieldPath.create().withProperty("foo");
+        expect(() => path.getValue([])).toThrow("<form-root> is an array, not an object");
+    })
 })
 
 describe("getValue for invalid path", () => {
@@ -74,5 +84,15 @@ describe("toString", () => {
     test("property > array > property", () => {
         const path = FieldPath.create().withProperty("foo").withArrayIndex(2).withProperty("bar")
         expect(path.toString()).toStrictEqual("foo[2].bar")
+    })
+})
+
+describe("isRoot", () => {
+    test("root", () => {
+        expect(FieldPath.create().isRoot()).toBe(true)
+    })
+
+    test("non-root", () => {
+        expect(FieldPath.create().withProperty("foo").isRoot()).toBe(false)
     })
 })
