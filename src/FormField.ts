@@ -70,6 +70,6 @@ type MaybeArrayField<T> = {
 
 export type FieldFromNative<T> =
     undefined extends T ? MaybeField<NonNullable<T>> :
-        T extends Array<infer Arr> ? ArrayField<Arr> :
-            T extends Record<any, any> ? ObjectField<T> :
+        [T] extends [Array<infer Arr>] ? ArrayField<Arr> :
+            [T] extends [Record<any, any>] ? ObjectField<T> :
                 FormField<T>;

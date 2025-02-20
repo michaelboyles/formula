@@ -13,13 +13,16 @@ type Category = {
     subcategories: Category[]
 }
 
+type Foo = "foo" | "bar";
+
 type FormValues = {
     title: string
     isPublic: true
     numLikes: number
     tags: string[]
     category: Category
-    arrayOfArray: string[][]
+    arrayOfArray: Foo[][]
+    foo: Foo
 }
 
 export function Test1() {
@@ -37,7 +40,8 @@ export function Test1() {
                     ] }
                 ]
             },
-            arrayOfArray: []
+            arrayOfArray: [["foo"]],
+            foo: "foo"
         }),
         async submit(data) {
             return new Promise((resolve, reject) => {
@@ -63,6 +67,7 @@ export function Test1() {
 
     const value = useFormValue(name);
     const createdAtError = useFormErrors(name);
+    form.get("foo").setValue("bar");
 
     return (
         <form onSubmit={form.submit}>
@@ -88,7 +93,8 @@ export function Test1() {
                 },
                 isPublic: true,
                 numLikes: 1,
-                arrayOfArray: [["a"]]
+                arrayOfArray: [["bar"]],
+                foo: "foo"
             })}>Set DATA</button>
             {
                 tags.map((tag, idx) => <div key={idx}>{ tag } { tag.length }</div>)
