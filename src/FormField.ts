@@ -2,7 +2,7 @@ import { FormAccess } from "./useForm";
 import { FieldPath } from "./FieldPath";
 import { Subscriber, Unsubscribe } from "./FormStateTree";
 
-export class FormFieldImpl<Value = any> implements FormField<Value> {
+export class FormFieldImpl<Value, SetValue> implements FormField<Value, SetValue> {
     protected readonly path: FieldPath
     protected readonly form: FormAccess
 
@@ -15,7 +15,7 @@ export class FormFieldImpl<Value = any> implements FormField<Value> {
         return this.form.getValue(this.path);
     }
 
-    setValue(value: Value) {
+    setValue(value: SetValue) {
         return this.form.setValue(this.path, value);
     }
 
@@ -40,9 +40,9 @@ export class FormFieldImpl<Value = any> implements FormField<Value> {
     }
 }
 
-export type FormField<Value = any> = {
+export type FormField<Value = any, SetValue = Value> = {
     getValue(): Value
-    setValue: (value: Value) => void
+    setValue: (value: SetValue) => void
     subscribeToValue(subscriber: Subscriber): Unsubscribe
     getErrors(): string[] | undefined
     subscribeToErrors(subscriber: Subscriber): Unsubscribe
@@ -58,15 +58,15 @@ export type ArrayField<E> = FormField<E[]> & {
 type MaybeField<T> =
     T extends Array<infer ArrayElement> ? MaybeArrayField<ArrayElement> :
         T extends Record<any, any> ? MaybeObjectField<T>
-            : FormField<T | undefined>
+            : FormField<T | undefined, T>
 
 type MaybeObjectField<T extends Record<any, any>> = {
     property<K extends keyof T>(key: K): MaybeField<T[K]>;
-} & FormField<T | undefined>;
+} & FormField<T | undefined, T>;
 
 type MaybeArrayField<T> = {
     element(idx: number): MaybeField<T>;
-} & FormField<T | undefined>;
+} & FormField<T | undefined, T>;
 
 export type FieldFromNative<T> =
     T extends undefined ? MaybeField<NonNullable<T>> :
