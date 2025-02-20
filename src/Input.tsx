@@ -1,10 +1,10 @@
-import { StringField } from "./FormField";
+import { FormField } from "./FormField";
 import { DetailedHTMLProps, InputHTMLAttributes } from "react";
 import { useFormValue } from "./useFormValue";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
-    field: StringField
+    field: FormField<string>
     type?: "text" | "password" | "email" | "search" | "tel" | "url"
 } & Omit<DefaultInputProps, "type" | "onChange" | "value">;
 export function Input(props: Props) {

@@ -1,32 +1,9 @@
 import { FormEvent, useCallback, useMemo, useRef } from "react";
-import {
-    FormSchemaElement,
-    ObjectSchema,
-    SchemaElementSet,
-    SchemaValue,
-} from "./FormSchemaElement";
-import {
-    ArrayField,
-    BooleanField,
-    FieldSet,
-    FieldSetFromElementSet,
-    FormField,
-    NumberField,
-    ObjectField,
-    StringField
-} from "./FormField";
+import { FieldFromNative, FormFieldImpl } from "./FormField";
 import { FieldPath } from "./FieldPath";
-import { Subscriber, FormStateTree, Unsubscribe } from "./FormStateTree";
-import { FormSchema } from "./FormSchema";
-import { FormStateType, StateSubscriber, FormStateManager, UnsubscribeFromState } from "./FormStateManager";
+import { FormStateTree, Subscriber, Unsubscribe } from "./FormStateTree";
+import { FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager";
 import { Validator, ValidatorReturn } from "./validators";
-
-// type ObjectVisitor<T extends Record<string, any>, D> = {
-//     [K in keyof T]?: T[K] extends string | number | boolean ? Validator<T, D> :
-//         T extends object ? ObjectVisitor<T, D> : never;
-// } & {
-//     __self?: Validator<T, D>;
-// };
 
 export type ArrayValidator<Value, FormValues> = (value: Value, a: { forEachElement: (validator: FieldVisitor<Value, FormValues>) => void }) => ValidatorReturn;
 export type ObjValidator<Value, FormValues> = (value: Value, a: { visit: (visitor: Visitor<Value>) => void }) => ValidatorReturn;
@@ -40,33 +17,28 @@ export type Visitor<T> = {
     [K in keyof T]?: FieldVisitor<T[K], T>
 }
 
-type UseFormOpts<T extends SchemaElementSet, R> = {
-    schema: FormSchema<T>
-    getInitialValues(): FormData<T>
-    submit(values: FormData<T>): Promise<R>
+// TODO 2
+type BaseForm = Record<string, any>;
+
+type UseFormOpts<T extends BaseForm, R> = {
+    getInitialValues(): T
+    submit(values: T): Promise<R>
 
     // Optional
-    onSuccess?(args: { result: R, values: FormData<T> }): void
+    onSuccess?(args: { result: R, values: T }): void
     onError?(error: unknown): void
 
-    validate?: Visitor<FormData<T>>
+    validate?: Visitor<NoInfer<T>>
 }
-
-type FormData<T extends SchemaElementSet> = {
-    [K in keyof T]: SchemaValue<T[K]>
-};
-
-export type FormForSchema<T extends FormSchema<any>> = T extends FormSchema<infer A> ? Form<FormData<A>, FieldSetFromElementSet<A>> : never;
-export type FormDataForSchema<T extends FormSchema<any>> = T extends FormSchema<infer A> ? FormData<A> : never;
 
 const ROOT_PATH = FieldPath.create();
 
-export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>): FormForSchema<FormSchema<T>> {
+export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T> {
     const data = useRef(opts.getInitialValues());
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
 
-    const { schema, getInitialValues, submit: submitForm, onSuccess, onError, validate } = opts;
+    const { getInitialValues, submit: submitForm, onSuccess, onError, validate } = opts;
 
     const getValue = useCallback((path: FieldPath) => path.getValue(data.current), []);
 
@@ -118,29 +90,18 @@ export function useForm<T extends SchemaElementSet, R>(opts: UseFormOpts<T, R>):
         stateManager.current.setValue("isSubmitting", false);
     }, [submitForm, onSuccess, onError]);
 
-    const fields = useMemo(() => {
-        const formAccess: FormAccess = {
-            getValue,
-            setValue,
-            subscribeToValue,
-            getErrors,
-            subscribeToErrors,
-        }
-
-        const fields: FieldSet = {};
-        for (const [key, value] of Object.entries(schema.elements)) {
-            const element = value as FormSchemaElement;
-            fields[key] = mapElementToField(element, formAccess, ROOT_PATH.withProperty(key));
-        }
-        return fields;
-    }, [schema]);
+    const formAccess: FormAccess = useMemo(() => ({
+        getValue,
+        setValue,
+        subscribeToValue,
+        getErrors,
+        subscribeToErrors,
+    }), []);
 
     const form: _Form = {
         [FORM_SYM]: 0,
         get(key: any) {
-            const field = fields[key as string];
-            if (!field) throw new Error("No field with path: " + key);
-            return field as any;
+            return new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess);
         },
         getData() {
             return data.current;
@@ -206,36 +167,8 @@ function validateValue<V, R>(value: V, rootData: R, keyVisitor: FieldVisitor<V, 
     }
 }
 
-function mapElementToField(element: FormSchemaElement, formAccess: FormAccess, path: FieldPath): FormField {
-    if (typeof element === "function") {
-        return mapElementToField(element(), formAccess, path);
-    }
-
-    if (element.type === "string") {
-        return new StringField(path, formAccess);
-    }
-    else if (element.type === "number") {
-        return new NumberField(path, formAccess);
-    }
-    else if (element.type === "bool") {
-        return new BooleanField(path, formAccess);
-    }
-    else if (element.type === "array") {
-        return new ArrayField(path, formAccess, idx => mapElementToField(element.item, formAccess, path.withArrayIndex(idx)));
-    }
-    else if (element.type === "object") {
-        const properties: ObjectSchema = element.properties;
-        const keyToFactory: any = {};
-        for (const [key, value] of Object.entries(properties)) {
-            keyToFactory[key] = () => mapElementToField(value, formAccess, path.withProperty(key));
-        }
-        return new ObjectField(path, formAccess, keyToFactory);
-    }
-    throw new Error(`Unsupported element: ${element satisfies never}`);
-}
-
-export type Form<D, T extends FieldSet> = {
-    get<K extends keyof T>(key: K): T[K]
+export type Form<D> = {
+    get<K extends keyof D>(key: K): FieldFromNative<D[K]>
 
     getData(): D
 
@@ -252,9 +185,9 @@ export type _Form = {
     getState(state: FormStateType): any
 
     subscribeToState(state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState;
-} & Form<any, any>;
+} & Form<any>;
 
-export function isInternalForm<D, F extends FieldSet>(form: Form<D, F>): form is _Form {
+export function isInternalForm(form: Form<any>): form is _Form {
     return Object.hasOwn(form, FORM_SYM);
 }
 

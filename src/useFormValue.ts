@@ -1,14 +1,7 @@
 import { useSyncExternalStore } from "react";
-import { ArrayField, BooleanField, FormField, NumberField, ObjectField, StringField } from "./FormField";
-import { FormSchemaElement, ObjectSchema, SchemaValue } from "./FormSchemaElement";
+import { FormField } from "./FormField";
 
-export function useFormValue(field: StringField): string;
-export function useFormValue(field: NumberField): number;
-export function useFormValue(field: BooleanField): boolean;
-export function useFormValue<T extends FormSchemaElement>(field: ArrayField<T>): SchemaValue<T>[];
-export function useFormValue<T extends ObjectSchema>(field: ObjectField<T>): {[K in keyof T]: SchemaValue<T[K]> };
-
-export function useFormValue(field: FormField) {
+export function useFormValue<T>(field: FormField<T>): T {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {

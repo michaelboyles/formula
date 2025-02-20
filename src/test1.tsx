@@ -1,30 +1,29 @@
 import { useFormValue } from "./useFormValue";
 import { Form, useForm, Visitor } from "./useForm";
 import { useElements } from "./useElements";
-import { ArrayField, StringField } from "./FormField";
-import { array, boolean, number, object, string, StringElement } from "./FormSchemaElement";
+import { ArrayField, FormField } from "./FormField";
 import { Input } from "./Input";
-import { FormSchema } from "./FormSchema";
 import { Checkbox } from "./Checkbox";
 import { useIsSubmitting } from "./useIsSubmitting";
 import { allOf, maxLength, required } from "./validators";
 import { useFormErrors } from "./useFormErrors";
 
-const category = object({
-    name: string(),
-    subcategories: () => array(category)
-});
+type Category = {
+    name: string,
+    subcategories: Category[]
+}
 
-const schema = FormSchema.create()
-    .with("title", string())
-    .with("isPublic", boolean())
-    .with("numLikes", number())
-    .with("tags", array(string()))
-    .with("category", category);
+type FormValues = {
+    title: string
+    isPublic: true
+    numLikes: number
+    tags: string[]
+    category: Category
+    arrayOfArray: string[][]
+}
 
 export function Test1() {
-    const form = useForm({
-        schema,
+    const form = useForm<FormValues, any>({
         getInitialValues: () => ({
             title: "My Blog Post",
             isPublic: true,
@@ -37,7 +36,8 @@ export function Test1() {
                             { name: "name", subcategories: [] }
                     ] }
                 ]
-            }
+            },
+            arrayOfArray: []
         }),
         async submit(data) {
             return new Promise((resolve, reject) => {
@@ -58,7 +58,8 @@ export function Test1() {
     const numLikes = useFormValue(form.get("numLikes"));
     const tagsField = form.get("tags");
     const tags = useFormValue(tagsField);
-    const name = form.get("category").property("subcategories").element(0).property("name");
+    const name = form.get("category").property("subcategories").element(0).property("name") as FormField<string>;
+    const subcats = useElements(form.get("category").property("subcategories"));
 
     const value = useFormValue(name);
     const createdAtError = useFormErrors(name);
@@ -81,17 +82,21 @@ export function Test1() {
                 category: {
                     name: "a",
                     subcategories: [
+                        { name: "sub 111", subcategories: [] },
                         { name: "sub 222", subcategories: [] }
                     ]
                 },
                 isPublic: true,
-                numLikes: 1
+                numLikes: 1,
+                arrayOfArray: [["a"]]
             })}>Set DATA</button>
             {
                 tags.map((tag, idx) => <div key={idx}>{ tag } { tag.length }</div>)
             }
 
-            <label>Sub category name <Input field={name} /></label>
+            { subcats.map((subcat, idx) =>
+                <label key={idx}>Sub category name: <Input field={subcat.property("name")}/> </label>
+            )}
             <label>Public? <Checkbox className="cb" field={form.get("isPublic")}/></label>
             <Tags field={form.get("tags")}/>
 
@@ -100,10 +105,6 @@ export function Test1() {
     )
 }
 
-type Category = {
-    name: string,
-    subcategories: Category[],
-}
 function validateCategory(visit: (visitor: Visitor<Category>) => void) {
     visit({
         name(name) {
@@ -119,7 +120,7 @@ function validateCategory(visit: (visitor: Visitor<Category>) => void) {
     })
 }
 
-function Tags(props: { field: ArrayField<StringElement> }) {
+function Tags(props: { field: ArrayField<string> }) {
     const elemns = useElements(props.field);
     return (
         <>
@@ -129,13 +130,13 @@ function Tags(props: { field: ArrayField<StringElement> }) {
     );
 }
 
-function Tag(props: { field: StringField }) {
+function Tag(props: { field: FormField<string> }) {
     return (
         <div>Tag: <Input field={props.field} /></div>
     )
 }
 
-function DisableSubmitButton(props: { form: Form<any, any> }) {
+function DisableSubmitButton(props: { form: Form<any> }) {
     const isSubmitting = useIsSubmitting(props.form);
     return (
         <button type="submit" disabled={isSubmitting}>Submit</button>

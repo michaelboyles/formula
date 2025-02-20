@@ -1,19 +1,8 @@
 import { FormAccess } from "./useForm";
-import {
-    ArrayElement,
-    FormSchemaElement,
-    NumberElement,
-    ObjectElement,
-    ObjectSchema,
-    SchemaElementSet,
-    SchemaValue,
-    SchemaValueForObject,
-    StringElement
-} from "./FormSchemaElement";
 import { FieldPath } from "./FieldPath";
 import { Subscriber, Unsubscribe } from "./FormStateTree";
 
-export class FormField<Value = any> {
+export class FormFieldImpl<Value = any> implements FormField<Value> {
     protected readonly path: FieldPath
     protected readonly form: FormAccess
 
@@ -41,66 +30,46 @@ export class FormField<Value = any> {
     subscribeToErrors(subscriber: Subscriber): Unsubscribe {
         return this.form.subscribeToErrors(this.path, subscriber);
     }
-}
 
-export class StringField extends FormField<string> {
-    constructor(path: FieldPath, formAccess: FormAccess) {
-        super(path, formAccess);
+    property(key: string) {
+        return new FormFieldImpl(this.path.withProperty(key), this.form);
     }
-}
-export class NumberField extends FormField<number> {
-    constructor(path: FieldPath, formAccess: FormAccess) {
-        super(path, formAccess);
-    }
-}
-export class BooleanField extends FormField<boolean> {
-    constructor(path: FieldPath, formAccess: FormAccess) {
-        super(path, formAccess);
+
+    element(idx: number) {
+        return new FormFieldImpl(this.path.withArrayIndex(idx), this.form);
     }
 }
 
-type ObjectPropertyFactories<T extends ObjectSchema> = { [K in keyof T]: () => FieldFromElement<T[K]> };
-export class ObjectField<T extends ObjectSchema> extends FormField<SchemaValueForObject<T>>{
-    private readonly keyToFactory: ObjectPropertyFactories<T>
-
-    constructor(path: FieldPath, formAccess: FormAccess, keyToFactory: ObjectPropertyFactories<T>) {
-        super(path, formAccess);
-        this.keyToFactory = keyToFactory;
-    }
-
-    property<K extends keyof T>(key: K): FieldFromElement<T[K]> {
-        const factory = this.keyToFactory[key];
-        if (!factory) {
-            const attemptedPath = this.path.withProperty(key as string);
-            throw new Error("No such key " + attemptedPath.toString());
-        }
-        return factory()
-    }
+export type FormField<Value = any> = {
+    getValue(): Value
+    setValue(value: Value): void
+    subscribeToValue(subscriber: Subscriber): Unsubscribe
+    getErrors(): string[] | undefined
+    subscribeToErrors(subscriber: Subscriber): Unsubscribe
 }
 
-type ArrayElemFactory<E> = (idx: number) => E;
-export class ArrayField<E extends FormSchemaElement> extends FormField<SchemaValue<E>[]> {
-    private readonly elementFactory: ArrayElemFactory<FieldFromElement<E>>
-
-    constructor(path: FieldPath, formAccess: FormAccess, elementFactory: ArrayElemFactory<FieldFromElement<E>>) {
-        super(path, formAccess);
-        this.elementFactory = elementFactory;
-    }
-
-    element(idx: number): FieldFromElement<E> {
-        return this.elementFactory(idx);
-    }
+export type ObjectField<T extends Record<any, any>> = FormField<T> & {
+    property<K extends keyof T>(key: K): FieldFromNative<T[K]>;
+}
+export type ArrayField<E> = FormField<E[]> & {
+    element(idx: number): MaybeField<E>
 }
 
-export type FieldSet = Record<string, FormField>;
+type MaybeField<T> =
+    T extends Array<infer ArrayElement> ? MaybeArrayField<ArrayElement> :
+        T extends Record<any, any> ? MaybeObjectField<T>
+            : FormField<T | undefined>
 
-export type FieldSetFromElementSet<T extends SchemaElementSet> = {
-    [K in keyof T]: FieldFromElement<T[K]>
-}
+type MaybeObjectField<T extends Record<any, any>> = {
+    property<K extends keyof T>(key: K): MaybeField<T[K]>;
+} & FormField<T | undefined>;
 
-export type FieldFromElement<T extends FormSchemaElement> =
-    T extends () => infer Lazy ? (Lazy extends FormSchemaElement ? FieldFromElement<Lazy> : never) :
-        T extends StringElement ? StringField :
-            T extends NumberElement ? NumberField :
-                T extends ObjectElement<infer Obj> ? ObjectField<Obj> :
-                    T extends ArrayElement<infer Arr> ? ArrayField<Arr> : never;
+type MaybeArrayField<T> = {
+    element(idx: number): MaybeField<T>;
+} & FormField<T | undefined>;
+
+export type FieldFromNative<T> =
+    undefined extends T ? MaybeField<NonNullable<T>> :
+        T extends Array<infer Arr> ? ArrayField<Arr> :
+            T extends Record<any, any> ? ObjectField<T> :
+                FormField<T>;

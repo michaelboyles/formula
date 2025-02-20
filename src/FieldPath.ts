@@ -82,12 +82,14 @@ export type FieldNode = {
 function getValueForNode(data: any, node: FieldNode): any {
     switch (node.type) {
         case "property": {
+            if (data == null) return undefined;
             if (typeof data !== "object") {
                 throw new Error("Not an object")
             }
             return data[node.name];
         }
         case "index": {
+            if (data == null) return undefined;
             if (!Array.isArray(data)) {
                 throw new Error("Not an array");
             }
