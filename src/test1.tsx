@@ -7,6 +7,7 @@ import { Checkbox } from "./Checkbox";
 import { useIsSubmitting } from "./useIsSubmitting";
 import { allOf, maxLength, required } from "./validators";
 import { useFormErrors } from "./useFormErrors";
+import { IntegerInput } from "./IntegerInput";
 
 type Category = {
     name: string,
@@ -18,7 +19,7 @@ type Foo = "foo" | "bar";
 type FormValues = {
     title: string
     isPublic: boolean
-    numLikes: number
+    numLikes: number | ""
     tags: string[]
     category: Category
     arrayOfArray: Foo[][]
@@ -59,7 +60,6 @@ export function Test1() {
 
     const titleField = form.get("title");
     const title = useFormValue(titleField);
-    const numLikes = useFormValue(form.get("numLikes"));
     const tagsField = form.get("tags");
     const tags = useFormValue(tagsField);
     const name = form.get("category").property("subcategories").element(0).property("name") as FormField<string>;
@@ -75,8 +75,11 @@ export function Test1() {
             <h1>{createdAtError}</h1>
 
             Title { title }
-            Num Likes { numLikes }
             Value { value }
+
+            <div>
+                <label>Num likes <IntegerInput field={form.get("numLikes")} /></label>
+            </div>
 
             <Input field={form.get("title")} placeholder="Title" />
             <button onClick={() => titleField.setValue("New title")}>Set Title</button>
