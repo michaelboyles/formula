@@ -17,7 +17,7 @@ type Foo = "foo" | "bar";
 
 type FormValues = {
     title: string
-    isPublic: true
+    isPublic: boolean
     numLikes: number
     tags: string[]
     category: Category
@@ -67,7 +67,6 @@ export function Test1() {
 
     const value = useFormValue(name);
     const createdAtError = useFormErrors(name);
-    form.get("foo").setValue("bar");
 
     return (
         <form onSubmit={form.submit}>

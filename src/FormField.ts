@@ -70,6 +70,9 @@ type MaybeArrayField<T> = {
 
 export type FieldFromNative<T> =
     T extends undefined ? MaybeField<NonNullable<T>> :
-        [T] extends [Array<infer Arr>] ? ArrayField<Arr> :
-            [T] extends [Record<any, any>] ? ObjectField<T> :
-                FormField<T>;
+        // TODO 3 - it does mean that 'false' and 'true' become boolean, but seems unlikely you would have a form
+        //  field like that
+        [T] extends [boolean] ? FormField<boolean> :
+            [T] extends [Array<infer Arr>] ? ArrayField<Arr> :
+                [T] extends [Record<any, any>] ? ObjectField<T> :
+                    FormField<T>;
