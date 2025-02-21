@@ -2,7 +2,13 @@ import { FormAccess } from "./useForm";
 import { FieldPath } from "./FieldPath";
 import { Subscriber, Unsubscribe } from "./FormStateTree";
 
-export class FormFieldImpl<Value, SetValue> implements FormField<Value, SetValue> {
+export class FormFieldImpl<Value, SetValue>
+    implements FormField<Value, SetValue>,
+        Pick<ObjectField<Record<string, any>>, "property">,
+        Pick<ArrayField<any>, "element">,
+        Pick<MaybeArrayField<any>, "element">,
+        Pick<MaybeObjectField<Record<string, any>>, "property">
+{
     protected readonly path: FieldPath
     protected readonly form: FormAccess
 
