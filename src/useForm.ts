@@ -43,38 +43,9 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
 
-    const getValue = useCallback((path: FieldPath) => path.getValue(data.current), []);
-
     const setValue = useCallback((path: FieldPath, value: any) => {
         data.current = path.getDataWithValue(data.current, value);
         stateTree.current.notifyValueChanged(path);
-    }, []);
-
-    const subscribeToValue = useCallback((path: FieldPath, subscriber: Subscriber) => {
-        const unsubscribe = stateTree.current.subscribeToValue(path, subscriber);
-        return () => unsubscribe();
-    }, []);
-
-    const getErrors = useCallback((path: FieldPath) => {
-        return stateTree.current.getErrors(path);
-    }, []);
-
-    const subscribeToErrors = useCallback((path: FieldPath, subscriber: Subscriber) => {
-        const unsubscribe = stateTree.current.subscribeToErrors(path, subscriber);
-        return () => unsubscribe();
-    }, []);
-
-    const isTouched = useCallback((path: FieldPath) => {
-        return stateTree.current.isTouched(path);
-    }, []);
-
-    const setTouched = useCallback((path: FieldPath, touched: boolean) => {
-        return stateTree.current.setTouched(path, touched);
-    }, []);
-
-    const subscribeToTouched = useCallback((path: FieldPath, subscriber: Subscriber) => {
-        const unsubscribe = stateTree.current.subscribeToTouched(path, subscriber);
-        return () => unsubscribe();
     }, []);
 
     const submit = useCallback(async (e: FormEvent) => {
@@ -112,14 +83,26 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     }, [submitForm, onSuccess, onError]);
 
     const formAccess: FormAccess = useMemo(() => ({
-        getValue,
-        setValue,
-        subscribeToValue,
-        getErrors,
-        subscribeToErrors,
-        isTouched,
-        setTouched,
-        subscribeToTouched
+        getValue: path => path.getValue(data.current),
+        setValue: (path, value) => {
+            data.current = path.getDataWithValue(data.current, value);
+            stateTree.current.notifyValueChanged(path);
+        },
+        subscribeToValue: (path, subscriber) => {
+            const unsubscribe = stateTree.current.subscribeToValue(path, subscriber);
+            return () => unsubscribe();
+        },
+        getErrors: path => stateTree.current.getErrors(path),
+        subscribeToErrors: (path, subscriber) => {
+            const unsubscribe = stateTree.current.subscribeToErrors(path, subscriber);
+            return () => unsubscribe();
+        },
+        isTouched: path => stateTree.current.isTouched(path),
+        setTouched: (path, touched) => stateTree.current.setTouched(path, touched),
+        subscribeToTouched: (path, subscriber) => {
+            const unsubscribe = stateTree.current.subscribeToTouched(path, subscriber);
+            return () => unsubscribe();
+        }
     }), []);
 
     const form: _Form = {
