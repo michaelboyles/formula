@@ -1,5 +1,5 @@
 export class FieldPath {
-    readonly nodes: FieldNode[];
+    readonly nodes: ReadonlyArray<FieldNode>;
 
     constructor(nodes: FieldNode[]) {
         this.nodes = nodes;
