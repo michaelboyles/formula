@@ -23,12 +23,12 @@ export type Visitor<T> = {
 type BaseForm = Record<string, any>;
 
 type UseFormOpts<T extends BaseForm, R> = {
-    getInitialValues(): T
-    submit(values: T): Promise<R>
+    getInitialValues: () => T
+    submit: (values: T) => Promise<R>
 
     // Optional
-    onSuccess?(args: { result: R, values: T }): void
-    onError?(error: unknown): void
+    onSuccess?: (args: { result: R, values: T }) => void
+    onError?: (error: unknown) => void
 
     validate?: Visitor<NoInfer<T>>
     validators?: StandardSchemaV1<Partial<T>>[]
@@ -175,13 +175,13 @@ function validateValue<V, R>(value: V, rootData: R, keyVisitor: FieldVisitor<V, 
 }
 
 export type Form<D> = {
-    get<K extends keyof D>(key: K): FieldFromNative<D[K]>
+    get: <K extends keyof D>(key: K) => FieldFromNative<D[K]>
 
-    getData(): D
+    getData: () => D
 
-    setData(data: D): void
+    setData: (data: D) => void
 
-    resetData(): void
+    resetData: () => void
 
     submit: (e?: FormEvent) => void
 }
@@ -189,9 +189,9 @@ export type Form<D> = {
 export type _Form = {
     [FORM_SYM]: 0,
 
-    getState(state: FormStateType): any
+    getState: (state: FormStateType) => any
 
-    subscribeToState(state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState;
+    subscribeToState: (state: FormStateType, subscriber: StateSubscriber) => UnsubscribeFromState;
 } & Form<any>;
 
 export function isInternalForm(form: Form<any>): form is _Form {
@@ -201,14 +201,14 @@ export function isInternalForm(form: Form<any>): form is _Form {
 const FORM_SYM = Symbol.for("FORM");
 
 export type FormAccess = {
-    getValue(path: FieldPath): any;
-    setValue(path: FieldPath, value: any): void;
-    subscribeToValue(path: FieldPath, subscriber: Subscriber): Unsubscribe;
+    getValue: (path: FieldPath) => any
+    setValue: (path: FieldPath, value: any) => void
+    subscribeToValue: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
-    getErrors(path: FieldPath): ReadonlyArray<string> | undefined
-    subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe;
+    getErrors: (path: FieldPath) => ReadonlyArray<string> | undefined
+    subscribeToErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
-    isTouched(path: FieldPath): boolean
-    setTouched(path: FieldPath, touched: boolean): void
-    subscribeToTouched(path: FieldPath, subscriber: Subscriber): Unsubscribe;
+    isTouched: (path: FieldPath) => boolean
+    setTouched: (path: FieldPath, touched: boolean) => void
+    subscribeToTouched: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 }

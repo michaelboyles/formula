@@ -72,10 +72,10 @@ export type FormField<Value = any, SetValue = Value> = {
 }
 
 export type ObjectField<T extends Record<any, any>> = FormField<T> & {
-    property<K extends keyof T>(key: K): FieldFromNative<T[K]>;
+    property: <K extends keyof T>(key: K) => FieldFromNative<T[K]>
 }
 export type ArrayField<E> = FormField<E[]> & {
-    element(idx: number): MaybeField<E>
+    element: (idx: number) => MaybeField<E>
 }
 
 type MaybeField<T> =
@@ -84,11 +84,11 @@ type MaybeField<T> =
             : FormField<T | undefined, T>
 
 type MaybeObjectField<T extends Record<any, any>> = {
-    property<K extends keyof T>(key: K): MaybeField<T[K]>;
+    property: <K extends keyof T>(key: K) => MaybeField<T[K]>
 } & FormField<T | undefined, T>;
 
 type MaybeArrayField<T> = {
-    element(idx: number): MaybeField<T>;
+    element: (idx: number) => MaybeField<T>
 } & FormField<T | undefined, T>;
 
 export type FieldFromNative<T> =
