@@ -4,7 +4,7 @@ import { FieldPath } from "./FieldPath";
 import { FormStateTree, Subscriber, Unsubscribe } from "./FormStateTree";
 import { FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager";
 import { Validator, ValidatorReturn } from "./validators";
-import { getValidationIssues } from "./getValidationIssues";
+import { getValidationIssues } from "./validate";
 import { StandardSchemaV1 } from "@standard-schema/spec";
 
 export type ArrayValidator<Value, FormValues> = (value: Value, a: { forEachElement: (validator: FieldVisitor<Value, FormValues>) => void }) => ValidatorReturn;
