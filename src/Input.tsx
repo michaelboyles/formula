@@ -11,5 +11,11 @@ export function Input(props: Props) {
     let { field, type, ...rest } = props;
     const value = useFormValue(field);
     if (!type) type = "text";
-    return <input {...rest} type={type} onChange={e => field.setValue(e.target.value)} value={value} />;
+    return (
+        <input
+            {...rest} type={type} value={value}
+            onChange={e => field.setValue(e.target.value)}
+            onBlur={() => field.setTouched(true)}
+        />
+    );
 }

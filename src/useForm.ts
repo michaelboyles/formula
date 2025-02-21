@@ -64,6 +64,19 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         return () => unsubscribe();
     }, []);
 
+    const isTouched = useCallback((path: FieldPath) => {
+        return stateTree.current.isTouched(path);
+    }, []);
+
+    const setTouched = useCallback((path: FieldPath, touched: boolean) => {
+        return stateTree.current.setTouched(path, touched);
+    }, []);
+
+    const subscribeToTouched = useCallback((path: FieldPath, subscriber: Subscriber) => {
+        const unsubscribe = stateTree.current.subscribeToTouched(path, subscriber);
+        return () => unsubscribe();
+    }, []);
+
     const submit = useCallback(async (e: FormEvent) => {
         e.preventDefault();
         const values = data.current;
@@ -104,6 +117,9 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         subscribeToValue,
         getErrors,
         subscribeToErrors,
+        isTouched,
+        setTouched,
+        subscribeToTouched
     }), []);
 
     const form: _Form = {
@@ -208,4 +224,8 @@ export type FormAccess = {
 
     getErrors(path: FieldPath): ReadonlyArray<string> | undefined
     subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe;
+
+    isTouched(path: FieldPath): boolean
+    setTouched(path: FieldPath, touched: boolean): void
+    subscribeToTouched(path: FieldPath, subscriber: Subscriber): Unsubscribe;
 }

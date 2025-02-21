@@ -11,6 +11,7 @@ import { IntegerInput } from "../IntegerInput";
 import { Select } from "../Select";
 import { useIsSubmitting } from "../useIsSubmitting";
 import { useElements } from "../useElements";
+import { useIsTouched } from "../useIsTouched";
 
 const user = userEvent.setup();
 
@@ -192,5 +193,33 @@ describe("useForm", () => {
         const submit = getByTestId("submit2");
         await user.click(submit);
         expect(submit).toBeDisabled();
+    })
+
+    test("Touched", async () => {
+        function Test() {
+            const form = useForm({
+                getInitialValues: () => ({
+                    title: ""
+                }),
+                submit: async () => "done"
+            })
+
+            const titleField = form.get("title");
+            const touched = useIsTouched(titleField);
+            return (
+                <>
+                    <form onSubmit={form.submit}>
+                        <Input field={titleField} data-testid="input2" />
+                        { touched ? <div data-testid="touched">touched</div> : null }
+                    </form>
+                </>
+            )
+        }
+
+        const { getByTestId } = render(<Test />);
+        const input = getByTestId("input2");
+        await user.click(input);
+        await user.tab();
+        expect(getByTestId("touched")).toBeInTheDocument();
     })
 })

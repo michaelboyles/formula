@@ -76,7 +76,7 @@ export class FieldPath {
         return this.nodes.length === 0;
     }
 
-    private sliceTo(parts: number): FieldPath {
+    sliceTo(parts: number): FieldPath {
         if (parts > this.nodes.length) {
             throw new Error(`Can't slice ${this.toString()} into ${parts} part(s)`)
         }

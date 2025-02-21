@@ -37,6 +37,18 @@ export class FormFieldImpl<Value, SetValue>
         return this.form.subscribeToErrors(this.path, subscriber);
     }
 
+    isTouched(): boolean {
+        return this.form.isTouched(this.path);
+    }
+
+    setTouched(touched: boolean): void {
+        return this.form.setTouched(this.path, touched);
+    }
+
+    subscribeToTouched(subscriber: Subscriber): Unsubscribe {
+        return this.form.subscribeToTouched(this.path, subscriber);
+    }
+
     property(key: string) {
         return new FormFieldImpl(this.path.withProperty(key), this.form);
     }
@@ -47,11 +59,16 @@ export class FormFieldImpl<Value, SetValue>
 }
 
 export type FormField<Value = any, SetValue = Value> = {
-    getValue(): Value
+    getValue: () => Value
     setValue: (value: SetValue) => void
-    subscribeToValue(subscriber: Subscriber): Unsubscribe
-    getErrors(): ReadonlyArray<string> | undefined
-    subscribeToErrors(subscriber: Subscriber): Unsubscribe
+    subscribeToValue: (subscriber: Subscriber) => Unsubscribe
+
+    getErrors: () => ReadonlyArray<string> | undefined
+    subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
+
+    isTouched: () => boolean
+    setTouched: (touched: boolean) => void
+    subscribeToTouched: (subscriber: Subscriber) => Unsubscribe
 }
 
 export type ObjectField<T extends Record<any, any>> = FormField<T> & {

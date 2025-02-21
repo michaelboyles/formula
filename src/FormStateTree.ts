@@ -20,19 +20,36 @@ export class FormStateTree {
         node.errorSubscribers?.forEach(notify => notify());
     }
 
-    subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        const node = this.getOrCreateNode(path);
-        node.errorSubscribers = pushOrCreateArray(node.errorSubscribers, subscriber);
-        return () => {
-            node.errorSubscribers = removeFromArray(node.errorSubscribers, subscriber);
+    isTouched(path: FieldPath): boolean {
+        const node = this.getNode(path);
+        return node?.touched ?? false;
+    }
+
+    setTouched(path: FieldPath, touched: boolean) {
+        for (let i = 0; i < path.nodes.length; ++i) {
+            const node = this.getOrCreateNode(path.sliceTo(i + 1));
+            node.touched = touched;
+            node.touchedSubscribers?.forEach(notify => notify());
         }
     }
 
     subscribeToValue(path: FieldPath, subscriber: Subscriber): Unsubscribe {
+        return this.subscribe(path, "valueSubscribers", subscriber);
+    }
+
+    subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe {
+        return this.subscribe(path, "errorSubscribers", subscriber);
+    }
+
+    subscribeToTouched(path: FieldPath, subscriber: Subscriber): Unsubscribe {
+        return this.subscribe(path, "touchedSubscribers", subscriber);
+    }
+
+    private subscribe<K extends keyof Subscribers>(path: FieldPath, key: K, subscriber: Subscriber): Unsubscribe {
         const node = this.getOrCreateNode(path);
-        node.valueSubscribers = pushOrCreateArray(node.valueSubscribers, subscriber);
+        node[key] = pushOrCreateArray(node[key], subscriber);
         return () => {
-            node.valueSubscribers = node.valueSubscribers?.filter(s => s !== subscriber);
+            node[key] = removeFromArray(node[key], subscriber);
         }
     }
 
@@ -143,9 +160,13 @@ export class FormStateTree {
 type TreeNode = {
     propertyToNode?: Record<string, TreeNode>
     indexToNode?: Record<number, TreeNode>
-    valueSubscribers?: Subscriber[]
     errors?: string[],
+    touched?: boolean
+} & Subscribers;
+type Subscribers = {
+    valueSubscribers?: Subscriber[]
     errorSubscribers?: Subscriber[]
+    touchedSubscribers?: Subscriber[]
 }
 
 export type Unsubscribe = () => void;
