@@ -295,4 +295,20 @@ describe("useForm", () => {
         expect(getAllByTestId("title-error").length).toBe(1);
         expect(getAllByTestId("tag-error").length).toBe(1);
     })
+
+    test("getData and setData", async () => {
+        function Test() {
+            const form = useForm({
+                getInitialValues: () => ({
+                    title: ""
+                }),
+                submit: async () => "done"
+            });
+            form.setData({ title: "My Title"});
+            return (<div>{ form.getData().title }</div>)
+        }
+
+        const { queryByText } = render(<Test />);
+        expect(queryByText("My Title")).toBeInTheDocument();
+    })
 })
