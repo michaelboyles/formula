@@ -163,6 +163,40 @@ describe("useForm", () => {
         expect(select).toHaveValue("dog");
     })
 
+    test("Mapped select", async () => {
+        function Test() {
+            type Vehicle = { type: "bike" } | { type: "car" }
+
+            const form = useForm({
+                getInitialValues: () => ({
+                    vehicle: { type: "bike" } as Vehicle
+                }),
+                submit: () => Promise.resolve("Ok")
+            })
+            return (
+                <>
+                    <form onSubmit={form.submit}>
+                        <Select
+                            data-testid="vehicle"
+                            field={form.get("vehicle")}
+                            options={[
+                                { label: "** Car", value: { type: "car" } },
+                                { label: "-- Bike", value: { type: "bike" } },
+                            ]}
+                            mapToValue={vehicle => vehicle.type}
+                        />
+                        <button type="submit">Submit</button>
+                    </form>
+                </>
+            )
+        }
+
+        const { getByTestId } = render(<Test />);
+        const select = getByTestId("vehicle");
+        await user.selectOptions(select, "car");
+        expect(select).toHaveValue("car");
+    })
+
     test("Array elements", async () => {
         function Test() {
             const form = useForm({

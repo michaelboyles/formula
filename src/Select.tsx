@@ -12,7 +12,7 @@ export type Props<T> = {
 & Omit<DefaultSelectProps, "type" | "onChange" | "checked">;
 
 type MapperProps<T> =
-    T extends (string | number) ? {
+    [T] extends [string | number] ? {
         mapToValue?: Mapper<T>
     } : {
         mapToValue: Mapper<T>
