@@ -96,3 +96,9 @@ describe("isRoot", () => {
         expect(FieldPath.create().withProperty("foo").isRoot()).toBe(false)
     })
 })
+
+describe("slice", () => {
+    test("invalid slice", () => {
+        expect(() => FieldPath.create().sliceTo(5)).toThrow()
+    })
+})

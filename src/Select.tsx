@@ -46,7 +46,7 @@ function safeMapper<T>(delegate: (value: T) => any): Mapper<T> {
     return value => {
         const strValue = delegate(value);
         if (typeof strValue !== "string" && typeof strValue !== "number") {
-            throw new Error("Value must be a string or number: " + strValue);
+            throw new Error("Value in Select must be a string or number: " + strValue);
         }
         return strValue;
     }
