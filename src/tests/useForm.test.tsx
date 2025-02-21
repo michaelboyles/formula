@@ -12,6 +12,7 @@ import { Select } from "../Select";
 import { useIsSubmitting } from "../useIsSubmitting";
 import { useElements } from "../useElements";
 import { useIsTouched } from "../useIsTouched";
+import * as z from "zod";
 
 const user = userEvent.setup();
 
@@ -221,5 +222,43 @@ describe("useForm", () => {
         await user.click(input);
         await user.tab();
         expect(getByTestId("touched")).toBeInTheDocument();
+    })
+
+    test("Validation", async () => {
+        const validator = z.object({
+            title: z.string().max(5),
+            tags: z.string().max(5).array()
+        })
+
+        function Test() {
+            const form = useForm({
+                getInitialValues: () => ({
+                    title: "",
+                    tags: ["tag too long"]
+                }),
+                submit: async () => "done",
+                validators: [validator]
+            });
+            const titleErrors = useFormErrors(form.get("title"));
+            const firstTagErrors = useFormErrors(form.get("tags").element(0));
+            return (
+                <>
+                    <form onSubmit={form.submit}>
+                        <Input field={form.get("title")} data-testid="input3" />
+                        <input type="submit" value="Submit" />
+                        { titleErrors ? titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) : null }
+                        { firstTagErrors ? firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) : null }
+                    </form>
+                </>
+            )
+        }
+
+        const { getByTestId, getAllByTestId } = render(<Test />);
+        const input = getByTestId("input3");
+        await user.type(input, "abcdef");
+        await user.type(input, "{enter}");
+
+        expect(getAllByTestId("title-error").length).toBe(1);
+        expect(getAllByTestId("tag-error").length).toBe(1);
     })
 })
