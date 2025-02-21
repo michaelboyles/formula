@@ -48,8 +48,8 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         stateTree.current.notifyValueChanged(path);
     }, []);
 
-    const submit = useCallback(async (e: FormEvent) => {
-        e.preventDefault();
+    const submit = useCallback(async (e?: FormEvent) => {
+        e?.preventDefault();
         const values = data.current;
         if (validators && validators.length) {
             const issues = await getValidationIssues(values, validators);
@@ -183,7 +183,7 @@ export type Form<D> = {
 
     resetData(): void
 
-    submit(e: FormEvent): void
+    submit: (e?: FormEvent) => void
 }
 
 export type _Form = {
