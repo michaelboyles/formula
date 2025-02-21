@@ -1,5 +1,7 @@
-export { Form } from "./useForm"
-export { FormField, ObjectField, ArrayField } from "./FormField"
+// noinspection JSUnusedGlobalSymbols
+
+export type { Form } from "./useForm"
+export type { FormField, ObjectField, ArrayField } from "./FormField"
 
 // Hooks
 
@@ -14,6 +16,6 @@ export { useSubmissionError } from "./useSubmissionError"
 // Components
 
 export { Checkbox } from "./Checkbox"
-export { Input, Props as InputProps } from "./Input"
-export { IntegerInput, Props as IntegerInputProps } from "./IntegerInput"
+export { Input, type Props as InputProps } from "./Input"
+export { IntegerInput, type Props as IntegerInputProps } from "./IntegerInput"
 export { Select } from "./Select"
