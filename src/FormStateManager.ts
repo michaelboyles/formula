@@ -7,42 +7,42 @@ export type UnsubscribeFromState = () => void;
 export type StateSubscriber = () => void;
 
 export class FormStateManager {
-    #state: FormState = {
+    private state: FormState = {
         isSubmitting: false,
         submissionError: undefined,
     }
-    #stateToSubscribers: Map<FormStateType, StateSubscriber[]> = new Map();
+    private stateToSubscribers: Map<FormStateType, StateSubscriber[]> = new Map();
 
     subscribe(state: FormStateType, subscriber: StateSubscriber) {
-        let subscribers = this.#stateToSubscribers.get(state);
+        let subscribers = this.stateToSubscribers.get(state);
         if (!subscribers) {
             subscribers = [];
-            this.#stateToSubscribers.set(state, subscribers);
+            this.stateToSubscribers.set(state, subscribers);
         }
         subscribers.push(subscriber);
     }
 
     unsubscribe(state: FormStateType, subscriber: StateSubscriber) {
-        let subscribers = this.#stateToSubscribers.get(state);
+        let subscribers = this.stateToSubscribers.get(state);
         if (subscribers) {
-            this.#stateToSubscribers.set(state, subscribers.filter(s => s !== subscriber));
+            this.stateToSubscribers.set(state, subscribers.filter(s => s !== subscriber));
         }
     }
 
     getValue<T extends FormStateType>(state: FormStateType): FormState[T] {
-        return this.#state[state];
+        return this.state[state];
     }
 
     setValue<T extends FormStateType>(state: FormStateType, newValue: FormState[T]) {
-        const prev = this.#state[state];
+        const prev = this.state[state];
         if (prev !== newValue) {
-            this.#state[state] = newValue;
-            this.#notify(state);
+            this.state[state] = newValue;
+            this.notify(state);
         }
     }
 
-    #notify(state: FormStateType) {
-        const subscribers = this.#stateToSubscribers.get(state);
+    private notify(state: FormStateType) {
+        const subscribers = this.stateToSubscribers.get(state);
         if (subscribers) {
             subscribers.forEach(notifySubscriber => notifySubscriber());
         }
