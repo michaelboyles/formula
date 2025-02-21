@@ -4,6 +4,8 @@ import { FieldPath } from "./FieldPath";
 import { FormStateTree, Subscriber, Unsubscribe } from "./FormStateTree";
 import { FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager";
 import { Validator, ValidatorReturn } from "./validators";
+import { getValidationIssues } from "./getValidationIssues";
+import { StandardSchemaV1 } from "@standard-schema/spec";
 
 export type ArrayValidator<Value, FormValues> = (value: Value, a: { forEachElement: (validator: FieldVisitor<Value, FormValues>) => void }) => ValidatorReturn;
 export type ObjValidator<Value, FormValues> = (value: Value, a: { visit: (visitor: Visitor<Value>) => void }) => ValidatorReturn;
@@ -29,16 +31,17 @@ type UseFormOpts<T extends BaseForm, R> = {
     onError?(error: unknown): void
 
     validate?: Visitor<NoInfer<T>>
+    validators?: StandardSchemaV1<Partial<T>>[]
 }
 
 const ROOT_PATH = FieldPath.create();
 
 export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T> {
+    const { getInitialValues, submit: submitForm, onSuccess, onError, validate, validators } = opts;
+
     const data = useRef(opts.getInitialValues());
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
-
-    const { getInitialValues, submit: submitForm, onSuccess, onError, validate } = opts;
 
     const getValue = useCallback((path: FieldPath) => path.getValue(data.current), []);
 
@@ -64,10 +67,15 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     const submit = useCallback(async (e: FormEvent) => {
         e.preventDefault();
         const values = data.current;
-        if (validate) {
-            validateObject(values, values, validate, ROOT_PATH, stateTree.current);
-            if (stateTree.current.hasError()) {
-                console.log("Failed to submit because of validation errors");
+        if (validators && validators.length) {
+            const issues = await getValidationIssues(values, validators);
+
+            if (issues.length) {
+                issues.forEach(issue => {
+                    stateTree.current.setErrors(issue.path, [issue.message]);
+                });
+
+                console.log("Failed to submit because of validation errors", JSON.stringify(issues));
                 return;
             }
         }
