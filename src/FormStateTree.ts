@@ -30,9 +30,9 @@ export class FormStateTree {
 
     subscribeToValue(path: FieldPath, subscriber: Subscriber): Unsubscribe {
         const node = this.getOrCreateNode(path);
-        node.subscribers = pushOrCreateArray(node.subscribers, subscriber);
+        node.valueSubscribers = pushOrCreateArray(node.valueSubscribers, subscriber);
         return () => {
-            node.subscribers = node.subscribers?.filter(s => s !== subscriber);
+            node.valueSubscribers = node.valueSubscribers?.filter(s => s !== subscriber);
         }
     }
 
@@ -103,14 +103,14 @@ export class FormStateTree {
         // Descend the tree and notify just the leaves along the way, until the final leaf, then finally notify all
         // children
         if (path.isRoot()) {
-            this.notifyAll(currentNode, n => n.subscribers);
+            this.notifyAll(currentNode, n => n.valueSubscribers);
             return;
         }
         for (let i = 0; i < path.nodes.length; i++) {
             if (!currentNode) return;
-            currentNode.subscribers?.forEach(notifySub => notifySub());
+            currentNode.valueSubscribers?.forEach(notifySub => notifySub());
             if (i === path.nodes.length - 1) {
-                this.notifyAll(currentNode, n => n.subscribers);
+                this.notifyAll(currentNode, n => n.valueSubscribers);
             }
             else {
                 const node = path.nodes[i];
@@ -143,7 +143,7 @@ export class FormStateTree {
 type TreeNode = {
     propertyToNode?: Record<string, TreeNode>
     indexToNode?: Record<number, TreeNode>
-    subscribers?: Subscriber[]
+    valueSubscribers?: Subscriber[]
     errors?: string[],
     errorSubscribers?: Subscriber[]
 }
