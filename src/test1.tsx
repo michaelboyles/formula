@@ -8,6 +8,7 @@ import { useIsSubmitting } from "./useIsSubmitting";
 import { allOf, maxLength, required } from "./validators";
 import { useFormErrors } from "./useFormErrors";
 import { IntegerInput } from "./IntegerInput";
+import { Select } from "./Select";
 
 type Category = {
     name: string,
@@ -76,6 +77,14 @@ export function Test1() {
 
             Title { title }
             Value { value }
+
+            <Select
+                field={form.get("foo")}
+                options={[
+                    { label: "Foo!", value: "foo" },
+                    { label: "Bar!", value: "bar" },
+                ]}
+            />
 
             <div>
                 <label>Num likes <IntegerInput field={form.get("numLikes")} /></label>
