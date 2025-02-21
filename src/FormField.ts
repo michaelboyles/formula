@@ -44,7 +44,7 @@ export type FormField<Value = any, SetValue = Value> = {
     getValue(): Value
     setValue: (value: SetValue) => void
     subscribeToValue(subscriber: Subscriber): Unsubscribe
-    getErrors(): string[] | undefined
+    getErrors(): ReadonlyArray<string> | undefined
     subscribeToErrors(subscriber: Subscriber): Unsubscribe
 }
 

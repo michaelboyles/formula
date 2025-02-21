@@ -1,13 +1,13 @@
 import { FieldPath } from "./FieldPath";
 
 export class FormStateTree {
-    #root: TreeNode = {}
+    private root: TreeNode = {}
 
     hasError() {
-        return hasError(this.#root);
+        return hasError(this.root);
     }
 
-    getErrors(path: FieldPath): string[] | undefined {
+    getErrors(path: FieldPath): ReadonlyArray<string> | undefined {
         const node = this.getNode(path);
         if (node) {
             return node.errors;
@@ -37,7 +37,7 @@ export class FormStateTree {
     }
 
     private getOrCreateNode(path: FieldPath): TreeNode {
-        let node = this.#root;
+        let node = this.root;
         for (const pathPart of path.nodes) {
             switch (pathPart.type) {
                 case "property": {
@@ -78,7 +78,7 @@ export class FormStateTree {
     }
 
     private getNode(path: FieldPath): TreeNode | undefined {
-        let node = this.#root;
+        let node = this.root;
         for (const pathPart of path.nodes) {
             switch (pathPart.type) {
                 case "property": {
@@ -99,7 +99,7 @@ export class FormStateTree {
     }
 
     notifyValueChanged(path: FieldPath) {
-        let currentNode: TreeNode | undefined = this.#root;
+        let currentNode: TreeNode | undefined = this.root;
         // Descend the tree and notify just the leaves along the way, until the final leaf, then finally notify all
         // children
         if (path.isRoot()) {

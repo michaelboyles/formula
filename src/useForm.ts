@@ -198,6 +198,6 @@ export type FormAccess = {
     setValue(path: FieldPath, value: any): void;
     subscribeToValue(path: FieldPath, subscriber: Subscriber): Unsubscribe;
 
-    getErrors(path: FieldPath): string[] | undefined
+    getErrors(path: FieldPath): ReadonlyArray<string> | undefined
     subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe;
 }
