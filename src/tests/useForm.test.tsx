@@ -12,6 +12,7 @@ import { Select } from "../Select";
 import { useIsSubmitting } from "../useIsSubmitting";
 import { useElements } from "../useElements";
 import { useIsTouched } from "../useIsTouched";
+import { useFormValue } from "../useFormValue";
 import * as z from "zod";
 
 const user = userEvent.setup();
@@ -151,7 +152,6 @@ describe("useForm", () => {
                                 { label: "Dog!", value: "dog" },
                             ]}
                         />
-                        <button type="submit">Submit</button>
                     </form>
                 </>
             )
@@ -185,7 +185,6 @@ describe("useForm", () => {
                             ]}
                             mapToValue={vehicle => vehicle.type}
                         />
-                        <button type="submit">Submit</button>
                     </form>
                 </>
             )
@@ -296,19 +295,35 @@ describe("useForm", () => {
         expect(getAllByTestId("tag-error").length).toBe(1);
     })
 
-    test("getData and setData", async () => {
+    test("getData, setData, resetData", async () => {
         function Test() {
             const form = useForm({
                 getInitialValues: () => ({
-                    title: ""
+                    title: "Initial"
                 }),
                 submit: async () => "done"
             });
-            form.setData({ title: "My Title"});
-            return (<div>{ form.getData().title }</div>)
+
+            // This is just here to force the re-render. This isn't the recommended way to use it
+            useFormValue(form.get("title"));
+            return (
+                <form onReset={() => form.resetData()}>
+                    <div>{ form.getData().title }</div>
+                    <button
+                        type="button"
+                        onClick={() => form.setData({ title: "My Title" })}
+                        data-testid="setDataBtn"
+                    >Set data</button>
+                    <input type="reset" data-testid="reset" />
+                </form>
+            )
         }
 
-        const { queryByText } = render(<Test />);
+        const { getByTestId, queryByText } = render(<Test />);
+        await user.click(getByTestId("setDataBtn"));
         expect(queryByText("My Title")).toBeInTheDocument();
+
+        await user.click(getByTestId("reset"));
+        expect(queryByText("Initial")).toBeInTheDocument();
     })
 })
