@@ -80,7 +80,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             onError?.(e);
         }
         stateManager.current.setValue("isSubmitting", false);
-    }, [submitForm, onSuccess, onError]);
+    }, [onError, onSuccess, submitForm, validators]);
 
     const formAccess: FormAccess = useMemo(() => ({
         getValue: path => path.getValue(data.current),
