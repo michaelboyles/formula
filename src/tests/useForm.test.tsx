@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
-import { test, expect, describe } from 'vitest';
-import { render } from "@testing-library/react";
+import { afterEach, test, expect, describe } from 'vitest';
+import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
 import { Input } from "../Input";
@@ -18,6 +18,9 @@ import * as z from "zod";
 const user = userEvent.setup();
 
 describe("useForm", () => {
+    // https://testing-library.com/docs/react-testing-library/api/#cleanup
+    afterEach(() => cleanup());
+
     test("Type into text input", async () => {
         function Test() {
             const form = useForm({
@@ -213,7 +216,7 @@ describe("useForm", () => {
                         {
                             tags.map((tag, idx) => <Input key={idx} field={tag} data-testid={`tag-${idx + 1}`} />)
                         }
-                        <button type="submit" disabled={isSubmitting} data-testid="submit2">Submit</button>
+                        <button type="submit" disabled={isSubmitting} data-testid="submit">Submit</button>
                     </form>
                 </>
             )
@@ -224,7 +227,7 @@ describe("useForm", () => {
         await user.type(tag, "abc");
         expect(tag).toHaveValue("tag1abc");
 
-        const submit = getByTestId("submit2");
+        const submit = getByTestId("submit");
         await user.click(submit);
         expect(submit).toBeDisabled();
     })
@@ -243,7 +246,7 @@ describe("useForm", () => {
             return (
                 <>
                     <form onSubmit={form.submit}>
-                        <Input field={titleField} data-testid="input2" />
+                        <Input field={titleField} data-testid="input" />
                         { touched ? <div data-testid="touched">touched</div> : null }
                     </form>
                 </>
@@ -251,7 +254,7 @@ describe("useForm", () => {
         }
 
         const { getByTestId } = render(<Test />);
-        const input = getByTestId("input2");
+        const input = getByTestId("input");
         await user.click(input);
         await user.tab();
         expect(getByTestId("touched")).toBeInTheDocument();
@@ -277,7 +280,7 @@ describe("useForm", () => {
             return (
                 <>
                     <form onSubmit={form.submit}>
-                        <Input field={form.get("title")} data-testid="input3" />
+                        <Input field={form.get("title")} data-testid="input" />
                         <input type="submit" value="Submit" />
                         { titleErrors ? titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) : null }
                         { firstTagErrors ? firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) : null }
@@ -287,7 +290,7 @@ describe("useForm", () => {
         }
 
         const { getByTestId, getAllByTestId } = render(<Test />);
-        const input = getByTestId("input3");
+        const input = getByTestId("input");
         await user.type(input, "abcdef");
         await user.type(input, "{enter}");
 
@@ -319,10 +322,10 @@ describe("useForm", () => {
             return (
                 <>
                     <form onSubmit={form.submit}>
-                        <Input field={form.get("title")} data-testid="input4" />
+                        <Input field={form.get("title")} data-testid="input" />
                         <button type="button" onClick={() => tags.setValue(["tag"])} data-testid="add-tag">Add tag</button>
 
-                        <input type="submit" value="Submit" data-testid="submit3" />
+                        <input type="submit" value="Submit" data-testid="submit" />
                         { titleErrors ? titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) : null }
                         { tagErrors ? tagErrors.map((err, idx) => <div key={idx}>{err}</div>) : null}
                     </form>
@@ -331,7 +334,7 @@ describe("useForm", () => {
         }
 
         const { getByTestId, queryByText } = render(<Test />);
-        const input = getByTestId("input4");
+        const input = getByTestId("input");
         await user.type(input, "123");
         await user.type(input, "{enter}");
         expect(queryByText("Title too short")).toBeInTheDocument();
@@ -343,7 +346,7 @@ describe("useForm", () => {
 
         await user.type(input, "{backspace}".repeat(9)); //now says "123now"
         await user.click(getByTestId("add-tag"));
-        await user.click(getByTestId("submit3"));
+        await user.click(getByTestId("submit"));
         expect(queryByText("Requires at least 1 tag")).not.toBeInTheDocument();
     })
 
