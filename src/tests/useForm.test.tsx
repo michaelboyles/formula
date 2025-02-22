@@ -257,7 +257,7 @@ describe("useForm", () => {
         expect(getByTestId("touched")).toBeInTheDocument();
     })
 
-    test("Validation", async () => {
+    test("Standard Schema validation", async () => {
         const validator = z.object({
             title: z.string().max(5),
             tags: z.string().max(5).array()
@@ -293,6 +293,58 @@ describe("useForm", () => {
 
         expect(getAllByTestId("title-error").length).toBe(1);
         expect(getAllByTestId("tag-error").length).toBe(1);
+    })
+
+    test("Native validation", async () => {
+        function Test() {
+            const form = useForm({
+                getInitialValues: () => ({
+                    title: "",
+                    tags: [] as string[]
+                }),
+                submit: async () => "done",
+                validate: {
+                    title(title) {
+                        if (title.length < 5) return "Title too short";
+                        if (title.length > 10) return "Title too long";
+                    },
+                    async tags(tags) {
+                        if (!(tags.length >= 1)) return "Requires at least 1 tag"
+                    }
+                }
+            });
+            const titleErrors = useFormErrors(form.get("title"));
+            const tags = form.get("tags");
+            const tagErrors = useFormErrors(tags);
+            return (
+                <>
+                    <form onSubmit={form.submit}>
+                        <Input field={form.get("title")} data-testid="input4" />
+                        <button type="button" onClick={() => tags.setValue(["tag"])} data-testid="add-tag">Add tag</button>
+
+                        <input type="submit" value="Submit" data-testid="submit3" />
+                        { titleErrors ? titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) : null }
+                        { tagErrors ? tagErrors.map((err, idx) => <div key={idx}>{err}</div>) : null}
+                    </form>
+                </>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        const input = getByTestId("input4");
+        await user.type(input, "123");
+        await user.type(input, "{enter}");
+        expect(queryByText("Title too short")).toBeInTheDocument();
+
+        await user.type(input, "now too much");
+        await user.type(input, "{enter}");
+        expect(queryByText("Title too long")).toBeInTheDocument();
+        expect(queryByText("Requires at least 1 tag")).toBeInTheDocument();
+
+        await user.type(input, "{backspace}".repeat(9)); //now says "123now"
+        await user.click(getByTestId("add-tag"));
+        await user.click(getByTestId("submit3"));
+        expect(queryByText("Requires at least 1 tag")).not.toBeInTheDocument();
     })
 
     test("getData, setData, resetData", async () => {

@@ -20,6 +20,13 @@ export class FormStateTree {
         node.errorSubscribers?.forEach(notify => notify());
     }
 
+    clearAllErrors() {
+        this.visitAllChildren(this.root, node => {
+            delete node.errors;
+            node.errorSubscribers?.forEach(notify => notify());
+        });
+    }
+
     isTouched(path: FieldPath): boolean {
         const node = this.getNode(path);
         return node?.touched ?? false;
@@ -145,15 +152,20 @@ export class FormStateTree {
         }
     }
 
-    private notifyAll(node: TreeNode, which: (n: TreeNode) => Subscriber[] | undefined) {
-        const subscribers = which(node);
-        subscribers?.forEach(notifySub => notifySub());
+    private visitAllChildren(node: TreeNode, visit: (n: TreeNode) => void) {
+        visit(node);
         node.propertyToNode && Object.values(node.propertyToNode).forEach(node => {
-            this.notifyAll(node, which);
+            this.visitAllChildren(node, visit);
         })
         node.indexToNode && Object.values(node.indexToNode).forEach(node => {
-            this.notifyAll(node, which);
+            this.visitAllChildren(node, visit);
         })
+    }
+
+    private notifyAll(node: TreeNode, getSubscribers: (n: TreeNode) => Subscriber[] | undefined) {
+        this.visitAllChildren(node, n => {
+            getSubscribers(n)?.forEach(notifySub => notifySub());
+        });
     }
 }
 

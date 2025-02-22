@@ -3,19 +3,21 @@ import { FormStateTree } from "./FormStateTree";
 import { Validator } from "./validators";
 import { ArrayValidator, FieldVisitor, ObjValidator, Visitor } from "./useForm";
 
-export function validateObject<R, T extends Record<string, any>>(rootData: R, data: T, visitor: Visitor<T>, path: FieldPath, tree: FormStateTree) {
+export async function validateObject<R, T extends Record<string, any>>(rootData: R, data: T, visitor: Visitor<T>, path: FieldPath, tree: FormStateTree) {
+    const promises: Promise<void>[] = [];
     for (const [key, value] of Object.entries(data)) {
         const keyVisitor = visitor[key];
         if (keyVisitor) {
-            validateValue(value, rootData as any, keyVisitor, path.withProperty(key), tree);
+            promises.push(validateValue(value, rootData as any, keyVisitor, path.withProperty(key), tree));
         }
     }
+    await Promise.all(promises);
 }
 
-function validateValue<V, R>(value: V, rootData: R, keyVisitor: FieldVisitor<V, R>, path: FieldPath, tree: FormStateTree) {
+async function validateValue<V, R>(value: V, rootData: R, keyVisitor: FieldVisitor<V, R>, path: FieldPath, tree: FormStateTree) {
     if (Array.isArray(value)) {
         const arrVisitor = keyVisitor as ArrayValidator<typeof value, R>;
-        const errors = arrVisitor(
+        const errors = await arrVisitor(
             value,
             {
                 forEachElement(validator) {
@@ -32,14 +34,14 @@ function validateValue<V, R>(value: V, rootData: R, keyVisitor: FieldVisitor<V, 
     else if (typeof value === "object" && value !== null) {
         const objVisitor = keyVisitor as ObjValidator<typeof value, R>;
         objVisitor(value, {
-            visit(visitor) {
-                validateObject(rootData, value, visitor, path, tree);
+            async visit(visitor) {
+                await validateObject(rootData, value, visitor, path, tree);
             }
         });
     }
     else {
         const primitiveVisitor = keyVisitor as Validator<typeof value, R>;
-        const errors = primitiveVisitor(value, rootData);
+        const errors = await primitiveVisitor(value, rootData);
         if (errors) {
             tree.setErrors(path, typeof errors === "string" ? [errors] : errors);
         }

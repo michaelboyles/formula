@@ -6,8 +6,9 @@ import { FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState 
 import { Validator, ValidatorReturn } from "./validators";
 import { getValidationIssues } from "./validate-std-schema";
 import { StandardSchemaV1 } from "@standard-schema/spec";
+import { validateObject } from "./validate-native";
 
-export type ArrayValidator<Value, FormValues> = (value: Value, a: { forEachElement: (validator: FieldVisitor<Value, FormValues>) => void }) => ValidatorReturn;
+export type ArrayValidator<Element, FormValues> = (value: Element[], a: { forEachElement: (validator: FieldVisitor<Element, FormValues>) => void }) => ValidatorReturn;
 export type ObjValidator<Value, FormValues> = (value: Value, a: { visit: (visitor: Visitor<Value>) => void }) => ValidatorReturn;
 
 export type FieldVisitor<T, D> =
@@ -51,17 +52,19 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     const submit = useCallback(async (e?: FormEvent) => {
         e?.preventDefault();
         const values = data.current;
-        if (validators && validators.length) {
-            const issues = await getValidationIssues(values, validators);
 
-            if (issues.length) {
-                issues.forEach(issue => {
-                    stateTree.current.setErrors(issue.path, [issue.message]);
-                });
+        stateTree.current.clearAllErrors();
+        const [issues] = await Promise.all([
+            getValidationIssues(values, validators ?? []),
+            validate ? validateObject(values, values, validate, ROOT_PATH, stateTree.current) : Promise.resolve()
+        ]);
+        if (issues.length) {
+            issues.forEach(issue => {
+                stateTree.current.setErrors(issue.path, [issue.message]);
+            });
 
-                console.log("Failed to submit because of validation errors", JSON.stringify(issues));
-                return;
-            }
+            console.log("Failed to submit because of validation errors", JSON.stringify(issues));
+            return;
         }
 
         if (stateManager.current.getValue("isSubmitting")) {
