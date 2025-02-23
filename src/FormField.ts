@@ -5,7 +5,7 @@ import { Subscriber, Unsubscribe } from "./FormStateTree";
 export class FormFieldImpl<Value, SetValue>
     implements FormField<Value, SetValue>,
         Pick<ObjectField<Record<string, any>>, "property">,
-        Pick<ArrayField<any>, "element">,
+        Pick<ArrayField<any>, "element" | "push">,
         Pick<MaybeArrayField<any>, "element">,
         Pick<MaybeObjectField<Record<string, any>>, "property">
 {
@@ -53,8 +53,30 @@ export class FormFieldImpl<Value, SetValue>
         return new FormFieldImpl(this.path.withProperty(key), this.form);
     }
 
+
+    // Array
+
     element(idx: number) {
         return new FormFieldImpl(this.path.withArrayIndex(idx), this.form);
+    }
+
+    push(...element: any) {
+        this.form.updateValue<unknown[]>(this.path, value => {
+            const copy = [...value];
+            copy.push(...element);
+            return copy;
+        });
+    }
+
+    remove(index: number) {
+        this.form.updateValue<unknown[]>(this.path, value => {
+            if (index < value.length) {
+                return [...value.slice(0, index), ...value.slice(index + 1)]
+            }
+            else {
+                throw new Error(`Cannot remove element ${index} from array with length ${value.length}`);
+            }
+        })
     }
 }
 
@@ -76,6 +98,10 @@ export type ObjectField<T extends Record<any, any>> = FormField<T> & {
 }
 export type ArrayField<E> = FormField<E[]> & {
     element: (idx: number) => MaybeField<E>
+
+    push: (...item: E[]) => void
+
+    remove: (index: number) => void
 }
 
 type MaybeField<T> =

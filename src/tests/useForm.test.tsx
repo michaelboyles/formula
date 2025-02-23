@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, test, expect, describe } from 'vitest';
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, getAllByTestId, getByText, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
 import { Input } from "../Input";
@@ -380,5 +380,51 @@ describe("useForm", () => {
 
         await user.click(getByTestId("reset"));
         expect(queryByText("Initial")).toBeInTheDocument();
+    })
+
+    test("Push and remove elements", async () => {
+        function Test() {
+            const form = useForm({
+                getInitialValues: () => ({
+                    tags: [] as string[]
+                }),
+                submit: async () => "done"
+            });
+
+            const tags = useFormValue(form.get("tags"));
+            return (
+                <form onReset={() => form.resetData()}>
+                    {
+                        tags.map((tag, idx) => <div key={idx} data-testid="tag">{tag}</div>)
+                    }
+                    <button
+                        type="button"
+                        onClick={() => form.get("tags").push("tag " + (tags.length + 1))}
+                        data-testid="pushTagBtn"
+                    >Push tag
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => form.get("tags").remove(1)}
+                        data-testid="removeSecondTagBtn"
+                    >Remove 2nd tag
+                    </button>
+                </form>
+            )
+        }
+
+        const {queryAllByTestId, getByTestId, queryAllByText} = render(<Test/>);
+
+        const pushTagBtn = getByTestId("pushTagBtn");
+        expect(queryAllByTestId("tag")).toHaveLength(0);
+
+        await user.click(pushTagBtn);
+        expect(queryAllByTestId("tag")).toHaveLength(1);
+
+        await user.click(pushTagBtn);
+        expect(queryAllByTestId("tag")).toHaveLength(2);
+
+        await user.click(getByTestId("removeSecondTagBtn"));
+        expect(queryAllByText("tag 2")).toHaveLength(0);
     })
 })

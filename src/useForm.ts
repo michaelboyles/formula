@@ -87,9 +87,11 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
 
     const formAccess: FormAccess = useMemo(() => ({
         getValue: path => path.getValue(data.current),
-        setValue: (path, value) => {
-            data.current = path.getDataWithValue(data.current, value);
-            stateTree.current.notifyValueChanged(path);
+        setValue,
+        updateValue: (path, update) => {
+            const value = path.getValue(data.current);
+            const newValue = update(value);
+            setValue(path, newValue);
         },
         subscribeToValue: (path, subscriber) => {
             const unsubscribe = stateTree.current.subscribeToValue(path, subscriber);
@@ -163,6 +165,7 @@ const FORM_SYM = Symbol.for("FORM");
 export type FormAccess = {
     getValue: (path: FieldPath) => any
     setValue: (path: FieldPath, value: any) => void
+    updateValue: <T>(path: FieldPath, update: (value: T) => T) => void
     subscribeToValue: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     getErrors: (path: FieldPath) => ReadonlyArray<string> | undefined
