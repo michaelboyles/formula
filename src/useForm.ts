@@ -2,7 +2,7 @@ import { FormEvent, useCallback, useMemo, useRef } from "react";
 import { FieldFromNative, FormFieldImpl } from "./FormField";
 import { FieldPath } from "./FieldPath";
 import { FormStateTree, Subscriber, Unsubscribe } from "./FormStateTree";
-import { FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager";
+import { FormState, FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager";
 import { Validator, ValidatorReturn } from "./validators";
 import { getValidationIssues } from "./validate-std-schema";
 import { StandardSchemaV1 } from "@standard-schema/spec";
@@ -79,7 +79,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             onSuccess?.({ result, values });
         }
         catch (e) {
-            stateManager.current.setValue("submissionError", e);
+            stateManager.current.setValue("submissionError", convertSubmissionError(e));
             onError?.(e);
         }
         stateManager.current.setValue("isSubmitting", false);
@@ -125,7 +125,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             setValue(ROOT_PATH, getInitialValues());
         },
         submit,
-        getState(state: FormStateType): any {
+        getState(state) {
             return stateManager.current.getValue(state);
         },
         subscribeToState(state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState {
@@ -151,7 +151,7 @@ export type Form<D> = {
 export type _Form = {
     [FORM_SYM]: 0,
 
-    getState: (state: FormStateType) => any
+    getState: <T extends FormStateType>(state: T) => FormState[T]
 
     subscribeToState: (state: FormStateType, subscriber: StateSubscriber) => UnsubscribeFromState;
 } & Form<any>;
@@ -174,4 +174,16 @@ export type FormAccess = {
     isTouched: (path: FieldPath) => boolean
     setTouched: (path: FieldPath, touched: boolean) => void
     subscribeToTouched: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+}
+
+function convertSubmissionError(e: unknown) {
+    if (e instanceof Error) {
+        return e;
+    }
+    else if (typeof e === "string") {
+        return new Error(e);
+    }
+    else {
+        return new Error("Submission error", { cause: e });
+    }
 }

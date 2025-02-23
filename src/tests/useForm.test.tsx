@@ -90,7 +90,7 @@ describe("useForm", () => {
                 <>
                     <form onSubmit={form.submit}>
                         {
-                            submissionError ? <div data-testid="error">{ JSON.stringify(submissionError) }</div> : null
+                            submissionError ? <div data-testid="error">{ submissionError.message }</div> : null
                         }
                         <button type="submit" data-testid="submit">Submit</button>
                     </form>

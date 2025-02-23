@@ -42,7 +42,7 @@ export function Select<T>(props: Props<T>) {
 }
 
 // Wraps a possible Mapper in a function which checks that the result is string or number
-function safeMapper<T>(delegate: (value: T) => any): Mapper<T> {
+function safeMapper<T>(delegate: (value: T) => unknown): Mapper<T> {
     return value => {
         const strValue = delegate(value);
         if (typeof strValue !== "string" && typeof strValue !== "number") {

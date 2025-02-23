@@ -1,6 +1,6 @@
 export type FormState = {
     isSubmitting: boolean
-    submissionError: any
+    submissionError: Error | undefined
 }
 export type FormStateType = keyof FormState;
 export type UnsubscribeFromState = () => void;
@@ -29,11 +29,11 @@ export class FormStateManager {
         }
     }
 
-    getValue<T extends FormStateType>(state: FormStateType): FormState[T] {
+    getValue<T extends FormStateType>(state: T): FormState[T] {
         return this.state[state];
     }
 
-    setValue<T extends FormStateType>(state: FormStateType, newValue: FormState[T]) {
+    setValue<T extends FormStateType>(state: T, newValue: FormState[T]) {
         const prev = this.state[state];
         if (prev !== newValue) {
             this.state[state] = newValue;
