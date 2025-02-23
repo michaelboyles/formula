@@ -1,5 +1,5 @@
 import { useFormValue } from "./useFormValue";
-import { Form, useForm, Visitor } from "./useForm";
+import { Form, useForm } from "./useForm";
 import { useElements } from "./useElements";
 import { ArrayField, FormField } from "./FormField";
 import { Input } from "./Input";
@@ -9,6 +9,7 @@ import { allOf, maxLength, required } from "./validators";
 import { useFormErrors } from "./useFormErrors";
 import { IntegerInput } from "./IntegerInput";
 import { Select } from "./Select";
+import { Visitor } from "./validate";
 
 type Category = {
     name: string,

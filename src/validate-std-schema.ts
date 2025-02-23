@@ -1,10 +1,6 @@
 import { StandardSchemaV1 } from "@standard-schema/spec";
 import { FieldPath } from "./FieldPath";
-
-type Issue = {
-    path: FieldPath
-    message: string
-}
+import { Issue } from "./validate";
 
 export async function getValidationIssues<T>(values: T, validators: StandardSchemaV1<T>[]) {
     const results = await Promise.all(validators.map(async validator => await _getValidationIssues(values, validator)));

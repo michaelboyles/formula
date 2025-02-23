@@ -1,5 +1,4 @@
-export type ValidatorReturn = string | string[] | undefined | null | void | Promise<string | string[] | undefined | null | void>;
-export type Validator<Value, FormValues> = (value: Value, values: FormValues) => ValidatorReturn;
+import { Validator } from "./validate";
 
 export const required: Validator<string, any> = value => {
     if (!value.length) return "Required";

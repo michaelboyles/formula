@@ -3,22 +3,10 @@ import { FieldFromNative, FormFieldImpl } from "./FormField";
 import { FieldPath } from "./FieldPath";
 import { FormStateTree, Subscriber, Unsubscribe } from "./FormStateTree";
 import { FormState, FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager";
-import { Validator, ValidatorReturn } from "./validators";
 import { getValidationIssues } from "./validate-std-schema";
 import { StandardSchemaV1 } from "@standard-schema/spec";
 import { validateObject } from "./validate-native";
-
-export type ArrayValidator<Element, FormValues> = (value: Element[], a: { forEachElement: (validator: FieldVisitor<Element, FormValues>) => void }) => ValidatorReturn;
-export type ObjValidator<Value, FormValues> = (value: Value, a: { visit: (visitor: Visitor<Value>) => void }) => ValidatorReturn;
-
-export type FieldVisitor<T, D> =
-    T extends string | number | boolean ? Validator<T, D> :
-        T extends Array<infer A> ? ArrayValidator<A, D> :
-            T extends object ? ObjValidator<T, D> : never;
-
-export type Visitor<T> = {
-    [K in keyof T]?: FieldVisitor<T[K], T>
-}
+import { Visitor } from "./validate";
 
 // TODO 2
 type BaseForm = Record<string, any>;
@@ -54,10 +42,15 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         const values = data.current;
 
         stateTree.current.clearAllErrors();
-        const [issues] = await Promise.all([
-            getValidationIssues(values, validators ?? []),
-            validate ? validateObject(values, values, validate, ROOT_PATH, stateTree.current) : Promise.resolve()
-        ]);
+
+        const getIssues = async () => {
+            const result = await Promise.all([
+                getValidationIssues(values, validators ?? []),
+                validate ? validateObject(values, values, validate, ROOT_PATH) : Promise.resolve([])
+            ]);
+            return result.flatMap(a => a);
+        }
+        const issues = await getIssues();
         if (issues.length) {
             issues.forEach(issue => {
                 stateTree.current.setErrors(issue.path, [issue.message]);
