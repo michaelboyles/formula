@@ -53,7 +53,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         const issues = await getIssues();
         if (issues.length) {
             issues.forEach(issue => {
-                stateTree.current.setErrors(issue.path, [issue.message]);
+                stateTree.current.appendErrors(issue.path, [issue.message]);
             });
 
             console.log("Failed to submit because of validation errors", JSON.stringify(issues));

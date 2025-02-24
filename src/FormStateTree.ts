@@ -14,6 +14,15 @@ export class FormStateTree {
         }
     }
 
+    appendErrors(path: FieldPath, errors: string[]) {
+        const node = this.getOrCreateNode(path);
+        if (!node.errors) {
+            node.errors = [];
+        }
+        node.errors.push(...errors);
+        node.errorSubscribers?.forEach(notify => notify());
+    }
+
     setErrors(path: FieldPath, errors: string[]) {
         const node = this.getOrCreateNode(path);
         node.errors = [...errors];

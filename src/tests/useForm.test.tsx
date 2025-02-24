@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, test, expect, describe } from 'vitest';
-import { cleanup, getAllByTestId, getByText, render } from "@testing-library/react";
+import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
 import { Input } from "../Input";
@@ -14,13 +14,15 @@ import { useElements } from "../useElements";
 import { useIsTouched } from "../useIsTouched";
 import { useFormValue } from "../useFormValue";
 import * as z from "zod";
+import { FormField } from "../FormField";
+import { Fragment } from "react";
 
 const user = userEvent.setup();
 
-describe("useForm", () => {
-    // https://testing-library.com/docs/react-testing-library/api/#cleanup
-    afterEach(() => cleanup());
+// https://testing-library.com/docs/react-testing-library/api/#cleanup
+afterEach(() => cleanup());
 
+describe("useForm", () => {
     test("Type into text input", async () => {
         function Test() {
             const form = useForm({
@@ -298,36 +300,27 @@ describe("useForm", () => {
         expect(getAllByTestId("tag-error").length).toBe(1);
     })
 
-    test("Native validation", async () => {
+    test("Native validation for string", async () => {
         function Test() {
             const form = useForm({
                 getInitialValues: () => ({
                     title: "",
-                    tags: [] as string[]
                 }),
                 submit: async () => "done",
                 validate: {
                     title(title) {
                         if (title.length < 5) return "Title too short";
                         if (title.length > 10) return "Title too long";
-                    },
-                    async tags(tags) {
-                        if (!(tags.length >= 1)) return "Requires at least 1 tag"
                     }
                 }
             });
             const titleErrors = useFormErrors(form.get("title"));
-            const tags = form.get("tags");
-            const tagErrors = useFormErrors(tags);
             return (
                 <>
                     <form onSubmit={form.submit}>
                         <Input field={form.get("title")} data-testid="input" />
-                        <button type="button" onClick={() => tags.setValue(["tag"])} data-testid="add-tag">Add tag</button>
-
                         <input type="submit" value="Submit" data-testid="submit" />
                         { titleErrors ? titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) : null }
-                        { tagErrors ? tagErrors.map((err, idx) => <div key={idx}>{err}</div>) : null}
                     </form>
                 </>
             )
@@ -342,12 +335,6 @@ describe("useForm", () => {
         await user.type(input, "now too much");
         await user.type(input, "{enter}");
         expect(queryByText("Title too long")).toBeInTheDocument();
-        expect(queryByText("Requires at least 1 tag")).toBeInTheDocument();
-
-        await user.type(input, "{backspace}".repeat(9)); //now says "123now"
-        await user.click(getByTestId("add-tag"));
-        await user.click(getByTestId("submit"));
-        expect(queryByText("Requires at least 1 tag")).not.toBeInTheDocument();
     })
 
     test("getData, setData, resetData", async () => {
@@ -428,3 +415,131 @@ describe("useForm", () => {
         expect(queryAllByText("tag 2")).toHaveLength(0);
     })
 })
+
+describe("Native validation", () => {
+    test("for array", async () => {
+        function ErrorComp(props: { field: FormField, id: number }) {
+            const errors = useFormErrors(props.field);
+            if (!errors) return null;
+            return (
+                errors.map((err, i) => <div key={i} data-testid={`tag-${props.id}-error-${i}`}>{ err }</div>)
+            )
+        }
+
+        function Test() {
+            const form = useForm({
+                getInitialValues: () => ({
+                    tags: [] as string[]
+                }),
+                submit: async () => "done",
+                validate: {
+                    async tags(tags, forEachTag) {
+                        if (!(tags.length >= 1)) return "Requires at least 1 tag"
+                        forEachTag(tag => {
+                            if (!tag.length) return ["Cannot be blank", "Required"];
+                        });
+                    }
+                }
+            });
+            const tags = form.get("tags");
+            const tagErrors = useFormErrors(tags);
+
+            const tagFields = useElements(form.get("tags"));
+            return (
+                <>
+                    <form onSubmit={form.submit}>
+                        {
+                            tagFields.map((tagField, i) => (
+                                <Fragment key={i}>
+                                    <Input field={tagField} data-testid={`tag-${i}`} />
+                                    <ErrorComp field={tagField} id={i} />
+                                </Fragment>
+                            ))
+                        }
+                        <button type="button" onClick={() => tags.push("")} data-testid="add-tag">Add tag</button>
+                        { tagErrors && tagErrors.length > 0 ? <div data-testid="tagErrors">{ tagErrors.join(", ") }</div> : null }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                </>
+            )
+        }
+
+        const { getByTestId, queryByTestId, queryByText } = render(<Test />);
+        const submit = getByTestId("submit");
+        await user.click(submit);
+        expect(queryByText("Requires at least 1 tag")).toBeInTheDocument();
+
+        const addTag = getByTestId("add-tag");
+        await user.click(addTag);
+        await user.click(submit);
+        expect(queryByTestId("tag-0-error-0")).toHaveTextContent("Cannot be blank");
+
+        const tag0 = getByTestId("tag-0");
+        await user.type(tag0, "news");
+        await user.click(submit);
+
+        expect(queryByTestId("tag-0-error-0")).not.toBeInTheDocument()
+    })
+
+    test("For object", async () => {
+        function Test() {
+            const form = useForm({
+                getInitialValues: () => ({
+                    meta: {
+                        createdAt: {
+                            humanReadable: "",
+                            unixTimestamp: -1
+                        },
+                        updatedAt: ""
+                    }
+                }),
+                submit: async () => "done",
+                validate: {
+                    meta(meta, visitMeta) {
+                        visitMeta({
+                            createdAt(_createdAt, visitCreatedAt) {
+                                visitCreatedAt({
+                                    humanReadable(humanReadable) {
+                                        if (!humanReadable.length) return "Human-readable creation time is required";
+                                    },
+                                    unixTimestamp(unixTimestamp) {
+                                        if (unixTimestamp < 0) return "Must be after epoch";
+                                    }
+                                })
+                            }
+                        });
+                        if (!meta.updatedAt.length) {
+                            return "Update time is required";
+                        }
+                    }
+                }
+            });
+
+            const metaErrors = useFormErrors(form.get("meta"));
+            const humanReadableErrors = useFormErrors(form.get("meta").property("createdAt").property("humanReadable"));
+            const unixTimestampErrors = useFormErrors(form.get("meta").property("createdAt").property("unixTimestamp"));
+            return (
+                <>
+                    <form onSubmit={form.submit}>
+                        {
+                            metaErrors ? <div>{ metaErrors.join(", ")} </div> : null
+                        }
+                        {
+                            humanReadableErrors ? <div>{ humanReadableErrors.join(", ")} </div> : null
+                        }
+                        {
+                            unixTimestampErrors ? <div>{ unixTimestampErrors.join(", ")} </div> : null
+                        }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                </>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        await user.click(getByTestId("submit"));
+        expect(queryByText("Update time is required")).toBeInTheDocument();
+        expect(queryByText("Human-readable creation time is required")).toBeInTheDocument();
+        expect(queryByText("Must be after epoch")).toBeInTheDocument();
+    })
+});

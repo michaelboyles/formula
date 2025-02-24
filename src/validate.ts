@@ -5,13 +5,16 @@ export type Issue = {
     message: string
 }
 
-export type ArrayValidator<Element, FormValues> = (value: Element[], a: { forEachElement: (validator: FieldVisitor<Element, FormValues>) => void }) => ValidatorReturn;
-export type ObjValidator<Value, FormValues> = (value: Value, a: { visit: (visitor: Visitor<Value>) => void }) => ValidatorReturn;
+export type ForEachElement<Element, FormValues> = (validator: FieldVisitor<Element, FormValues>) => void;
+export type ArrayValidator<Element, FormValues> = (value: Element[], forEachElement: ForEachElement<Element, FormValues>) => ValidatorReturn;
+
+export type VisitObjectKeys<Object> = (visitor: Visitor<Object>) => void;
+export type ObjValidator<Object> = (object: Object, visit: VisitObjectKeys<Object>) => ValidatorReturn;
 
 export type FieldVisitor<T, D> =
     T extends string | number | boolean ? Validator<T, D> :
         T extends Array<infer A> ? ArrayValidator<A, D> :
-            T extends object ? ObjValidator<T, D> : never;
+            T extends object ? ObjValidator<T> : never;
 
 export type Visitor<T> = {
     [K in keyof T]?: FieldVisitor<T[K], T>

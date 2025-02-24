@@ -9,8 +9,7 @@ export async function validateObject<R, T extends Record<string, any>>(rootData:
             promises.push(validateValue(rootData as any, value, keyVisitor, path.withProperty(key)));
         }
     }
-    const issues = await Promise.all(promises);
-    return issues.flatMap(a => a);
+    return (await Promise.all(promises)).flatMap(issues => issues);
 }
 
 async function validateValue<V, R>(rootData: R, value: V, keyVisitor: FieldVisitor<V, R>, path: FieldPath): Promise<Issue[]> {
@@ -28,31 +27,41 @@ async function validateValue<V, R>(rootData: R, value: V, keyVisitor: FieldVisit
 
     if (Array.isArray(value)) {
         const arrVisitor = keyVisitor as ArrayValidator<typeof value, R>;
+        const promises: Promise<Issue[]>[] = [];
         const arrayIssues = await arrVisitor(
             value,
-            {
-                async forEachElement(validator) {
-                    const promises: Promise<Issue[]>[] = [];
-                    for (let i = 0; i < value.length; ++i) {
-                        promises.push(validateValue(rootData, value[i], validator, path.withArrayIndex(i)));
-                    }
-                    const arrayIssues = await Promise.all(promises);
-                    issues.push(...arrayIssues.flatMap(a => a));
+            validator => {
+                for (let i = 0; i < value.length; ++i) {
+                    promises.push(validateValue(rootData, value[i], validator, path.withArrayIndex(i)));
                 }
             }
         );
         if (arrayIssues) {
             pushIssues(arrayIssues);
         }
+
+        const elementIssues = (await Promise.all(promises)).flatMap(a => a);
+        if (elementIssues) {
+            issues.push(...elementIssues);
+        }
     }
     else if (typeof value === "object" && value !== null) {
-        const objVisitor = keyVisitor as ObjValidator<typeof value, R>;
-        objVisitor(value, {
-            async visit(visitor) {
-                const objIssues = await validateObject(rootData, value, visitor, path);
-                issues.push(...objIssues);
+        const objVisitor = keyVisitor as ObjValidator<typeof value>;
+        const promises: Promise<Issue[]>[] = [];
+        const objectIssues = await objVisitor(
+            value,
+            visitor => {
+                promises.push(validateObject(rootData, value, visitor, path));
             }
-        });
+        );
+        if (objectIssues) {
+            pushIssues(objectIssues);
+        }
+
+        const keyIssues = (await Promise.all(promises)).flatMap(a => a);
+        if (keyIssues.length) {
+            issues.push(...keyIssues);
+        }
     }
     else {
         const primitiveVisitor = keyVisitor as Validator<typeof value, R>;

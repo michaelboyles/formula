@@ -56,7 +56,7 @@ export function Test1() {
         },
         validate: {
             title: allOf(required, maxLength(3)),
-            category: (_category, { visit }) => validateCategory(visit),
+            category: (_category, visitCategory) => validateCategory(visitCategory),
         }
     });
 
@@ -71,7 +71,7 @@ export function Test1() {
     const createdAtError = useFormErrors(name);
 
     return (
-        <form onSubmit={form.submit}>
+            <form onSubmit={form.submit}>
             <h1>Test 1</h1>
 
             <h1>{createdAtError}</h1>
@@ -108,9 +108,9 @@ export function Test1() {
                 arrayOfArray: [["bar"]],
                 foo: "foo"
             })}>Set DATA</button>
-            {
+                {
                 tags.map((tag, idx) => <div key={idx}>{ tag } { tag.length }</div>)
-            }
+                }
 
             { subcats.map((subcat, idx) =>
                 <label key={idx}>Sub category name: <Input field={subcat.property("name")}/> </label>
@@ -119,7 +119,7 @@ export function Test1() {
             <Tags field={form.get("tags")}/>
 
             <DisableSubmitButton form={form} />
-        </form>
+            </form>
     )
 }
 
@@ -130,9 +130,9 @@ function validateCategory(visit: (visitor: Visitor<Category>) => void) {
                 return "BAD";
             }
         },
-        subcategories(_subcategories, { forEachElement }) {
-            forEachElement((_subcategory, { visit }) => {
-                validateCategory(visit);
+        subcategories(_subcategories, forEachElement) {
+            forEachElement((_subcategory, visitSubcategory) => {
+                validateCategory(visitSubcategory);
             })
         }
     })
