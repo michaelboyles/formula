@@ -28,7 +28,7 @@ export function Select<T>(props: Props<T>) {
         mapToValue = safeMapper(mapToValue);
     }
     else {
-        mapToValue = safeMapper(val => val);
+        mapToValue = safeMapper(val => val.toString());
     }
 
     const value = useFormValue(field);
@@ -45,16 +45,16 @@ export function Select<T>(props: Props<T>) {
 function safeMapper<T>(delegate: (value: T) => unknown): Mapper<T> {
     return value => {
         const strValue = delegate(value);
-        if (typeof strValue !== "string" && typeof strValue !== "number") {
-            throw new Error("Value in Select must be a string or number: " + strValue);
+        if (typeof strValue !== "string") {
+            throw new Error("Value in Select must be a string: " + strValue);
         }
         return strValue;
     }
 }
 
-type Mapper<T> = (value: T) => string | number;
+type Mapper<T> = (value: T) => string;
 
-function findOption<T>(value: string | number, mapToValue: Mapper<T>, options: Option<T>[]): T {
+function findOption<T>(value: string, mapToValue: Mapper<T>, options: Option<T>[]): T {
     for (const option of options) {
         if (mapToValue(option.value) === value) {
             return option.value;
