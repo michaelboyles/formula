@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useMemo, useRef } from "react";
-import { FieldFromNative, FormFieldImpl } from "./FormField";
+import { FieldFromNative, FormField, FormFieldImpl } from "./FormField";
 import { FieldPath } from "./FieldPath";
 import { FormStateTree, Subscriber, Unsubscribe } from "./FormStateTree";
 import { FormState, FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager";
@@ -107,6 +107,18 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     const form: _Form = {
         [FORM_SYM]: 0,
         get: (key: any) => new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess),
+        getUnsafeField: path => {
+            let fieldPath = ROOT_PATH;
+            for (const part of path) {
+                if (typeof part === "string") {
+                    fieldPath = fieldPath.withProperty(part);
+                }
+                else {
+                    fieldPath = fieldPath.withArrayIndex(part);
+                }
+            }
+            return new FormFieldImpl(fieldPath, formAccess);
+        },
         getData: () => data.current,
         setData: (data: any) => {
             setValue(ROOT_PATH, data);
@@ -126,6 +138,8 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
 
 export type Form<D> = {
     get: <K extends keyof D>(key: K) => FieldFromNative<D[K]>
+
+    getUnsafeField: (path: (string | number)[]) => FormField<unknown>
 
     getData: () => D
 
