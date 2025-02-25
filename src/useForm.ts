@@ -39,26 +39,6 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
 
     const submit = useCallback(async (e?: FormEvent) => {
         e?.preventDefault();
-        const values = data.current;
-
-        stateTree.current.clearAllErrors();
-
-        const getIssues = async () => {
-            const result = await Promise.all([
-                getValidationIssues(values, validators ?? []),
-                validate ? validateObject(values, values, validate, ROOT_PATH) : Promise.resolve([])
-            ]);
-            return result.flatMap(a => a);
-        }
-        const issues = await getIssues();
-        if (issues.length) {
-            issues.forEach(issue => {
-                stateTree.current.appendErrors(issue.path, [issue.message]);
-            });
-
-            console.log("Failed to submit because of validation errors", JSON.stringify(issues));
-            return;
-        }
 
         if (stateManager.current.getValue("isSubmitting")) {
             console.log("Skipping dupe submission");
@@ -68,14 +48,38 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         stateManager.current.setValue("submissionError", undefined);
 
         try {
-            const result = await submitForm(values);
-            onSuccess?.({ result, values });
+            const values = data.current;
+            stateTree.current.clearAllErrors();
+
+            const getIssues = async () => {
+                const result = await Promise.all([
+                    getValidationIssues(values, validators ?? []),
+                    validate ? validateObject(values, values, validate, ROOT_PATH) : Promise.resolve([])
+                ]);
+                return result.flatMap(a => a);
+            }
+            const issues = await getIssues();
+            if (issues.length) {
+                issues.forEach(issue => {
+                    stateTree.current.appendErrors(issue.path, [issue.message]);
+                });
+
+                console.log("Failed to submit because of validation errors", JSON.stringify(issues));
+                return;
+            }
+
+            try {
+                const result = await submitForm(values);
+                onSuccess?.({ result, values });
+            }
+            catch (e) {
+                stateManager.current.setValue("submissionError", convertSubmissionError(e));
+                onError?.(e);
+            }
         }
-        catch (e) {
-            stateManager.current.setValue("submissionError", convertSubmissionError(e));
-            onError?.(e);
+        finally {
+            stateManager.current.setValue("isSubmitting", false);
         }
-        stateManager.current.setValue("isSubmitting", false);
     }, [onError, onSuccess, submitForm, validators]);
 
     const formAccess: FormAccess = useMemo(() => ({
