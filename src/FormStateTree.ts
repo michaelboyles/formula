@@ -23,9 +23,14 @@ export class FormStateTree {
         node.errorSubscribers?.forEach(notify => notify());
     }
 
-    setErrors(path: FieldPath, errors: string[]) {
+    setErrors(path: FieldPath, errors: string | string[] | undefined) {
         const node = this.getOrCreateNode(path);
-        node.errors = [...errors];
+        if (errors == null) {
+            delete node.errors;
+        }
+        else {
+            node.errors = typeof errors === "string" ? [errors] : [...errors];
+        }
         node.errorSubscribers?.forEach(notify => notify());
     }
 

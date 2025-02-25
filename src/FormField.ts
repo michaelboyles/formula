@@ -5,7 +5,7 @@ import { Subscriber, Unsubscribe } from "./FormStateTree";
 export class FormFieldImpl<Value, SetValue>
     implements FormField<Value, SetValue>,
         Pick<ObjectField<Record<string, any>>, "property">,
-        Pick<ArrayField<any>, "element" | "push">,
+        Pick<ArrayField<any>, "element" | "push" | "remove">,
         Pick<MaybeArrayField<any>, "element">,
         Pick<MaybeObjectField<Record<string, any>>, "property">
 {
@@ -31,6 +31,10 @@ export class FormFieldImpl<Value, SetValue>
 
     getErrors() {
         return this.form.getErrors(this.path);
+    }
+
+    setErrors(errors: string | string[] | undefined) {
+        this.form.setErrors(this.path, errors);
     }
 
     subscribeToErrors(subscriber: Subscriber): Unsubscribe {
@@ -86,6 +90,7 @@ export type FormField<Value = any, SetValue = Value> = {
     subscribeToValue: (subscriber: Subscriber) => Unsubscribe
 
     getErrors: () => ReadonlyArray<string> | undefined
+    setErrors: (errors: string | string[] | undefined) => void
     subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
 
     isTouched: () => boolean

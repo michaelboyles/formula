@@ -91,6 +91,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             return () => unsubscribe();
         },
         getErrors: path => stateTree.current.getErrors(path),
+        setErrors: (path, errors) => stateTree.current.setErrors(path, errors),
         subscribeToErrors: (path, subscriber) => {
             const unsubscribe = stateTree.current.subscribeToErrors(path, subscriber);
             return () => unsubscribe();
@@ -162,6 +163,7 @@ export type FormAccess = {
     subscribeToValue: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     getErrors: (path: FieldPath) => ReadonlyArray<string> | undefined
+    setErrors: (path: FieldPath, errors: string | string[] | undefined) => void
     subscribeToErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     isTouched: (path: FieldPath) => boolean
