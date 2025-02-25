@@ -1,13 +1,13 @@
 import { FieldPath } from "./FieldPath";
 import { ArrayValidator, FieldVisitor, Issue, ObjValidator, Validator, Visitor } from "./validate";
 
-export async function validateObject<R, T extends Record<string, any>>(rootData: R, data: T, visitor: Visitor<T>, path: FieldPath) {
+export async function validateObject<R, T extends Record<string, unknown>>(rootData: R, data: T, visitor: Visitor<T>, path: FieldPath) {
+    if (!data) return [];
     const promises: Promise<Issue[]>[] = [];
-    for (const [key, value] of Object.entries(data)) {
+    for (const key in visitor) {
         const keyVisitor = visitor[key];
-        if (keyVisitor) {
-            promises.push(validateValue(rootData as any, value, keyVisitor, path.withProperty(key)));
-        }
+        if (!keyVisitor) continue;
+        promises.push(validateValue(rootData as any, data[key], keyVisitor, path.withProperty(key)));
     }
     return (await Promise.all(promises)).flatMap(issues => issues);
 }
@@ -26,7 +26,7 @@ async function validateValue<V, R>(rootData: R, value: V, keyVisitor: FieldVisit
     }
 
     if (Array.isArray(value)) {
-        const arrVisitor = keyVisitor as ArrayValidator<typeof value, R>;
+        const arrVisitor = keyVisitor as ArrayValidator<unknown, R>;
         const promises: Promise<Issue[]>[] = [];
         const arrayIssues = await arrVisitor(
             value,
@@ -46,7 +46,7 @@ async function validateValue<V, R>(rootData: R, value: V, keyVisitor: FieldVisit
         }
     }
     else if (typeof value === "object" && value !== null) {
-        const objVisitor = keyVisitor as ObjValidator<typeof value>;
+        const objVisitor = keyVisitor as ObjValidator<{}>;
         const promises: Promise<Issue[]>[] = [];
         const objectIssues = await objVisitor(
             value,
@@ -64,7 +64,7 @@ async function validateValue<V, R>(rootData: R, value: V, keyVisitor: FieldVisit
         }
     }
     else {
-        const primitiveVisitor = keyVisitor as Validator<typeof value, R>;
+        const primitiveVisitor = keyVisitor as Validator<V, R>;
         const issues = await primitiveVisitor(value, rootData);
         if (issues) {
             pushIssues(issues);

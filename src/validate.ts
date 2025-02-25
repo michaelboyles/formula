@@ -12,9 +12,9 @@ export type VisitObjectKeys<Object> = (visitor: Visitor<Object>) => void;
 export type ObjValidator<Object> = (object: Object, visit: VisitObjectKeys<Object>) => ValidatorReturn;
 
 export type FieldVisitor<T, D> =
-    T extends string | number | boolean ? Validator<T, D> :
-        T extends Array<infer A> ? ArrayValidator<A, D> :
-            T extends object ? ObjValidator<T> : never;
+    [T] extends [string | number | boolean] ? Validator<T, D> :
+        [T] extends [Array<infer A>] ? ArrayValidator<A, D> :
+            [T] extends [object] ? ObjValidator<T> : never;
 
 export type Visitor<T> = {
     [K in keyof T]?: FieldVisitor<T[K], T>
