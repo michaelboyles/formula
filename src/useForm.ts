@@ -106,23 +106,17 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
 
     const form: _Form = {
         [FORM_SYM]: 0,
-        get(key: any) {
-            return new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess);
-        },
-        getData() {
-            return data.current;
-        },
-        setData(data: any) {
+        get: (key: any) => new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess),
+        getData: () => data.current,
+        setData: (data: any) => {
             setValue(ROOT_PATH, data);
         },
-        resetData() {
+        resetData: () => {
             setValue(ROOT_PATH, getInitialValues());
         },
         submit,
-        getState(state) {
-            return stateManager.current.getValue(state);
-        },
-        subscribeToState(state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState {
+        getState: state => stateManager.current.getValue(state),
+        subscribeToState: (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
             stateManager.current.subscribe(state, subscriber);
             return () => stateManager.current.unsubscribe(state, subscriber);
         }
