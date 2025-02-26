@@ -17,7 +17,7 @@ export class FormFieldImpl<Value, SetValue>
         this.form = formAccess;
     }
 
-    getValue(): Value {
+    getValue(): Readonly<Value> {
         return this.form.getValue(this.path);
     }
 
@@ -85,7 +85,7 @@ export class FormFieldImpl<Value, SetValue>
 }
 
 export type FormField<Value = any, SetValue = Value> = {
-    getValue: () => Value
+    getValue: () => Readonly<Value>
     setValue: (value: SetValue) => void
     subscribeToValue: (subscriber: Subscriber) => Unsubscribe
 
