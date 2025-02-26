@@ -542,4 +542,40 @@ describe("Native validation", () => {
         expect(queryByText("Human-readable creation time is required")).toBeInTheDocument();
         expect(queryByText("Must be after epoch")).toBeInTheDocument();
     })
+
+    test("For nullable", async () => {
+        function Test() {
+            type FormValues = {
+                value: number | null
+            }
+
+            const form = useForm<FormValues, any>({
+                getInitialValues: () => ({
+                    value: null
+                }),
+                submit: async () => "done",
+                validate: {
+                    value(value) {
+                        if (value == null) return "Required";
+                    }
+                }
+            });
+
+            const errors = useFormErrors(form.get("value"));
+            return (
+                <>
+                    <form onSubmit={form.submit}>
+                        {
+                            errors ? <div>{ errors.join(", ")} </div> : null
+                        }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                </>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        await user.click(getByTestId("submit"));
+        expect(queryByText("Required")).toBeInTheDocument();
+    })
 });
