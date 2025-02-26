@@ -108,36 +108,37 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         }
     }), []);
 
-    const form: _Form = {
-        [FORM_SYM]: 0,
-        get: (key: any) => new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess),
-        getUnsafeField: path => {
-            let fieldPath = ROOT_PATH;
-            for (const part of path) {
-                if (typeof part === "string") {
-                    fieldPath = fieldPath.withProperty(part);
+    return useMemo<_Form>(() => {
+        return {
+            [FORM_SYM]: 0,
+            get: (key: any) => new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess),
+            getUnsafeField: path => {
+                let fieldPath = ROOT_PATH;
+                for (const part of path) {
+                    if (typeof part === "string") {
+                        fieldPath = fieldPath.withProperty(part);
+                    }
+                    else {
+                        fieldPath = fieldPath.withArrayIndex(part);
+                    }
                 }
-                else {
-                    fieldPath = fieldPath.withArrayIndex(part);
-                }
+                return new FormFieldImpl(fieldPath, formAccess);
+            },
+            getData: () => data.current,
+            setData: (data: any) => {
+                setValue(ROOT_PATH, data);
+            },
+            resetData: () => {
+                setValue(ROOT_PATH, getInitialValues());
+            },
+            submit,
+            getState: state => stateManager.current.getValue(state),
+            subscribeToState: (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
+                stateManager.current.subscribe(state, subscriber);
+                return () => stateManager.current.unsubscribe(state, subscriber);
             }
-            return new FormFieldImpl(fieldPath, formAccess);
-        },
-        getData: () => data.current,
-        setData: (data: any) => {
-            setValue(ROOT_PATH, data);
-        },
-        resetData: () => {
-            setValue(ROOT_PATH, getInitialValues());
-        },
-        submit,
-        getState: state => stateManager.current.getValue(state),
-        subscribeToState: (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
-            stateManager.current.subscribe(state, subscriber);
-            return () => stateManager.current.unsubscribe(state, subscriber);
         }
-    };
-    return form;
+    }, [submit]);
 }
 
 export type Form<D> = {
