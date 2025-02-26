@@ -578,4 +578,40 @@ describe("Native validation", () => {
         await user.click(getByTestId("submit"));
         expect(queryByText("Required")).toBeInTheDocument();
     })
+
+    test("For numeric field", async () => {
+        function Test() {
+            type FormValues = {
+                1: string | null
+            }
+
+            const form = useForm<FormValues, any>({
+                getInitialValues: () => ({
+                    1: null
+                }),
+                submit: async () => "done",
+                validate: {
+                    1(one) {
+                        if (one == null) return "Required";
+                    }
+                }
+            });
+
+            const errors = useFormErrors(form.get(1));
+            return (
+                <>
+                    <form onSubmit={form.submit}>
+                        {
+                            errors ? <div>{ errors.join(", ")} </div> : null
+                        }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                </>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        await user.click(getByTestId("submit"));
+        expect(queryByText("Required")).toBeInTheDocument();
+    })
 });

@@ -29,97 +29,37 @@ type FormValues = {
 }
 
 export function Test1() {
+    type FormValues = {
+        value: number | null
+        1: string | null
+    }
+
     const form = useForm<FormValues, any>({
         getInitialValues: () => ({
-            title: "My Blog Post",
-            isPublic: true,
-            numLikes: 10,
-            tags: ["news", "something"],
-            category: {
-                name: "news",
-                subcategories: [
-                    { name: "latest", subcategories: [
-                            { name: "name", subcategories: [] }
-                    ] }
-                ]
-            },
-            arrayOfArray: [["foo"]],
-            foo: "foo"
+            value: null,
+            1: null
         }),
-        async submit(data) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => reject("done" + JSON.stringify(data)), 1_000)
-            })
-        },
-        onSuccess({ values, result }) {
-            console.log("Submitted", values, result);
-        },
+        submit: async () => "done",
         validate: {
-            title: allOf(required, maxLength(3)),
-            category: (_category, visitCategory) => validateCategory(visitCategory),
+            value(value) {
+                if (value == null) return "Required1";
+            },
+            1(one) {
+                if (one == null) return "Required2";
+            }
         }
     });
 
-    const titleField = form.get("title");
-    const title = useFormValue(titleField);
-    const tagsField = form.get("tags");
-    const tags = useFormValue(tagsField);
-    const name = form.get("category").property("subcategories").element(0).property("name") as FormField<string>;
-    const subcats = useElements(form.get("category").property("subcategories"));
-
-    const value = useFormValue(name);
-    const createdAtError = useFormErrors(name);
-
+    const errors = useFormErrors(form.get("value"));
     return (
+        <>
             <form onSubmit={form.submit}>
-            <h1>Test 1</h1>
-
-            <h1>{createdAtError}</h1>
-
-            Title { title }
-            Value { value }
-
-            <Select
-                field={form.get("foo")}
-                options={[
-                    { label: "Foo!", value: "foo" },
-                    { label: "Bar!", value: "bar" },
-                ]}
-            />
-
-            <div>
-                <label>Num likes <IntegerInput field={form.get("numLikes")} /></label>
-            </div>
-
-            <Input field={form.get("title")} placeholder="Title" />
-            <button onClick={() => titleField.setValue("New title")}>Set Title</button>
-            <button type="button" onClick={() => form.setData({
-                title: "newT",
-                tags: [],
-                category: {
-                    name: "a",
-                    subcategories: [
-                        { name: "sub 111", subcategories: [] },
-                        { name: "sub 222", subcategories: [] }
-                    ]
-                },
-                isPublic: true,
-                numLikes: 1,
-                arrayOfArray: [["bar"]],
-                foo: "foo"
-            })}>Set DATA</button>
                 {
-                tags.map((tag, idx) => <div key={idx}>{ tag } { tag.length }</div>)
+                    errors ? <div>{ errors.join(", ")} </div> : null
                 }
-
-            { subcats.map((subcat, idx) =>
-                <label key={idx}>Sub category name: <Input field={subcat.property("name")}/> </label>
-            )}
-            <label>Public? <Checkbox className="cb" field={form.get("isPublic")}/></label>
-            <Tags field={form.get("tags")}/>
-
-            <DisableSubmitButton form={form} />
+                <input type="submit" value="Submit" data-testid="submit" />
             </form>
+        </>
     )
 }
 

@@ -9,8 +9,8 @@ export class FieldPath {
         return new FieldPath([]);
     }
 
-    withProperty(name: string): FieldPath {
-        const node: FieldNode = Object.freeze({ type: "property", name });
+    withProperty(value: string | number): FieldPath {
+        const node: FieldNode = Object.freeze({ type: "property", value });
         return new FieldPath([...this.nodes, node]);
     }
 
@@ -27,7 +27,7 @@ export class FieldPath {
         for (const node of this.nodes) {
             if (node.type === "property") {
                 if (str.length) str += ".";
-                str += node.name;
+                str += node.value;
             }
             else if (node.type === "index") {
                 str += `[${node.index}]`;
@@ -63,7 +63,7 @@ export class FieldPath {
         const newPart = this._getDataWithValue(getPropertyOrIndex(data, node), newValue, nodeIdx + 1);
 
         if (node.type === "property") {
-            return {...data, [node.name]: newPart};
+            return {...data, [node.value]: newPart};
         }
         else if (node.type === "index") {
             const arr: any[] = data;
@@ -86,7 +86,7 @@ export class FieldPath {
 
 export type FieldNode = {
     readonly type: "property",
-    readonly name: string
+    readonly value: string | number
 } | {
     readonly type: "index"
     readonly index: number
@@ -102,7 +102,7 @@ function getPropertyOrIndex(data: any, node: FieldNode): any {
             if (Array.isArray(data)) {
                 throw "is an array, not an object";
             }
-            return data[node.name];
+            return data[node.value];
         }
         case "index": {
             if (data == null) return undefined;

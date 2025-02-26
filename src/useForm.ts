@@ -108,10 +108,10 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         }
     }), []);
 
-    return useMemo<_Form>(() => {
+    return useMemo<_Form<T>>(() => {
         return {
             [FORM_SYM]: 0,
-            get: (key: any) => new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess),
+            get: key => new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess) as any,
             getUnsafeField: path => {
                 let fieldPath = ROOT_PATH;
                 for (const part of path) {
@@ -125,7 +125,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
                 return new FormFieldImpl(fieldPath, formAccess);
             },
             getData: () => data.current,
-            setData: (data: any) => {
+            setData: data => {
                 setValue(ROOT_PATH, data);
             },
             resetData: () => {
@@ -142,7 +142,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
 }
 
 export type Form<D> = {
-    get: <K extends keyof D>(key: K) => FieldFromNative<D[K]>
+    get: <K extends keyof Omit<D, symbol>>(key: K) => FieldFromNative<D[K]>
 
     getUnsafeField: (path: (string | number)[]) => FormField<unknown>
 
@@ -155,13 +155,13 @@ export type Form<D> = {
     submit: (e?: FormEvent) => void
 }
 
-export type _Form = {
+export type _Form<T = unknown> = {
     [FORM_SYM]: 0,
 
     getState: <T extends FormStateType>(state: T) => FormState[T]
 
     subscribeToState: (state: FormStateType, subscriber: StateSubscriber) => UnsubscribeFromState;
-} & Form<any>;
+} & Form<T>;
 
 export function isInternalForm(form: Form<any>): form is _Form {
     return Object.hasOwn(form, FORM_SYM);

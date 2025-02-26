@@ -53,7 +53,7 @@ export class FormFieldImpl<Value, SetValue>
         return this.form.subscribeToTouched(this.path, subscriber);
     }
 
-    property(key: string) {
+    property(key: string | number) {
         return new FormFieldImpl(this.path.withProperty(key), this.form);
     }
 
@@ -99,7 +99,7 @@ export type FormField<Value = any, SetValue = Value> = {
 }
 
 export type ObjectField<T extends Record<any, any>> = FormField<T> & {
-    property: <K extends keyof T>(key: K) => FieldFromNative<T[K]>
+    property: <K extends keyof Omit<T, symbol>>(key: K) => FieldFromNative<T[K]>
 }
 export type ArrayField<E> = FormField<E[]> & {
     element: (idx: number) => MaybeField<E>
