@@ -17,7 +17,7 @@ type UseFormOpts<T extends BaseForm, R> = {
 
     // Optional
     onSuccess?: (args: { result: R, values: T }) => void
-    onError?: (error: unknown) => void
+    onError?: (error: unknown, ctx: { form: Form<T> }) => void
 
     validate?: Visitor<NoInfer<T>>
     validators?: StandardSchemaV1<Partial<T>>[]
@@ -28,6 +28,7 @@ const ROOT_PATH = FieldPath.create();
 export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T> {
     const { getInitialValues, submit: submitForm, onSuccess, onError, validate, validators } = opts;
 
+    const self = useRef<_Form<T> | null>(null);
     const data = useRef(opts.getInitialValues());
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
@@ -74,7 +75,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             }
             catch (e) {
                 stateManager.current.setValue("submissionError", convertSubmissionError(e));
-                onError?.(e);
+                onError?.(e, { form: self.current! });
             }
         }
         finally {
@@ -108,8 +109,8 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         }
     }), []);
 
-    return useMemo<_Form<T>>(() => {
-        return {
+    return useMemo(() => {
+        const form: _Form<T> = {
             [FORM_SYM]: 0,
             get: key => new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess) as any,
             getUnsafeField: path => {
@@ -137,7 +138,9 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
                 stateManager.current.subscribe(state, subscriber);
                 return () => stateManager.current.unsubscribe(state, subscriber);
             }
-        }
+        };
+        self.current = form;
+        return form;
     }, [submit]);
 }
 

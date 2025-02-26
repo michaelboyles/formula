@@ -15,7 +15,7 @@ import { useIsTouched } from "../useIsTouched";
 import { useFormValue } from "../useFormValue";
 import * as z from "zod";
 import { FormField } from "../FormField";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 const user = userEvent.setup();
 
@@ -80,11 +80,16 @@ describe("useForm", () => {
 
     test("Submission fails", async () => {
         function Test() {
+            const [errorJson, setErrorJson] = useState("");
+
             const form = useForm({
                 getInitialValues: () => ({
                     tags: [] as string[]
                 }),
-                submit: () => Promise.reject("Submission failed")
+                submit: () => Promise.reject("Submission failed"),
+                onError: (_e, { form }) => {
+                    setErrorJson(JSON.stringify(form.getData().tags));
+                }
             })
             const submissionError = useSubmissionError(form);
 
@@ -93,6 +98,9 @@ describe("useForm", () => {
                     <form onSubmit={form.submit}>
                         {
                             submissionError ? <div data-testid="error">{ submissionError.message }</div> : null
+                        }
+                        {
+                            errorJson.length ? <pre data-testid="json">{ errorJson }</pre> : null
                         }
                         <button type="submit" data-testid="submit">Submit</button>
                     </form>
@@ -103,6 +111,7 @@ describe("useForm", () => {
         const { getByTestId } = render(<Test />);
         await user.click(getByTestId("submit"));
         expect(getByTestId("error")).toBeInTheDocument();
+        expect(getByTestId("json")).toHaveTextContent("[]");
     })
 
     test("Nested object", async () => {
