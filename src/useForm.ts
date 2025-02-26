@@ -17,7 +17,11 @@ type UseFormOpts<T extends BaseForm, R> = {
 
     // Optional
     onSuccess?: (args: { result: R, values: T }) => void
-    onError?: (error: unknown, ctx: { form: Form<T> }) => void
+
+    // A callback invoked when there is a form submission error. When the promise returned by 'submit' is rejected, this
+    // function will be invoked. If the promise wasn't rejected with an Error then it will be wrapped in one, and
+    // Error.cause will be set.
+    onError?: (error: Error, ctx: { form: Form<T> }) => void
 
     validate?: Visitor<NoInfer<T>>
     validators?: StandardSchemaV1<Partial<T>>[]
@@ -74,8 +78,9 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
                 onSuccess?.({ result, values });
             }
             catch (e) {
-                stateManager.current.setValue("submissionError", convertSubmissionError(e));
-                onError?.(e, { form: self.current! });
+                const error = convertSubmissionError(e);
+                stateManager.current.setValue("submissionError", error);
+                onError?.(error, { form: self.current! });
             }
         }
         finally {
@@ -192,7 +197,7 @@ function convertSubmissionError(e: unknown) {
         return e;
     }
     else if (typeof e === "string") {
-        return new Error(e);
+        return new Error(e, { cause: e });
     }
     else {
         return new Error("Submission error", { cause: e });
