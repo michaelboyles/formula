@@ -35,7 +35,7 @@ export function Test1() {
     }
 
     const form = useForm<FormValues, any>({
-        getInitialValues: () => ({
+        initialValues: () => ({
             value: null,
             1: null
         }),

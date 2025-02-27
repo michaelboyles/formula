@@ -9,10 +9,10 @@ import { validateObject } from "./validate-native";
 import { Visitor } from "./validate";
 
 // TODO 2
-type BaseForm = Record<string, any>;
+type BaseForm = Record<string | number, any>;
 
 type UseFormOpts<T extends BaseForm, R> = {
-    getInitialValues: () => T
+    initialValues: T | (() => T)
     submit: (values: T) => Promise<R>
 
     // Optional
@@ -30,10 +30,10 @@ type UseFormOpts<T extends BaseForm, R> = {
 const ROOT_PATH = FieldPath.create();
 
 export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T> {
-    const { getInitialValues, submit: submitForm, onSuccess, onError, validate, validators } = opts;
+    const { initialValues, submit: submitForm, onSuccess, onError, validate, validators } = opts;
 
     const self = useRef<_Form<T> | null>(null);
-    const data = useRef(opts.getInitialValues());
+    const data = useRef(typeof initialValues === "function" ? initialValues() : initialValues);
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
 
@@ -135,7 +135,8 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
                 setValue(ROOT_PATH, data);
             },
             resetData: () => {
-                setValue(ROOT_PATH, getInitialValues());
+                const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
+                setValue(ROOT_PATH, newValues);
             },
             submit,
             getState: state => stateManager.current.getValue(state),
@@ -146,7 +147,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         };
         self.current = form;
         return form;
-    }, [submit]);
+    }, [initialValues, submit]);
 }
 
 export type Form<D> = {

@@ -26,9 +26,9 @@ describe("useForm", () => {
     test("Type into text input", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: {
                     title: ""
-                }),
+                },
                 submit: async () => "done"
             })
 
@@ -52,9 +52,9 @@ describe("useForm", () => {
     test("Checkbox", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: {
                     isPublic: false
-                }),
+                },
                 submit: async () => "done"
             })
             const errors = useFormErrors(form.get("isPublic"));
@@ -83,9 +83,9 @@ describe("useForm", () => {
             const [errorJson, setErrorJson] = useState("");
 
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: {
                     tags: [] as string[]
-                }),
+                },
                 submit: () => Promise.reject("Submission failed"),
                 onError: (_e, { form }) => {
                     setErrorJson(JSON.stringify(form.getData().tags));
@@ -117,7 +117,7 @@ describe("useForm", () => {
     test("Nested object", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     metadata: {
                         createdAt: 0 as (number | ""),
                         updatedAt: 0
@@ -151,7 +151,7 @@ describe("useForm", () => {
             type Animal = "cat" | "dog";
 
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     animal: "cat" as Animal
                 }),
                 submit: () => Promise.resolve("Ok")
@@ -182,7 +182,7 @@ describe("useForm", () => {
             type Vehicle = { type: "bike" } | { type: "car" }
 
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     vehicle: { type: "bike" } as Vehicle
                 }),
                 submit: () => Promise.resolve("Ok")
@@ -213,7 +213,7 @@ describe("useForm", () => {
     test("Array elements", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     tags: ["tag1", "tag2"]
                 }),
                 submit: () => new Promise(_ => {}) // never resolve
@@ -246,7 +246,7 @@ describe("useForm", () => {
     test("Touched", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     title: ""
                 }),
                 submit: async () => "done"
@@ -279,7 +279,7 @@ describe("useForm", () => {
 
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     title: "",
                     tags: ["tag too long"]
                 }),
@@ -312,7 +312,7 @@ describe("useForm", () => {
     test("Native validation for string", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     title: "",
                 }),
                 submit: async () => "done",
@@ -349,7 +349,7 @@ describe("useForm", () => {
     test("getData, setData, resetData", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     title: "Initial"
                 }),
                 submit: async () => "done"
@@ -381,7 +381,7 @@ describe("useForm", () => {
     test("Push and remove elements", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     tags: [] as string[]
                 }),
                 submit: async () => "done"
@@ -437,7 +437,7 @@ describe("Native validation", () => {
 
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     tags: [] as string[]
                 }),
                 submit: async () => "done",
@@ -493,7 +493,7 @@ describe("Native validation", () => {
     test("For object", async () => {
         function Test() {
             const form = useForm({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     meta: {
                         createdAt: {
                             humanReadable: "",
@@ -559,7 +559,7 @@ describe("Native validation", () => {
             }
 
             const form = useForm<FormValues, any>({
-                getInitialValues: () => ({
+                initialValues: () => ({
                     value: null
                 }),
                 submit: async () => "done",
@@ -595,9 +595,9 @@ describe("Native validation", () => {
             }
 
             const form = useForm<FormValues, any>({
-                getInitialValues: () => ({
+                initialValues: {
                     1: null
-                }),
+                },
                 submit: async () => "done",
                 validate: {
                     1(one) {
