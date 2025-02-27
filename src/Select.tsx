@@ -9,7 +9,7 @@ export type Props<T> = {
     options: Option<T>[]
 }
 & MapperProps<T>
-& Omit<DefaultSelectProps, "type" | "onChange" | "checked">;
+& Omit<DefaultSelectProps, "type" | "checked">;
 
 type MapperProps<T> =
     [T] extends [string | number] ? {
@@ -23,7 +23,7 @@ type Option<T> = {
 }
 
 export function Select<T>(props: Props<T>) {
-    let { field, mapToValue, options, ...rest } = props;
+    let { field, mapToValue, options, onChange, ...rest } = props;
     if (mapToValue) {
         mapToValue = safeMapper(mapToValue);
     }
@@ -33,7 +33,14 @@ export function Select<T>(props: Props<T>) {
 
     const value = useFormValue(field);
     return (
-        <select {...rest} value={mapToValue(value)} onChange={e => field.setValue(findOption(e.target.value, mapToValue, options))}>
+        <select
+            {...rest}
+            value={mapToValue(value)}
+            onChange={e => {
+                field.setValue(findOption(e.target.value, mapToValue, options));
+                onChange?.(e);
+            }}
+        >
         {
             options.map((option, idx) => <option key={idx} value={mapToValue(option.value)}>{ option.label }</option>)
         }
