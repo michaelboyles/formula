@@ -16,6 +16,7 @@ import { useFormValue } from "../useFormValue";
 import * as z from "zod";
 import { FormField } from "../FormField";
 import { Fragment, useState } from "react";
+import { TextArea } from "../TextArea";
 
 const user = userEvent.setup();
 
@@ -291,8 +292,8 @@ describe("useForm", () => {
             return (
                 <>
                     <form onSubmit={form.submit}>
-                        <Input field={form.get("title")} data-testid="input" />
-                        <input type="submit" value="Submit" />
+                        <TextArea field={form.get("title")} data-testid="textarea" />
+                        <input type="submit" value="Submit" data-testid="submit" />
                         { titleErrors ? titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) : null }
                         { firstTagErrors ? firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) : null }
                     </form>
@@ -301,9 +302,8 @@ describe("useForm", () => {
         }
 
         const { getByTestId, getAllByTestId } = render(<Test />);
-        const input = getByTestId("input");
-        await user.type(input, "abcdef");
-        await user.type(input, "{enter}");
+        await user.type(getByTestId("textarea"), "abcdef");
+        await user.click(getByTestId("submit"));
 
         expect(getAllByTestId("title-error").length).toBe(1);
         expect(getAllByTestId("tag-error").length).toBe(1);
