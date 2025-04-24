@@ -13,7 +13,7 @@ type BaseForm = Record<string | number, any>;
 
 type UseFormOpts<T extends BaseForm, R> = {
     initialValues: T | (() => T)
-    submit: (values: T) => Promise<R>
+    submit: (values: T) => R | Promise<R>
 
     // Optional
     onSuccess?: (args: { result: R, values: T }) => void

@@ -30,7 +30,10 @@ describe("useForm", () => {
                 initialValues: {
                     title: ""
                 },
-                submit: async () => "done"
+                submit: () => "done",
+                onSuccess: ({ result }) => {
+                    sink(result satisfies string);
+                }
             })
 
             return (
@@ -56,7 +59,7 @@ describe("useForm", () => {
                 initialValues: {
                     isPublic: false
                 },
-                submit: async () => "done"
+                submit: () => "done"
             })
             const errors = useFormErrors(form.get("isPublic"));
 
@@ -624,3 +627,8 @@ describe("Native validation", () => {
         expect(queryByText("Required")).toBeInTheDocument();
     })
 });
+
+// do nothing, just a target for "satisfies" expression without warnings at the call site
+// @ts-ignore
+function sink<T>(_value: T) {
+}
