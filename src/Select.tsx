@@ -1,8 +1,9 @@
 import { FormField } from "./FormField";
-import { DetailedHTMLProps, SelectHTMLAttributes } from "react";
+import { DetailedHTMLProps, OptionHTMLAttributes, SelectHTMLAttributes } from "react";
 import { useFormValue } from "./useFormValue";
 
 type DefaultSelectProps = DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
+type DefaultOptionProps = DetailedHTMLProps<OptionHTMLAttributes<HTMLOptionElement>, HTMLOptionElement>;
 
 export type Props<T> = {
     field: FormField<T>
@@ -18,9 +19,8 @@ type MapperProps<T> =
         mapToValue: Mapper<T>
     };
 type Option<T> = {
-    label: string
     value: T
-}
+} & Omit<DefaultOptionProps, "value">
 
 export function Select<T>(props: Props<T>) {
     let { field, mapToValue, options, onChange, ...rest } = props;
@@ -42,7 +42,7 @@ export function Select<T>(props: Props<T>) {
             }}
         >
         {
-            options.map((option, idx) => <option key={idx} value={mapToValue(option.value)}>{ option.label }</option>)
+            options.map(({ value, ...rest }, idx) => <option {...rest} key={idx} value={mapToValue(value)} />)
         }
         </select>
     );

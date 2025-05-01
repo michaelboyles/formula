@@ -152,7 +152,7 @@ describe("useForm", () => {
 
     test("Select", async () => {
         function Test() {
-            type Animal = "cat" | "dog";
+            type Animal = "cat" | "dog" | "mouse";
 
             const form = useForm({
                 initialValues: () => ({
@@ -168,6 +168,7 @@ describe("useForm", () => {
                             field={form.get("animal")} options={[
                                 { label: "Cat!", value: "cat" },
                                 { label: "Dog!", value: "dog" },
+                                { label: "Mouse!", value: "mouse", disabled: true }
                             ]}
                         />
                     </form>
