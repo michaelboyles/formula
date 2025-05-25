@@ -8,10 +8,17 @@ export default defineConfig({
 		starlight({
 			title: 'Formula',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/michaelboyles/formula' }],
+			logo: {
+				src: "./src/assets/logo1.svg",
+				replacesTitle: true
+			},
 			sidebar: [
 				{
 					label: 'Getting started ',
-					autogenerate: { directory: 'getting-started' },
+					items: [
+						"getting-started/overview",
+						"getting-started/installation",
+					]
 				},
 				{
 					label: "Hooks",

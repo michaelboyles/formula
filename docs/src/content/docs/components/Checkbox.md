@@ -3,12 +3,20 @@ title: Checkbox
 description: A checkbox component
 ---
 
-The `Checkbox` component creates an `<input type="checkbox">` with all the handlers
-required for interacting with Formula. It accepts all the attributes that `<input>` does, except
-`checked` (managed automatically) and `type` (always `checkbox`).
+The `Checkbox` component creates an `<input type="checkbox">` with its value field bound and all the handlers
+required for interacting with Formula.
 
 ```typescript jsx
 <Checkbox field={form.get("isPublic")} data-testid="checkbox" />
 ```
 
-See also: [input attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes)
+## Required props
+
+### field
+
+The form field to associate with this control.
+
+## Optional props
+
+`<Checkbox>` supports [all the values of `<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes)
+except for `checked` (managed automatically) and `type` (always `checkbox`).
