@@ -27,7 +27,12 @@ export default defineConfig({
 				},
 				{
 					label: 'Components',
-					autogenerate: { directory: 'components' },
+					items: [
+						{
+							label: 'Form controls',
+							autogenerate: { directory: 'components/controls' }
+						}
+					]
 				},
 			],
 			customCss: [
