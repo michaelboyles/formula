@@ -20,3 +20,5 @@ export { Input, type Props as InputProps } from "./Input"
 export { IntegerInput, type Props as IntegerInputProps } from "./IntegerInput"
 export { Select } from "./Select"
 export { TextArea } from "./TextArea"
+
+export { ForEachElement } from "./ForEachElement"
