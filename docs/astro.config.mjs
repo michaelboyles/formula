@@ -1,13 +1,13 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
-import starlight from '@astrojs/starlight';
+import { defineConfig } from "astro/config";
+import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'Formula',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/michaelboyles/formula' }],
+			title: "Formula",
+			social: [{ icon: "github", label: "GitHub", href: "https://github.com/michaelboyles/formula" }],
 			logo: {
 				light: "./src/assets/logo-light.svg",
 				dark: "./src/assets/logo-dark.svg",
@@ -15,28 +15,30 @@ export default defineConfig({
 			},
 			sidebar: [
 				{
-					label: 'Getting started ',
+					label: "Getting started",
 					items: [
 						"getting-started/overview",
 						"getting-started/installation",
+						"getting-started/array-fields",
 					]
 				},
 				{
 					label: "Hooks",
-					autogenerate: { directory: 'hooks' },
+					autogenerate: { directory: "hooks" },
 				},
 				{
-					label: 'Components',
+					label: "Components",
 					items: [
+						"components/ForEachElement",
 						{
-							label: 'Form controls',
-							autogenerate: { directory: 'components/controls' }
+							label: "Form controls",
+							autogenerate: { directory: "components/controls" }
 						}
 					]
 				},
 			],
 			customCss: [
-				'./src/styles/theme.css',
+				"./src/styles/theme.css",
 			],
 		}),
 	],

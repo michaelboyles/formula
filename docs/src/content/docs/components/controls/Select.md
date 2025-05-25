@@ -1,6 +1,7 @@
 ---
 title: Select
 description: A select component
+slug: components/Select
 ---
 
 The `Select` component creates a `<select>` containing a number of `<option>`s. Unlike the native select element, the

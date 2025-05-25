@@ -1,6 +1,7 @@
 ---
 title: TextArea
 description: A textarea component
+slug: components/TextArea
 ---
 
 The `<TextArea>` component creates a `<textarea>` with its value field bound, and all the handlers

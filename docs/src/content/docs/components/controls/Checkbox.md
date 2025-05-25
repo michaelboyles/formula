@@ -1,6 +1,7 @@
 ---
 title: Checkbox
 description: A checkbox component
+slug: components/Checkbox
 ---
 
 The `Checkbox` component creates an `<input type="checkbox">` with its value field bound and all the handlers

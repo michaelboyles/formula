@@ -1,6 +1,7 @@
 ---
 title: useForm
 description: Formula useForm documentation
+slug: hooks/useForm
 ---
 
 `useForm` is the entry point to Formula. It creates a new form.
