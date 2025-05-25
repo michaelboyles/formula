@@ -9,7 +9,8 @@ export default defineConfig({
 			title: 'Formula',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/michaelboyles/formula' }],
 			logo: {
-				src: "./src/assets/logo1.svg",
+				light: "./src/assets/logo-light.svg",
+				dark: "./src/assets/logo-dark.svg",
 				replacesTitle: true
 			},
 			sidebar: [
@@ -28,6 +29,9 @@ export default defineConfig({
 					label: 'Components',
 					autogenerate: { directory: 'components' },
 				},
+			],
+			customCss: [
+				'./src/styles/theme.css',
 			],
 		}),
 	],
