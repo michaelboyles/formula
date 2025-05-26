@@ -21,4 +21,5 @@ export { IntegerInput, type Props as IntegerInputProps } from "./controls/Intege
 export { Select } from "./controls/Select"
 export { TextArea } from "./controls/TextArea"
 
+export { FieldValue } from "./FieldValue"
 export { ForEachElement } from "./ForEachElement"
