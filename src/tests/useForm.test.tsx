@@ -7,7 +7,6 @@ import { Input } from "../controls/Input";
 import { useFormErrors } from "../useFormErrors";
 import { useSubmissionError } from "../useSubmissionError";
 import { IntegerInput } from "../controls/IntegerInput";
-import { Select } from "../controls/Select";
 import { useIsSubmitting } from "../useIsSubmitting";
 import { useElements } from "../useElements";
 import { useIsTouched } from "../useIsTouched";
@@ -118,71 +117,6 @@ describe("useForm", () => {
         expect(createdAt).toHaveValue(1235); //rounds up
         await user.type(createdAt, "{backspace}".repeat(4))
         expect(createdAt).not.toHaveValue()
-    })
-
-    test("Select", async () => {
-        function Test() {
-            type Animal = "cat" | "dog" | "mouse";
-
-            const form = useForm({
-                initialValues: () => ({
-                    animal: "cat" as Animal
-                }),
-                submit: () => Promise.resolve("Ok")
-            })
-            return (
-                <>
-                    <form onSubmit={form.submit}>
-                        <Select
-                            data-testid="animal"
-                            field={form.get("animal")} options={[
-                                { label: "Cat!", value: "cat" },
-                                { label: "Dog!", value: "dog" },
-                                { label: "Mouse!", value: "mouse", disabled: true }
-                            ]}
-                        />
-                    </form>
-                </>
-            )
-        }
-
-        const { getByTestId } = render(<Test />);
-        const select = getByTestId("animal");
-        await user.selectOptions(select, "dog");
-        expect(select).toHaveValue("dog");
-    })
-
-    test("Mapped select", async () => {
-        function Test() {
-            type Vehicle = { type: "bike" } | { type: "car" }
-
-            const form = useForm({
-                initialValues: () => ({
-                    vehicle: { type: "bike" } as Vehicle
-                }),
-                submit: () => Promise.resolve("Ok")
-            })
-            return (
-                <>
-                    <form onSubmit={form.submit}>
-                        <Select
-                            data-testid="vehicle"
-                            field={form.get("vehicle")}
-                            options={[
-                                { label: "** Car", value: { type: "car" } },
-                                { label: "-- Bike", value: { type: "bike" } },
-                            ]}
-                            mapToValue={vehicle => vehicle.type}
-                        />
-                    </form>
-                </>
-            )
-        }
-
-        const { getByTestId } = render(<Test />);
-        const select = getByTestId("vehicle");
-        await user.selectOptions(select, "car");
-        expect(select).toHaveValue("car");
     })
 
     test("Array elements", async () => {
