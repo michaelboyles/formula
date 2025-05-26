@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { FormStateTree } from "../FormStateTree";
-import { FieldPath } from "../FieldPath";
+import { FormStateTree } from "../FormStateTree.ts";
+import { FieldPath } from "../FieldPath.ts";
 
 describe("FormStateTree", () => {
     test("Subscribe and notify of value", () => {

@@ -1,4 +1,4 @@
-import { Validator } from "./validate";
+import { Validator } from "./validate.ts";
 
 export const required: Validator<string, any> = value => {
     if (!value.length) return "Required";

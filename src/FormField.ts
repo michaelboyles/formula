@@ -1,6 +1,6 @@
-import { FormAccess } from "./useForm";
-import { FieldPath } from "./FieldPath";
-import { Subscriber, Unsubscribe } from "./FormStateTree";
+import type { FormAccess } from "./useForm.ts";
+import type { FieldPath } from "./FieldPath.ts";
+import type { Subscriber, Unsubscribe } from "./FormStateTree.ts";
 
 export class FormFieldImpl<Value>
     implements BaseField<Value>,

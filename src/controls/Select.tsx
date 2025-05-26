@@ -1,6 +1,6 @@
-import type { FormField } from "../FormField";
+import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, OptionHTMLAttributes, SelectHTMLAttributes } from "react";
-import { useFieldValue } from "../useFieldValue";
+import { useFieldValue } from "../useFieldValue.ts";
 
 type DefaultSelectProps = DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
 type DefaultOptionProps = DetailedHTMLProps<OptionHTMLAttributes<HTMLOptionElement>, HTMLOptionElement>;

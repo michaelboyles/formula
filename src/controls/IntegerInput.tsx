@@ -1,5 +1,5 @@
-import type { FormField } from "../FormField";
-import { useFieldValue } from "../useFieldValue";
+import type { FormField } from "../FormField.ts";
+import { useFieldValue } from "../useFieldValue.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;

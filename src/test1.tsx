@@ -1,10 +1,10 @@
-import { Form, useForm } from "./useForm";
-import { useElements } from "./useElements";
-import { FormField } from "./FormField";
-import { Input } from "./controls/Input";
-import { useIsSubmitting } from "./useIsSubmitting";
-import { useFieldErrors } from "./useFieldErrors";
-import { Visitor } from "./validate";
+import { Form, useForm } from "./useForm.ts";
+import { useElements } from "./useElements.ts";
+import type { FormField } from "./FormField.ts";
+import { Input } from "./controls/Input.ts";
+import { useIsSubmitting } from "./useIsSubmitting.ts";
+import { useFieldErrors } from "./useFieldErrors.ts";
+import type { Visitor } from "./validate.ts";
 
 type Category = {
     name: string,

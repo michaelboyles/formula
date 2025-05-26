@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { FormField } from "./FormField";
+import type { FormField } from "./FormField.ts";
 
 export function useIsTouched(field: FormField<any>): boolean {
     return useSyncExternalStore(

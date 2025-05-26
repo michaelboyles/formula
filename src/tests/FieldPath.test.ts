@@ -1,5 +1,5 @@
 import { test, expect, describe } from 'vitest';
-import { FieldPath } from "../FieldPath";
+import { FieldPath } from "../FieldPath.ts";
 
 describe("getValue", () => {
     test('Single object property', () => {

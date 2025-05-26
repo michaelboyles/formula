@@ -1,5 +1,5 @@
-import { Form, isInternalForm } from "./useForm";
-import { useSyncState } from "./useSyncState";
+import { Form, isInternalForm } from "./useForm.ts";
+import { useSyncState } from "./useSyncState.ts";
 
 export function useSubmissionError(form: Form<any>): Error | undefined {
     if (!isInternalForm(form)) {

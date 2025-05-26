@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import type { FormField } from "./FormField";
-import { useFieldValue } from "./useFieldValue";
+import type { FormField } from "./FormField.ts";
+import { useFieldValue } from "./useFieldValue.ts";
 
 export type Props<T> = {
     field: FormField<T>

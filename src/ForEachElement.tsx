@@ -1,6 +1,6 @@
-import type { FormField } from "./FormField";
+import type { FormField } from "./FormField.ts";
 import { Fragment, ReactNode } from "react";
-import { useElements } from "./useElements";
+import { useElements } from "./useElements.ts";
 
 export type Props<T> = {
     field: FormField<T[]>

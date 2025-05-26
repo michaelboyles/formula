@@ -2,9 +2,9 @@ import '@testing-library/jest-dom/vitest';
 import { afterEach, expect, describe, it } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
-import { useForm } from "../useForm";
-import { Input } from "../controls/Input";
-import { IsSubmitting } from "../IsSubmitting";
+import { useForm } from "../useForm.ts";
+import { Input } from "../controls/Input.tsx";
+import { IsSubmitting } from "../IsSubmitting.tsx";
 
 const user = userEvent.setup();
 

@@ -1,5 +1,5 @@
-import { FieldPath } from "./FieldPath";
-import { ArrayValidator, FieldVisitor, Issue, ObjValidator, Validator, Visitor } from "./validate";
+import { FieldPath } from "./FieldPath.ts";
+import { ArrayValidator, FieldVisitor, Issue, ObjValidator, Validator, Visitor } from "./validate.ts";
 
 export async function validateObject<R, T extends Record<string, unknown>>(rootData: R, data: T, visitor: Visitor<T>, path: FieldPath) {
     if (!data) return [];

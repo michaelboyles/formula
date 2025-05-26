@@ -1,4 +1,4 @@
-import { FieldPath } from "./FieldPath";
+import { FieldPath } from "./FieldPath.ts";
 
 export class FormStateTree {
     private root: TreeNode = {}

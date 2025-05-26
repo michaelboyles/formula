@@ -1,4 +1,4 @@
-import { FieldPath } from "./FieldPath";
+import { FieldPath } from "./FieldPath.ts";
 
 export type Issue = {
     path: FieldPath
