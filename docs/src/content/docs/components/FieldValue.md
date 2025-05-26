@@ -1,0 +1,30 @@
+---
+title: FieldValue
+description: A component for watching a value in a Formula form
+slug: components/FieldValue
+---
+
+```typescript
+function FieldValue<T>(props: {
+    field: FormField<T>
+    children: (value: T) => ReactNode
+})
+```
+
+`<FieldValue>` lets you watch the value. It accepts a field and a render prop as its child, which
+is called every time the value changes.
+
+The counterpart hook is [`useFieldValue`](/hooks/useFieldValue).
+
+## Sample usage 
+
+```tsx
+const form = useForm({
+   initialValues: { name: "" }
+});
+return (
+    <FieldValue field={form.get("name")}>
+        { name => <div>Your name is: {name} </div> }
+    </FieldValue>
+)
+```

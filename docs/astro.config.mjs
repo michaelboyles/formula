@@ -31,6 +31,7 @@ export default defineConfig({
 				{
 					label: "Components",
 					items: [
+						"components/FieldValue",
 						"components/ForEachElement",
 						"components/IsSubmitting",
 						{
