@@ -34,6 +34,7 @@ export default defineConfig({
 						"components/FieldValue",
 						"components/ForEachElement",
 						"components/IsSubmitting",
+						"components/SubmissionError",
 						{
 							label: "Form controls",
 							autogenerate: { directory: "components/controls" }

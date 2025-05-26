@@ -107,10 +107,10 @@ it more readable.
 
 ## Hooks and their equivalent components
 
-| Hook                                            | Component                                    |
-|-------------------------------------------------|----------------------------------------------|
-| [useElements](/hooks/useElements)               | [ForEachElement](/components/ForEachElement) |
-| [useFieldErrors](/hooks/useFieldErrors)         |                                              |
-| [useFieldValue](/hooks/useFieldValue)           | [FieldValue](/components/FieldValue)         |
-| [useIsSubmitting](/hooks/useIsSubmitting)       | [IsSubmitting](/components/IsSubmitting)     |
-| [useSubmissionError](/hooks/useSubmissionError) |                                              |
+| Hook                                            | Component                                      |
+|-------------------------------------------------|------------------------------------------------|
+| [useElements](/hooks/useElements)               | [ForEachElement](/components/ForEachElement)   |
+| [useFieldErrors](/hooks/useFieldErrors)         |                                                |
+| [useFieldValue](/hooks/useFieldValue)           | [FieldValue](/components/FieldValue)           |
+| [useIsSubmitting](/hooks/useIsSubmitting)       | [IsSubmitting](/components/IsSubmitting)       |
+| [useSubmissionError](/hooks/useSubmissionError) | [SubmissionError](/components/SubmissionError) |
