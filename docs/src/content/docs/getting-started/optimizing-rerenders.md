@@ -110,7 +110,7 @@ it more readable.
 | Hook                                            | Component                                      |
 |-------------------------------------------------|------------------------------------------------|
 | [useElements](/hooks/useElements)               | [ForEachElement](/components/ForEachElement)   |
-| [useFieldErrors](/hooks/useFieldErrors)         |                                                |
+| [useFieldErrors](/hooks/useFieldErrors)         | [FieldErrors](/components/FieldErrors)         |
 | [useFieldValue](/hooks/useFieldValue)           | [FieldValue](/components/FieldValue)           |
 | [useIsSubmitting](/hooks/useIsSubmitting)       | [IsSubmitting](/components/IsSubmitting)       |
 | [useSubmissionError](/hooks/useSubmissionError) | [SubmissionError](/components/SubmissionError) |

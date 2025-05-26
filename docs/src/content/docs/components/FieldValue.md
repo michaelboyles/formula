@@ -11,7 +11,7 @@ function FieldValue<T>(props: {
 })
 ```
 
-`<FieldValue>` lets you watch the value. It accepts a field and a render prop as its child, which
+`<FieldValue>` lets you watch the value of a field. It accepts a field and a render prop as its child, which
 is called every time the value changes.
 
 The counterpart hook is [`useFieldValue`](/hooks/useFieldValue).
