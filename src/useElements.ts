@@ -1,7 +1,7 @@
 import { ArrayField, FieldFromNative } from "./FormField";
 import { useSyncExternalStore } from "react";
 
-export function useElements<T>(field: ArrayField<T>) {
+export function useElements<T>(field: ArrayField<T>): ReadonlyArray<FieldFromNative<T>> {
     const length = useSyncNumElements(field);
     return Array.from(Array(length), (_, idx) => field.element(idx) as FieldFromNative<T>);
 }
