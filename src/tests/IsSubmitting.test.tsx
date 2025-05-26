@@ -4,37 +4,41 @@ import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
 import { Input } from "../controls/Input";
-import { FieldValue } from "../FieldValue";
+import { IsSubmitting } from "../IsSubmitting";
 
 const user = userEvent.setup();
 
 // https://testing-library.com/docs/react-testing-library/api/#cleanup
 afterEach(() => cleanup());
 
-describe("FieldValue", () => {
+describe("IsSubmitting", () => {
     it("updates without rerendering the parent", async () => {
         let formRenderCount = 0;
         function Test() {
             formRenderCount++;
             const form = useForm({
                 initialValues: { name: "" },
-                submit: () => "ok"
+                submit: () => new Promise(_ => {}) // never resolve
             })
             return (
                 <form onSubmit={form.submit}>
                     <Input field={form.get("name")} data-testid="input" />
-                    <FieldValue field={form.get("name")}>
-                        { name => <div>Your name is { name satisfies string }</div>}
-                    </FieldValue>
+                    <IsSubmitting form={form}>
+                        { (isSubmitting: boolean) => <button type="submit" disabled={isSubmitting} data-testid="submit">Submit</button> }
+                    </IsSubmitting>
                 </form>
             )
         }
-        const { getByTestId, queryByText } = render(<Test />);
+        const { getByTestId } = render(<Test />);
         expect(formRenderCount).toBe(1);
         const input = getByTestId("input");
         await user.type(input, "michael");
 
-        expect(queryByText("Your name is michael")).toBeInTheDocument();
+        const submit = getByTestId("submit");
+        expect(submit).not.toBeDisabled();
+
+        await user.click(submit);
+        expect(submit).toBeDisabled();
         expect(formRenderCount).toBe(1);
     })
 });

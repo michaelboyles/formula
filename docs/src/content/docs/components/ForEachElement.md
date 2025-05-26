@@ -1,6 +1,6 @@
 ---
 title: ForEachElement
-description: todo
+description: A component for safely iterating array elements in a Formula form
 slug: components/ForEachElement
 ---
 

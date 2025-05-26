@@ -112,5 +112,5 @@ it more readable.
 | [useElements](/hooks/useElements)               | [ForEachElement](/components/ForEachElement) |
 | [useFieldErrors](/hooks/useFieldErrors)         |                                              |
 | [useFieldValue](/hooks/useFieldValue)           | [FieldValue](/components/FieldValue)         |
-| [useIsSubmitting](/hooks/useIsSubmitting)       |                                              |
+| [useIsSubmitting](/hooks/useIsSubmitting)       | [IsSubmitting](/components/IsSubmitting)     |
 | [useSubmissionError](/hooks/useSubmissionError) |                                              |

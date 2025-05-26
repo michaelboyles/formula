@@ -1,6 +1,6 @@
 ---
 title: Select
-description: A select component
+description: A component from creating select controls in Formula
 slug: components/Select
 ---
 

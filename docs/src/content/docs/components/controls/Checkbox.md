@@ -1,6 +1,6 @@
 ---
 title: Checkbox
-description: A checkbox component
+description: A component for creating checkboxes in Formula
 slug: components/Checkbox
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: TextArea
-description: A textarea component
+description: A component for creating textarea controls in Formula
 slug: components/TextArea
 ---
 
