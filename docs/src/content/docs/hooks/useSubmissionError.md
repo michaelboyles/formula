@@ -22,6 +22,7 @@ const form = useForm({
    //... 
 });
 const submissionError = useSubmissionError(form);
+//^? Error | undefined
 if (submissionError) {
     return <div>There was an error</div>
 }

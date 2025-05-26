@@ -1,7 +1,26 @@
 ---
 title: useFieldValue
-description: a
+description: A hook to get the value for a form field
 slug: hooks/useFieldValue
 ---
 
-TODO
+```typescript
+function useFieldValue<T>(field: FormField<T>): T
+```
+
+`useFieldValue` subscribes to the value of a field. It will only trigger a rerender when the value changes.
+
+## Sample usage
+
+```typescript jsx
+const form = useForm({
+    initialValues: {
+        username: "admin"
+    }
+    //...
+});
+const username: string = useFieldValue(form.get("username"));
+return (
+    <div>Username: { username }</div>
+)
+```

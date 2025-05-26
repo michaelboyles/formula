@@ -16,7 +16,7 @@ function useIsSubmitting(form: Form<any>): boolean
 const form = useForm({
    //... 
 });
-const isSubmitting = useIsSubmitting(form);
+const isSubmitting: boolean = useIsSubmitting(form);
 return (
     <form onSubmit={form.submit}>
         {/* ... */}

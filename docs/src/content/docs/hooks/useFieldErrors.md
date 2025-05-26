@@ -1,7 +1,34 @@
 ---
 title: useFieldErrors
-description: c
+description: A hook to get the errors for a form field
 slug: hooks/useFieldErrors
 ---
 
-TODO
+```typescript
+function useFieldErrors(field: FormField<any>): ReadonlyArray<string> | undefined
+```
+
+`useFieldErrors` subscribes to the validation errors for a field. It will only trigger a rerender when the value
+changes.
+
+## Sample usage
+
+```typescript jsx
+const form = useForm({
+   //... 
+});
+const errors = useFieldErrors(form.get("username"));
+//^? ReadonlyArray<string> | undefined
+if (errors && errors.length) {
+    return (
+        <div>
+            Issues:
+            <ul>
+            {
+                errors.map((err, idx) => <li key={idx}>{ err }</li>)
+            }
+            </ul>
+        </div>
+    )
+}
+```
