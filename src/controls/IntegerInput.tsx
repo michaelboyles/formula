@@ -7,12 +7,14 @@ export type Props = {
     field: FormField<"" | number>
 } & Omit<DefaultInputProps, "type" | "value">;
 export function IntegerInput(props: Props) {
-    let { field, onChange, onBlur, ...rest } = props;
+    const { field, onChange, onBlur, ...rest } = props;
     const value = useFormValue(field);
 
     return (
         <input
-            {...rest} type="number" value={value}
+            {...rest}
+            type="number"
+            value={value}
             onChange={e => {
                 const value = e.target.value;
                 if (value === "") {

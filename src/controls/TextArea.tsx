@@ -7,11 +7,12 @@ export type Props = {
     field: FormField<string>
 } & Omit<DefaultInputProps, "value">;
 export function TextArea(props: Props) {
-    let { field, onChange, onBlur, ...rest } = props;
+    const { field, onChange, onBlur, ...rest } = props;
     const value = useFormValue(field);
     return (
         <textarea
-            {...rest} value={value}
+            {...rest}
+            value={value}
             onChange={e => {
                 field.setValue(e.target.value);
                 onChange?.(e);

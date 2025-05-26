@@ -8,12 +8,13 @@ export type Props = {
     type?: "text" | "password" | "email" | "search" | "tel" | "url"
 } & Omit<DefaultInputProps, "type" | "value">;
 export function Input(props: Props) {
-    let { field, type, onChange, onBlur, ...rest } = props;
+    const { field, type = "text", onChange, onBlur, ...rest } = props;
     const value = useFormValue(field);
-    if (!type) type = "text";
     return (
         <input
-            {...rest} type={type} value={value}
+            {...rest}
+            type={type}
+            value={value}
             onChange={e => {
                 field.setValue(e.target.value);
                 onChange?.(e);
