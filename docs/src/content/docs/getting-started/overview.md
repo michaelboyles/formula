@@ -1,10 +1,11 @@
 ---
 title: Overview
 description: A guide
+tableOfContents: false
 ---
 
 Formula is a library for managing forms in React. It supports complex form data structures, including nested objects and
-arrays. It's fully type safe and built to re-render only when necessary.
+arrays. It's fully type safe and built to only re-render when necessary.
 
 Here's a simple example:
 

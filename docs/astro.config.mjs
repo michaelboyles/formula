@@ -19,6 +19,7 @@ export default defineConfig({
 					items: [
 						"getting-started/overview",
 						"getting-started/installation",
+						"getting-started/fields",
 						"getting-started/array-fields",
 					]
 				},
