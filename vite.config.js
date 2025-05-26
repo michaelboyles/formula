@@ -5,7 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
     plugins: [react()],
     test: {
-        dir: "./src/tests",
+        include: [
+            'src/**/*.test.ts',
+            'src/**/*.test.tsx',
+        ],
         watch: false,
         environment: "jsdom",
     },

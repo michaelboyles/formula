@@ -4,7 +4,6 @@ import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
 import { Input } from "../controls/Input";
-import { Checkbox } from "../controls/Checkbox";
 import { useFormErrors } from "../useFormErrors";
 import { useSubmissionError } from "../useSubmissionError";
 import { IntegerInput } from "../controls/IntegerInput";
@@ -51,35 +50,6 @@ describe("useForm", () => {
         expect(queryByText("My title")).not.toBeInTheDocument();
         await user.type(input, "My title");
         expect(input).toHaveValue("My title");
-    })
-
-    test("Checkbox", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    isPublic: false
-                },
-                submit: () => "done"
-            })
-            const errors = useFormErrors(form.get("isPublic"));
-
-            return (
-                <>
-                    <form onSubmit={form.submit}>
-                        <Checkbox field={form.get("isPublic")} data-testid="checkbox"/>
-                        {
-                            errors ? JSON.stringify(errors) : null
-                        }
-                    </form>
-                </>
-            )
-        }
-
-        const { getByTestId } = render(<Test />);
-        const checkbox = getByTestId("checkbox");
-
-        await user.click(checkbox);
-        expect(checkbox).toBeChecked();
     })
 
     test("Submission fails", async () => {
