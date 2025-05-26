@@ -150,18 +150,25 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     }, [initialValues, submit]);
 }
 
-export type Form<D> = {
-    get: <K extends keyof Omit<D, symbol>>(key: K) => FieldFromNative<D[K]>
+export type Form<Data> = {
+    // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`, but there may be cases
+    // where you call it programmatically.
+    submit: (e?: FormEvent) => void
 
+    // Get a field with the given key
+    get: <K extends keyof Omit<Data, symbol>>(key: K) => FieldFromNative<Data[K]>
+
+    // Get a field, ignoring type-safety. Generally you should use 'get' instead.
     getUnsafeField: (path: (string | number)[]) => FormField<unknown>
 
-    getData: () => D
+    // Get the current form data
+    getData: () => Data
 
-    setData: (data: D) => void
+    // Set the current form data
+    setData: (data: Data) => void
 
+    // Discards the current form data and sets the value using `initialValues`
     resetData: () => void
-
-    submit: (e?: FormEvent) => void
 }
 
 export type _Form<T = unknown> = {
