@@ -21,6 +21,7 @@ export default defineConfig({
 						"getting-started/installation",
 						"getting-started/fields",
 						"getting-started/array-fields",
+						"getting-started/optimizing-rerenders",
 					]
 				},
 				{
