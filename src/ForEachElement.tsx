@@ -4,7 +4,7 @@ import { useElements } from "./hooks/useElements.ts";
 
 export type Props<T> = {
     field: FormField<T[]>
-    children: (element: FormField<T>, idx: number) => ReactNode;
+    children: (element: FormField<NoInfer<T>>, idx: number) => ReactNode;
 }
 export function ForEachElement<T>({ field, children }: Props<T>) {
     const elements = useElements(field);
