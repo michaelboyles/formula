@@ -16,8 +16,16 @@ function useSyncNumElements(field: FormField<any[]>) {
             }
         },
         // Get snapshot
-        () => field.getValue().length,
+        () => getSafeLength(field.getValue()),
         // Get server snapshot
-        () => field.getValue().length
+        () => getSafeLength(field.getValue())
     );
+}
+
+function getSafeLength(array: ReadonlyArray<any>): number {
+    if (Array.isArray(array)) {
+        return array.length;
+    }
+    console.error(`Expected an array but got ${typeof array}`, array);
+    return 0;
 }
