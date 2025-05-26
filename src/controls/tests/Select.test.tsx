@@ -25,11 +25,12 @@ describe("Select", () => {
                 <form onSubmit={form.submit}>
                     <Select
                         data-testid="animal"
-                        field={form.get("animal")} options={[
-                        { label: "Cat!", value: "cat" },
-                        { label: "Dog!", value: "dog" },
-                        { label: "Mouse!", value: "mouse", disabled: true }
-                    ]}
+                        field={form.get("animal")}
+                        options={[
+                            { label: "Cat!", value: "cat" },
+                            { label: "Dog!", value: "dog" },
+                            { label: "Mouse!", value: "mouse", disabled: true }
+                        ]}
                     />
                 </form>
             )

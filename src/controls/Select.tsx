@@ -7,7 +7,7 @@ type DefaultOptionProps = DetailedHTMLProps<OptionHTMLAttributes<HTMLOptionEleme
 
 export type Props<T> = {
     field: FormField<T>
-    options: Option<T>[]
+    options: ReadonlyArray<Option<NoInfer<T>>>
 }
 & MapperProps<T>
 & Omit<DefaultSelectProps, "type" | "checked">;
@@ -61,7 +61,7 @@ function safeMapper<T>(delegate: (value: T) => unknown): Mapper<T> {
 
 type Mapper<T> = (value: T) => string;
 
-function findOption<T>(value: string, mapToValue: Mapper<T>, options: Option<T>[]): T {
+function findOption<T>(value: string, mapToValue: Mapper<T>, options: ReadonlyArray<Option<T>>): T {
     for (const option of options) {
         if (mapToValue(option.value) === value) {
             return option.value;
