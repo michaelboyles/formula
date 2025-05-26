@@ -22,33 +22,6 @@ const user = userEvent.setup();
 afterEach(() => cleanup());
 
 describe("useForm", () => {
-    test("Type into text input", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    title: ""
-                },
-                submit: () => "done",
-                onSuccess: ({ result }) => {
-                    sink(result satisfies string);
-                }
-            })
-
-            return (
-                <form onSubmit={form.submit}>
-                    <Input field={form.get("title")} data-testid="input" />
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        const input = getByTestId("input");
-
-        expect(queryByText("My title")).not.toBeInTheDocument();
-        await user.type(input, "My title");
-        expect(input).toHaveValue("My title");
-    })
-
     test("Submission fails", async () => {
         function Test() {
             const [errorJson, setErrorJson] = useState("");
@@ -534,8 +507,3 @@ describe("Native validation", () => {
         expect(queryByText("Required")).toBeInTheDocument();
     })
 });
-
-// do nothing, just a target for "satisfies" expression without warnings at the call site
-// @ts-ignore
-function sink<T>(_value: T) {
-}

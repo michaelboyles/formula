@@ -1,0 +1,42 @@
+import '@testing-library/jest-dom/vitest';
+import { afterEach, expect, describe, it } from 'vitest';
+import { cleanup, render } from "@testing-library/react";
+import { userEvent } from '@testing-library/user-event'
+import { useForm } from "../../hooks/useForm.ts";
+import { Input } from "../Input.tsx";
+
+const user = userEvent.setup();
+
+// https://testing-library.com/docs/react-testing-library/api/#cleanup
+afterEach(() => cleanup());
+
+describe("Input", () => {
+    it("can be typed in", async () => {
+        function Test() {
+            const form = useForm({
+                initialValues: { title: "" },
+                submit: () => "done",
+                onSuccess: ({ result }) => {
+                    sink(result satisfies string);
+                }
+            })
+            return (
+                <form onSubmit={form.submit}>
+                    <Input field={form.get("title")} data-testid="input" />
+                </form>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        const input = getByTestId("input");
+
+        expect(queryByText("My title")).not.toBeInTheDocument();
+        await user.type(input, "My title");
+        expect(input).toHaveValue("My title");
+    })
+});
+
+// do nothing, just a target for "satisfies" expression without warnings at the call site
+// @ts-ignore
+function sink<T>(_value: T) {
+}
