@@ -4,7 +4,7 @@ description: An introduction to the Form Field concept within Formula
 ---
 
 Within Formula form data, everything's considered a field, not just primitive types like `string` that can be 
-associated with a form control. That means fields can contain other fields. In this form data
+associated with a form control. That means fields can contain other fields. In this form data:
 
 ```typescript
 type Post = {
@@ -32,7 +32,7 @@ const form = useForm({
 const usernameField = form.get("username");
 
 // ❌ Argument of type "title" is not assignable to 
-//    parameter of type "username" | "password
+//    parameter of type "username" | "password"
 const unknownField = form.get("title");
 ```
 
@@ -42,7 +42,7 @@ how and where to get it. For that reason, Fields have a `getValue()` function, b
 
 ## Subscribing to a field's value
 
-To subscribe to a field's value, use the [`useFieldValue` hook](/hooks/useFormValue), or often you can use
+To subscribe to a field's value, use the [`useFieldValue` hook](/hooks/useFieldValue), or often you can use
 one of the built-in controls, e.g. [`<Select>`](/components/Select).
 
 ```tsx

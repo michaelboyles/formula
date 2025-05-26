@@ -51,7 +51,8 @@ needs to rerender.
 
 As is usually the case for React, optimizing rerenders is about putting things as far down in the tree as possible.
 We can pass Formula fields as props, which is shown below. In fact, you could pass the whole form instance if you
-wanted to. Accessing a field doesn't create a dependency. Only 
+wanted to. Accessing a field doesn't create a dependency. Only when you use hooks like `useFieldValue` do you
+create a dependency on the field's value.
 
 ```tsx
 function MyForm() {
@@ -96,7 +97,6 @@ function MyForm() {
             <FieldValue field={form.get("name")}>
                 { (name: string) => <div>Your name is { name }</div> }
             </FieldValue>
-            <NameSection nameField={form.get("name")} />
         </form>
     )
 }

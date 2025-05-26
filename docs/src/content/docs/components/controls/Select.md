@@ -1,11 +1,12 @@
 ---
 title: Select
-description: A component from creating select controls in Formula
+description: A component for creating select controls in Formula
 slug: components/Select
 ---
 
-The `Select` component creates a `<select>` containing a number of `<option>`s. Unlike the native select element, the
-value isn't required to be a number or string. It can be anything, provided you 
+The `Select` component renders a `<select>` element containing a number of `<option>`s. Unlike the native select
+element, the value isn't required to be a number or string. It can be anything, provided you provide a mapper with the
+`mapToValue` property.
 
 ```tsx
 <Select
@@ -33,8 +34,8 @@ The available options for the select. Each option can specify
 
 ### mapToValue
 
-If the value of the options isn't string or number, then an additional mapper function is required to convert each
-option's value into a string or number.
+If option values aren’t strings or numbers, you must provide a mapper function to convert each value into a string or
+number.
 
 ```tsx
 <Select
