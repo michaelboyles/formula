@@ -2,12 +2,10 @@ import { FormAccess } from "./useForm";
 import { FieldPath } from "./FieldPath";
 import { Subscriber, Unsubscribe } from "./FormStateTree";
 
-export class FormFieldImpl<Value, SetValue>
-    implements FormField<Value, SetValue>,
-        Pick<ObjectField<Record<string, any>>, "property">,
-        Pick<ArrayField<any>, "element" | "push" | "remove">,
-        Pick<MaybeArrayField<any>, "element">,
-        Pick<MaybeObjectField<Record<string, any>>, "property">
+export class FormFieldImpl<Value>
+    implements BaseField<Value>,
+        Pick<ObjectMethods<Record<string, any>>, "property">,
+        Pick<ArrayMethods<any>, "element" | "push" | "remove">
 {
     protected readonly path: FieldPath
     protected readonly form: FormAccess
@@ -21,7 +19,7 @@ export class FormFieldImpl<Value, SetValue>
         return this.form.getValue(this.path);
     }
 
-    setValue(value: SetValue) {
+    setValue(value: Value) {
         return this.form.setValue(this.path, value);
     }
 
@@ -84,7 +82,7 @@ export class FormFieldImpl<Value, SetValue>
     }
 }
 
-export type FormField<Value = any, SetValue = Value> = {
+type BaseField<Value, SetValue = Value> = {
     getValue: () => Readonly<Value>
     setValue: (value: SetValue) => void
     subscribeToValue: (subscriber: Subscriber) => Unsubscribe
@@ -98,35 +96,17 @@ export type FormField<Value = any, SetValue = Value> = {
     subscribeToTouched: (subscriber: Subscriber) => Unsubscribe
 }
 
-export type ObjectField<T extends Record<any, any>> = FormField<T> & {
-    property: <K extends keyof Omit<T, symbol>>(key: K) => FieldFromNative<T[K]>
+type ObjectMethods<T extends object> = {
+    property: <K extends keyof T>(key: K) => FormField<T[K]>
 }
-export type ArrayField<E> = FormField<E[]> & {
-    element: (idx: number) => MaybeField<E>
 
-    push: (...item: E[]) => void
-
+type ArrayMethods<E> = {
+    element: (idx: number) => FormField<E | undefined, E>
+    push: (...items: E[]) => void
     remove: (index: number) => void
 }
 
-type MaybeField<T> =
-    T extends Array<infer ArrayElement> ? MaybeArrayField<ArrayElement> :
-        T extends Record<any, any> ? MaybeObjectField<T>
-            : FormField<T | undefined, T>
-
-type MaybeObjectField<T extends Record<any, any>> = {
-    property: <K extends keyof T>(key: K) => MaybeField<T[K]>
-} & FormField<T | undefined, T>;
-
-type MaybeArrayField<T> = {
-    element: (idx: number) => MaybeField<T>
-} & FormField<T | undefined, T>;
-
-export type FieldFromNative<T> =
-    [T] extends [undefined] ? MaybeField<NonNullable<T>> :
-        [T] extends [true] ? FormField<true> :
-            [T] extends [false] ? FormField<false> :
-                [T] extends [boolean] ? FormField<boolean> :
-                    [T] extends [Array<infer Arr>] ? ArrayField<Arr> :
-                        [T] extends [Record<any, any>] ? ObjectField<T> :
-                            [T] extends [unknown] ? FormField<T> : never;
+export type FormField<T, SetValue = T> =
+    BaseField<T, SetValue> &
+    (T extends ReadonlyArray<infer E> ? ArrayMethods<E>
+        : T extends object ? ObjectMethods<T> : {});

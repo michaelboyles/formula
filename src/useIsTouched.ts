@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
-import { FormField } from "./FormField";
+import type { FormField } from "./FormField";
 
-export function useIsTouched(field: FormField): boolean {
+export function useIsTouched(field: FormField<any>): boolean {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {

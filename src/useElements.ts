@@ -1,12 +1,12 @@
-import { ArrayField, FieldFromNative } from "./FormField";
+import type { FormField } from "./FormField";
 import { useSyncExternalStore } from "react";
 
-export function useElements<T>(field: ArrayField<T>): ReadonlyArray<FieldFromNative<T>> {
+export function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T>> {
     const length = useSyncNumElements(field);
-    return Array.from(Array(length), (_, idx) => field.element(idx) as FieldFromNative<T>);
+    return Array.from(Array(length), (_, idx) => field.element(idx) as FormField<T>);
 }
 
-function useSyncNumElements(field: ArrayField<any>) {
+function useSyncNumElements(field: FormField<any[]>) {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {

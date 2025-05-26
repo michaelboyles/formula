@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useMemo, useRef } from "react";
-import { FieldFromNative, FormField, FormFieldImpl } from "./FormField";
+import { FormField, FormFieldImpl } from "./FormField";
 import { FieldPath } from "./FieldPath";
 import { FormStateTree, Subscriber, Unsubscribe } from "./FormStateTree";
 import { FormState, FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager";
@@ -156,7 +156,7 @@ export type Form<Data> = {
     submit: (e?: FormEvent) => void
 
     // Get a field with the given key
-    get: <K extends keyof Omit<Data, symbol>>(key: K) => FieldFromNative<Data[K]>
+    get: <K extends keyof Omit<Data, symbol>>(key: K) => FormField<Data[K]>
 
     // Get a field, ignoring type-safety. Generally you should use 'get' instead.
     getUnsafeField: (path: (string | number)[]) => FormField<unknown>

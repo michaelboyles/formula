@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 export type { Form } from "./useForm"
-export type { FormField, ObjectField, ArrayField } from "./FormField"
+export type { FormField } from "./FormField"
 
 // Hooks
 

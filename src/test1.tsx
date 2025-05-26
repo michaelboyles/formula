@@ -1,6 +1,6 @@
 import { Form, useForm } from "./useForm";
 import { useElements } from "./useElements";
-import { ArrayField, FormField } from "./FormField";
+import { FormField } from "./FormField";
 import { Input } from "./controls/Input";
 import { useIsSubmitting } from "./useIsSubmitting";
 import { useFormErrors } from "./useFormErrors";
@@ -73,7 +73,7 @@ function validateCategory(visit: (visitor: Visitor<Category>) => void) {
     })
 }
 
-function Tags(props: { field: ArrayField<string> }) {
+function Tags(props: { field: FormField<string[]> }) {
     const elemns = useElements(props.field);
     return (
         <>
