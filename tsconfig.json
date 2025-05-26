@@ -6,5 +6,8 @@
     "moduleResolution": "Node",
     "strict": true,
     "skipLibCheck": true
-  }
+  },
+  "exclude": [
+    "docs/**"
+  ]
 }
