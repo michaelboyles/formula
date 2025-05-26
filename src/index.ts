@@ -15,10 +15,10 @@ export { useSubmissionError } from "./useSubmissionError"
 
 // Components
 
-export { Checkbox } from "./Checkbox"
-export { Input, type Props as InputProps } from "./Input"
-export { IntegerInput, type Props as IntegerInputProps } from "./IntegerInput"
-export { Select } from "./Select"
-export { TextArea } from "./TextArea"
+export { Checkbox } from "./controls/Checkbox"
+export { Input, type Props as InputProps } from "./controls/Input"
+export { IntegerInput, type Props as IntegerInputProps } from "./controls/IntegerInput"
+export { Select } from "./controls/Select"
+export { TextArea } from "./controls/TextArea"
 
 export { ForEachElement } from "./ForEachElement"

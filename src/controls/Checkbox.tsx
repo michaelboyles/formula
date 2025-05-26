@@ -1,6 +1,6 @@
-import { FormField } from "./FormField";
-import { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { useFormValue } from "./useFormValue";
+import type { FormField } from "../FormField";
+import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import { useFormValue } from "../useFormValue";
 
 type DefaultCheckboxProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {

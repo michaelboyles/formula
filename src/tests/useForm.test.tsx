@@ -3,12 +3,12 @@ import { afterEach, test, expect, describe } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
-import { Input } from "../Input";
-import { Checkbox } from "../Checkbox";
+import { Input } from "../controls/Input";
+import { Checkbox } from "../controls/Checkbox";
 import { useFormErrors } from "../useFormErrors";
 import { useSubmissionError } from "../useSubmissionError";
-import { IntegerInput } from "../IntegerInput";
-import { Select } from "../Select";
+import { IntegerInput } from "../controls/IntegerInput";
+import { Select } from "../controls/Select";
 import { useIsSubmitting } from "../useIsSubmitting";
 import { useElements } from "../useElements";
 import { useIsTouched } from "../useIsTouched";
@@ -16,7 +16,7 @@ import { useFormValue } from "../useFormValue";
 import * as z from "zod";
 import { FormField } from "../FormField";
 import { Fragment, useState } from "react";
-import { TextArea } from "../TextArea";
+import { TextArea } from "../controls/TextArea";
 
 const user = userEvent.setup();
 

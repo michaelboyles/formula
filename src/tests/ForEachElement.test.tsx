@@ -4,7 +4,7 @@ import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
 import { ForEachElement } from "../ForEachElement";
-import { Input } from "../Input";
+import { Input } from "../controls/Input";
 
 const user = userEvent.setup();
 
