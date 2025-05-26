@@ -3,14 +3,14 @@ import { afterEach, expect, describe, it } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../hooks/useForm.ts";
-import { Input } from "../Input.tsx";
+import { TextArea } from "../../controls/TextArea.tsx";
 
 const user = userEvent.setup();
 
 // https://testing-library.com/docs/react-testing-library/api/#cleanup
 afterEach(() => cleanup());
 
-describe("Input", () => {
+describe("TextArea", () => {
     it("can be typed in without rerendering the parent", async () => {
         let formRenderCount = 0;
         function Test() {
@@ -23,16 +23,16 @@ describe("Input", () => {
                 }
             })
             return (
-                <Input field={form.get("title")} data-testid="input" />
+                <TextArea field={form.get("title")} data-testid="textarea" />
             )
         }
 
         const { getByTestId, queryByText } = render(<Test />);
-        const input = getByTestId("input");
+        const input = getByTestId("textarea");
 
-        expect(queryByText("My title")).not.toBeInTheDocument();
-        await user.type(input, "My title");
-        expect(input).toHaveValue("My title");
+        expect(queryByText("some text")).not.toBeInTheDocument();
+        await user.type(input, "some text");
+        expect(input).toHaveValue("some text");
         expect(formRenderCount).toBe(1);
     })
 });
