@@ -16,7 +16,7 @@ type UseFormOpts<T extends BaseForm, R> = {
     submit: (values: T) => R | Promise<R>
 
     // Optional
-    onSuccess?: (args: { result: R, values: T }) => void
+    onSuccess?: (args: { result: NoInfer<R>, values: T }) => void
 
     // A callback invoked when there is a form submission error. When the promise returned by 'submit' is rejected, this
     // function will be invoked. If the promise wasn't rejected with an Error then it will be wrapped in one, and
