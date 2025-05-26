@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach, test, expect, describe } from 'vitest';
-import { cleanup, render } from "@testing-library/react";
+import { afterEach, expect, expectTypeOf, describe, it, test } from 'vitest';
+import { cleanup, render, renderHook } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
 import { Input } from "../controls/Input";
@@ -272,56 +272,80 @@ describe("useForm", () => {
         expect(queryByText("Initial")).toBeInTheDocument();
     })
 
-    test("Push and remove elements", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: () => ({
-                    tags: [] as string[]
-                }),
-                submit: async () => "done"
-            });
+    describe("array fields", () => {
+        it("provides type safety for elements", () => {
+            renderHook(() => {
+                const form = useForm({
+                    initialValues: () => ({
+                        tags: [] as string[]
+                    }),
+                    submit: async () => "done"
+                });
+                const tagsField = form.get("tags");
+                expectTypeOf(tagsField.getValue).toEqualTypeOf<() => Readonly<string[]>>();
+                const firstTag = form.get("tags").element(1);
+                expectTypeOf(firstTag.getValue).toEqualTypeOf<() => string | undefined>();
+                expectTypeOf(firstTag.setValue).toEqualTypeOf<(value: string) => void>();
 
-            const tags = useFormValue(form.get("tags"));
-            return (
-                <form onReset={() => form.resetData()}>
-                    {
-                        tags.map((tag, idx) => <div key={idx} data-testid="tag">{tag}</div>)
-                    }
-                    <button
-                        type="button"
-                        onClick={() => form.get("tags").push("tag " + (tags.length + 1))}
-                        data-testid="pushTagBtn"
-                    >Push tag
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => form.get("tags").remove(1)}
-                        data-testid="removeSecondTagBtn"
-                    >Remove 2nd tag
-                    </button>
-                </form>
-            )
-        }
+                const elements = useElements(tagsField);
+                for (let element of elements) {
+                    expectTypeOf(element.getValue).toEqualTypeOf<() => string>();
+                    expectTypeOf(element.setValue).toEqualTypeOf<(value: string) => void>();
+                }
+            })
+        })
 
-        const {queryAllByTestId, getByTestId, queryAllByText} = render(<Test/>);
+        it("allows pushing/removing elements", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: () => ({
+                        tags: [] as string[]
+                    }),
+                    submit: async () => "done"
+                });
 
-        const pushTagBtn = getByTestId("pushTagBtn");
-        expect(queryAllByTestId("tag")).toHaveLength(0);
+                const tags = useFormValue(form.get("tags"));
+                return (
+                    <form onReset={() => form.resetData()}>
+                        {
+                            tags.map((tag, idx) => <div key={idx} data-testid="tag">{tag}</div>)
+                        }
+                        <button
+                            type="button"
+                            onClick={() => form.get("tags").push("tag " + (tags.length + 1))}
+                            data-testid="pushTagBtn"
+                        >Push tag
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => form.get("tags").remove(1)}
+                            data-testid="removeSecondTagBtn"
+                        >Remove 2nd tag
+                        </button>
+                    </form>
+                )
+            }
 
-        await user.click(pushTagBtn);
-        expect(queryAllByTestId("tag")).toHaveLength(1);
+            const {queryAllByTestId, getByTestId, queryAllByText} = render(<Test/>);
 
-        await user.click(pushTagBtn);
-        expect(queryAllByTestId("tag")).toHaveLength(2);
+            const pushTagBtn = getByTestId("pushTagBtn");
+            expect(queryAllByTestId("tag")).toHaveLength(0);
 
-        await user.click(getByTestId("removeSecondTagBtn"));
-        expect(queryAllByText("tag 2")).toHaveLength(0);
+            await user.click(pushTagBtn);
+            expect(queryAllByTestId("tag")).toHaveLength(1);
+
+            await user.click(pushTagBtn);
+            expect(queryAllByTestId("tag")).toHaveLength(2);
+
+            await user.click(getByTestId("removeSecondTagBtn"));
+            expect(queryAllByText("tag 2")).toHaveLength(0);
+        })
     })
 })
 
 describe("Native validation", () => {
     test("for array", async () => {
-        function ErrorComp(props: { field: FormField, id: number }) {
+        function ErrorComp(props: { field: FormField<any>, id: number }) {
             const errors = useFormErrors(props.field);
             if (!errors) return null;
             return (
