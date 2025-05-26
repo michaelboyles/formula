@@ -11,8 +11,10 @@ const user = userEvent.setup();
 afterEach(() => cleanup());
 
 describe("Input", () => {
-    it("can be typed in", async () => {
+    it("can be typed in without rerendering the parent", async () => {
+        let formRenderCount = 0;
         function Test() {
+            formRenderCount++;
             const form = useForm({
                 initialValues: { title: "" },
                 submit: () => "done",
@@ -33,6 +35,7 @@ describe("Input", () => {
         expect(queryByText("My title")).not.toBeInTheDocument();
         await user.type(input, "My title");
         expect(input).toHaveValue("My title");
+        expect(formRenderCount).toBe(1);
     })
 });
 
