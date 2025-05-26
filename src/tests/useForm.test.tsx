@@ -35,11 +35,9 @@ describe("useForm", () => {
             })
 
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        <Input field={form.get("title")} data-testid="input" />
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    <Input field={form.get("title")} data-testid="input" />
+                </form>
             )
         }
 
@@ -67,17 +65,15 @@ describe("useForm", () => {
             const submissionError = useSubmissionError(form);
 
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        {
-                            submissionError ? <div data-testid="error">{ submissionError.message }</div> : null
-                        }
-                        {
-                            errorJson.length ? <pre data-testid="json">{ errorJson }</pre> : null
-                        }
-                        <button type="submit" data-testid="submit">Submit</button>
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    {
+                        submissionError ? <div data-testid="error">{ submissionError.message }</div> : null
+                    }
+                    {
+                        errorJson.length ? <pre data-testid="json">{ errorJson }</pre> : null
+                    }
+                    <button type="submit" data-testid="submit">Submit</button>
+                </form>
             )
         }
 
@@ -99,11 +95,9 @@ describe("useForm", () => {
                 submit: () => Promise.resolve("Ok")
             })
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        <IntegerInput field={form.get("metadata").property("createdAt")} data-testid="createdAt" />
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    <IntegerInput field={form.get("metadata").property("createdAt")} data-testid="createdAt" />
+                </form>
             )
         }
 
@@ -131,14 +125,12 @@ describe("useForm", () => {
             const isSubmitting = useIsSubmitting(form);
             const tags = useElements(form.get("tags"));
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        {
-                            tags.map((tag, idx) => <Input key={idx} field={tag} data-testid={`tag-${idx + 1}`} />)
-                        }
-                        <button type="submit" disabled={isSubmitting} data-testid="submit">Submit</button>
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    {
+                        tags.map((tag, idx) => <Input key={idx} field={tag} data-testid={`tag-${idx + 1}`} />)
+                    }
+                    <button type="submit" disabled={isSubmitting} data-testid="submit">Submit</button>
+                </form>
             )
         }
 
@@ -164,12 +156,10 @@ describe("useForm", () => {
             const titleField = form.get("title");
             const touched = useIsTouched(titleField);
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        <Input field={titleField} data-testid="input" />
-                        { touched ? <div data-testid="touched">touched</div> : null }
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    <Input field={titleField} data-testid="input" />
+                    { touched ? <div data-testid="touched">touched</div> : null }
+                </form>
             )
         }
 
@@ -198,14 +188,12 @@ describe("useForm", () => {
             const titleErrors = useFormErrors(form.get("title"));
             const firstTagErrors = useFormErrors(form.get("tags").element(0));
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        <TextArea field={form.get("title")} data-testid="textarea" />
-                        <input type="submit" value="Submit" data-testid="submit" />
-                        { titleErrors ? titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) : null }
-                        { firstTagErrors ? firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) : null }
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    <TextArea field={form.get("title")} data-testid="textarea" />
+                    <input type="submit" value="Submit" data-testid="submit" />
+                    { titleErrors ? titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) : null }
+                    { firstTagErrors ? firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) : null }
+                </form>
             )
         }
 
@@ -233,13 +221,11 @@ describe("useForm", () => {
             });
             const titleErrors = useFormErrors(form.get("title"));
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        <Input field={form.get("title")} data-testid="input" />
-                        <input type="submit" value="Submit" data-testid="submit" />
-                        { titleErrors ? titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) : null }
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    <Input field={form.get("title")} data-testid="input" />
+                    <input type="submit" value="Submit" data-testid="submit" />
+                    { titleErrors ? titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) : null }
+                </form>
             )
         }
 
@@ -363,21 +349,19 @@ describe("Native validation", () => {
 
             const tagFields = useElements(form.get("tags"));
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        {
-                            tagFields.map((tagField, i) => (
-                                <Fragment key={i}>
-                                    <Input field={tagField} data-testid={`tag-${i}`} />
-                                    <ErrorComp field={tagField} id={i} />
-                                </Fragment>
-                            ))
-                        }
-                        <button type="button" onClick={() => tags.push("")} data-testid="add-tag">Add tag</button>
-                        { tagErrors && tagErrors.length > 0 ? <div data-testid="tagErrors">{ tagErrors.join(", ") }</div> : null }
-                        <input type="submit" value="Submit" data-testid="submit" />
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    {
+                        tagFields.map((tagField, i) => (
+                            <Fragment key={i}>
+                                <Input field={tagField} data-testid={`tag-${i}`} />
+                                <ErrorComp field={tagField} id={i} />
+                            </Fragment>
+                        ))
+                    }
+                    <button type="button" onClick={() => tags.push("")} data-testid="add-tag">Add tag</button>
+                    { tagErrors && tagErrors.length > 0 ? <div data-testid="tagErrors">{ tagErrors.join(", ") }</div> : null }
+                    <input type="submit" value="Submit" data-testid="submit" />
+                </form>
             )
         }
 
@@ -436,20 +420,18 @@ describe("Native validation", () => {
             const humanReadableErrors = useFormErrors(form.get("meta").property("createdAt").property("humanReadable"));
             const unixTimestampErrors = useFormErrors(form.get("meta").property("createdAt").property("unixTimestamp"));
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        {
-                            metaErrors ? <div>{ metaErrors.join(", ")} </div> : null
-                        }
-                        {
-                            humanReadableErrors ? <div>{ humanReadableErrors.join(", ")} </div> : null
-                        }
-                        {
-                            unixTimestampErrors ? <div>{ unixTimestampErrors.join(", ")} </div> : null
-                        }
-                        <input type="submit" value="Submit" data-testid="submit" />
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    {
+                        metaErrors ? <div>{ metaErrors.join(", ")} </div> : null
+                    }
+                    {
+                        humanReadableErrors ? <div>{ humanReadableErrors.join(", ")} </div> : null
+                    }
+                    {
+                        unixTimestampErrors ? <div>{ unixTimestampErrors.join(", ")} </div> : null
+                    }
+                    <input type="submit" value="Submit" data-testid="submit" />
+                </form>
             )
         }
 
@@ -480,14 +462,12 @@ describe("Native validation", () => {
 
             const errors = useFormErrors(form.get("value"));
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        {
-                            errors ? <div>{ errors.join(", ")} </div> : null
-                        }
-                        <input type="submit" value="Submit" data-testid="submit" />
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    {
+                        errors ? <div>{ errors.join(", ")} </div> : null
+                    }
+                    <input type="submit" value="Submit" data-testid="submit" />
+                </form>
             )
         }
 
@@ -516,14 +496,12 @@ describe("Native validation", () => {
 
             const errors = useFormErrors(form.get(1));
             return (
-                <>
-                    <form onSubmit={form.submit}>
-                        {
-                            errors ? <div>{ errors.join(", ")} </div> : null
-                        }
-                        <input type="submit" value="Submit" data-testid="submit" />
-                    </form>
-                </>
+                <form onSubmit={form.submit}>
+                    {
+                        errors ? <div>{ errors.join(", ")} </div> : null
+                    }
+                    <input type="submit" value="Submit" data-testid="submit" />
+                </form>
             )
         }
 
