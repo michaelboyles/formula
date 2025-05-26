@@ -12,7 +12,7 @@ function useIsSubmitting(form: Form<any>): boolean
 
 ## Sample usage
 
-```typescript jsx
+```tsx
 const form = useForm({
    //... 
 });

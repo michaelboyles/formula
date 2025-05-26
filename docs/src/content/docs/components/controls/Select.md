@@ -7,7 +7,7 @@ slug: components/Select
 The `Select` component creates a `<select>` containing a number of `<option>`s. Unlike the native select element, the
 value isn't required to be a number or string. It can be anything, provided you 
 
-```typescript jsx
+```tsx
 <Select
     field={form.get("animal")}
     options={[
@@ -36,7 +36,7 @@ The available options for the select. Each option can specify
 If the value of the options isn't string or number, then an additional mapper function is required to convert each
 option's value into a string or number.
 
-```typescript jsx
+```tsx
 <Select
     field={form.get("animal")}
     options={[

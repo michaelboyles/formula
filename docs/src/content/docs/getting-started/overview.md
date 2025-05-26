@@ -9,7 +9,7 @@ arrays. It's fully type safe and built to only re-render when necessary.
 
 Here's a simple example:
 
-```typescript jsx
+```tsx
 type BlogPost = {
     title: string
     content: string

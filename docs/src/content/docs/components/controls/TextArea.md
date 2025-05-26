@@ -7,7 +7,7 @@ slug: components/TextArea
 The `<TextArea>` component creates a `<textarea>` with its value field bound, and all the handlers
 required for interacting with Formula.
 
-```typescript jsx
+```tsx
 <TextArea field={form.get("description")} />
 ```
 

@@ -45,7 +45,7 @@ how and where to get it. For that reason, Fields have a `getValue()` function, b
 To subscribe to a field's value, use the [`useFieldValue` hook](/hooks/useFormValue), or often you can use
 one of the built-in controls, e.g. [`<Select>`](/components/Select).
 
-```typescript jsx
+```tsx
 const username = useFieldValue(form.get("username"));
 return (
     <div>Username is: { username }</div>

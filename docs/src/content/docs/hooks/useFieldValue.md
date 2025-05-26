@@ -12,7 +12,7 @@ function useFieldValue<T>(field: FormField<T>): T
 
 ## Sample usage
 
-```typescript jsx
+```tsx
 const form = useForm({
     initialValues: {
         username: "admin"

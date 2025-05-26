@@ -17,7 +17,7 @@ If a non-Error was thrown, then the value which was thrown will be wrapped in an
 
 ## Sample usage
 
-```typescript jsx
+```tsx
 const form = useForm({
    //... 
 });

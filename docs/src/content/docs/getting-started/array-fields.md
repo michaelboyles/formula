@@ -14,7 +14,7 @@ over the elements:
 
 Both function the same, so the choice is purely stylistic.
 
-```typescript jsx
+```tsx
 type Tag = {
     label: string
 }

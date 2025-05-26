@@ -13,7 +13,7 @@ changes.
 
 ## Sample usage
 
-```typescript jsx
+```tsx
 const form = useForm({
    //... 
 });

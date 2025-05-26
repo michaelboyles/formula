@@ -18,7 +18,7 @@ The counterpart hook is [`useElements`](/hooks/useElements).
 
 ## Sample usage 
 
-```typescript jsx
+```tsx
 const form = useForm({
    initialValues: {
        tags: ["typescript", "react"]

@@ -7,7 +7,7 @@ slug: components/Checkbox
 The `Checkbox` component creates an `<input type="checkbox">` with its value field bound and all the handlers
 required for interacting with Formula.
 
-```typescript jsx
+```tsx
 <Checkbox field={form.get("isPublic")} data-testid="checkbox" />
 ```
 
