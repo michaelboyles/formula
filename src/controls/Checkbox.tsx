@@ -1,6 +1,6 @@
 import type { FormField } from "../FormField";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { useFormValue } from "../useFormValue";
+import { useFieldValue } from "../useFieldValue";
 
 type DefaultCheckboxProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
@@ -8,7 +8,7 @@ export type Props = {
 } & Omit<DefaultCheckboxProps, "type" | "checked">;
 export function Checkbox(props: Props) {
     const { field, onChange, ...rest } = props;
-    const value = useFormValue(field);
+    const value = useFieldValue(field);
     return (
         <input
             {...rest}

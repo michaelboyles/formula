@@ -3,7 +3,7 @@ import { useElements } from "./useElements";
 import { FormField } from "./FormField";
 import { Input } from "./controls/Input";
 import { useIsSubmitting } from "./useIsSubmitting";
-import { useFormErrors } from "./useFormErrors";
+import { useFieldErrors } from "./useFieldErrors";
 import { Visitor } from "./validate";
 
 type Category = {
@@ -45,7 +45,7 @@ export function Test1() {
         }
     });
 
-    const errors = useFormErrors(form.get("value"));
+    const errors = useFieldErrors(form.get("value"));
     return (
         <>
             <form onSubmit={form.submit}>

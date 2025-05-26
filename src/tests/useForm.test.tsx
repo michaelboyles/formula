@@ -4,13 +4,13 @@ import { cleanup, render, renderHook } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm";
 import { Input } from "../controls/Input";
-import { useFormErrors } from "../useFormErrors";
+import { useFieldErrors } from "../useFieldErrors";
 import { useSubmissionError } from "../useSubmissionError";
 import { IntegerInput } from "../controls/IntegerInput";
 import { useIsSubmitting } from "../useIsSubmitting";
 import { useElements } from "../useElements";
 import { useIsTouched } from "../useIsTouched";
-import { useFormValue } from "../useFormValue";
+import { useFieldValue } from "../useFieldValue";
 import * as z from "zod";
 import { FormField } from "../FormField";
 import { Fragment, useState } from "react";
@@ -185,8 +185,8 @@ describe("useForm", () => {
                 submit: async () => "done",
                 validators: [validator]
             });
-            const titleErrors = useFormErrors(form.get("title"));
-            const firstTagErrors = useFormErrors(form.get("tags").element(0));
+            const titleErrors = useFieldErrors(form.get("title"));
+            const firstTagErrors = useFieldErrors(form.get("tags").element(0));
             return (
                 <form onSubmit={form.submit}>
                     <TextArea field={form.get("title")} data-testid="textarea" />
@@ -219,7 +219,7 @@ describe("useForm", () => {
                     }
                 }
             });
-            const titleErrors = useFormErrors(form.get("title"));
+            const titleErrors = useFieldErrors(form.get("title"));
             return (
                 <form onSubmit={form.submit}>
                     <Input field={form.get("title")} data-testid="input" />
@@ -250,7 +250,7 @@ describe("useForm", () => {
             });
 
             // This is just here to force the re-render. This isn't the recommended way to use it
-            useFormValue(form.get("title"));
+            useFieldValue(form.get("title"));
             return (
                 <form onReset={() => form.resetData()}>
                     <div>{ form.getData().title }</div>
@@ -304,7 +304,7 @@ describe("useForm", () => {
                     submit: async () => "done"
                 });
 
-                const tags = useFormValue(form.get("tags"));
+                const tags = useFieldValue(form.get("tags"));
                 return (
                     <form onReset={() => form.resetData()}>
                         {
@@ -346,7 +346,7 @@ describe("useForm", () => {
 describe("Native validation", () => {
     test("for array", async () => {
         function ErrorComp(props: { field: FormField<any>, id: number }) {
-            const errors = useFormErrors(props.field);
+            const errors = useFieldErrors(props.field);
             if (!errors) return null;
             return (
                 errors.map((err, i) => <div key={i} data-testid={`tag-${props.id}-error-${i}`}>{ err }</div>)
@@ -369,7 +369,7 @@ describe("Native validation", () => {
                 }
             });
             const tags = form.get("tags");
-            const tagErrors = useFormErrors(tags);
+            const tagErrors = useFieldErrors(tags);
 
             const tagFields = useElements(form.get("tags"));
             return (
@@ -440,9 +440,9 @@ describe("Native validation", () => {
                 }
             });
 
-            const metaErrors = useFormErrors(form.get("meta"));
-            const humanReadableErrors = useFormErrors(form.get("meta").property("createdAt").property("humanReadable"));
-            const unixTimestampErrors = useFormErrors(form.get("meta").property("createdAt").property("unixTimestamp"));
+            const metaErrors = useFieldErrors(form.get("meta"));
+            const humanReadableErrors = useFieldErrors(form.get("meta").property("createdAt").property("humanReadable"));
+            const unixTimestampErrors = useFieldErrors(form.get("meta").property("createdAt").property("unixTimestamp"));
             return (
                 <form onSubmit={form.submit}>
                     {
@@ -484,7 +484,7 @@ describe("Native validation", () => {
                 }
             });
 
-            const errors = useFormErrors(form.get("value"));
+            const errors = useFieldErrors(form.get("value"));
             return (
                 <form onSubmit={form.submit}>
                     {
@@ -518,7 +518,7 @@ describe("Native validation", () => {
                 }
             });
 
-            const errors = useFormErrors(form.get(1));
+            const errors = useFieldErrors(form.get(1));
             return (
                 <form onSubmit={form.submit}>
                     {

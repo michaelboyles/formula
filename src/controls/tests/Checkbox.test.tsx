@@ -3,7 +3,7 @@ import { afterEach, expect, describe, it } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../useForm";
-import { useFormErrors } from "../../useFormErrors";
+import { useFieldErrors } from "../../useFieldErrors";
 import { Checkbox } from "../Checkbox";
 
 const user = userEvent.setup();
@@ -20,7 +20,7 @@ describe("Checkbox", () => {
                 },
                 submit: () => "done"
             })
-            const errors = useFormErrors(form.get("isPublic"));
+            const errors = useFieldErrors(form.get("isPublic"));
 
             return (
                 <>

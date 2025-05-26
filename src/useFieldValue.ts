@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { FormField } from "./FormField";
 
-export function useFormValue<T>(field: FormField<T>): T {
+export function useFieldValue<T>(field: FormField<T>): T {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {

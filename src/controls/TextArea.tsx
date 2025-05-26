@@ -1,6 +1,6 @@
 import type { FormField } from "../FormField";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { useFormValue } from "../useFormValue";
+import { useFieldValue } from "../useFieldValue";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>;
 export type Props = {
@@ -8,7 +8,7 @@ export type Props = {
 } & Omit<DefaultInputProps, "value">;
 export function TextArea(props: Props) {
     const { field, onChange, onBlur, ...rest } = props;
-    const value = useFormValue(field);
+    const value = useFieldValue(field);
     return (
         <textarea
             {...rest}

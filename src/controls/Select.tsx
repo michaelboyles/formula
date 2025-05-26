@@ -1,6 +1,6 @@
 import type { FormField } from "../FormField";
 import type { DetailedHTMLProps, OptionHTMLAttributes, SelectHTMLAttributes } from "react";
-import { useFormValue } from "../useFormValue";
+import { useFieldValue } from "../useFieldValue";
 
 type DefaultSelectProps = DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
 type DefaultOptionProps = DetailedHTMLProps<OptionHTMLAttributes<HTMLOptionElement>, HTMLOptionElement>;
@@ -31,7 +31,7 @@ export function Select<T>(props: Props<T>) {
         mapToValue = safeMapper(val => val.toString());
     }
 
-    const value = useFormValue(field);
+    const value = useFieldValue(field);
     return (
         <select
             {...rest}
