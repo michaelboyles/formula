@@ -1,7 +1,7 @@
 import { Form, useForm } from "./hooks/useForm.ts";
 import { useElements } from "./hooks/useElements.ts";
 import type { FormField } from "./FormField.ts";
-import { Input } from "./controls/Input.ts";
+import { Input } from "./controls/Input.tsx";
 import { useIsSubmitting } from "./hooks/useIsSubmitting.ts";
 import { useFieldErrors } from "./hooks/useFieldErrors.ts";
 import type { Visitor } from "./validate.ts";
