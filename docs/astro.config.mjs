@@ -16,6 +16,10 @@ export default defineConfig({
 			favicon: "./src/assets/logo-simple.ico",
 			sidebar: [
 				{
+					label: "Home",
+					link: "/"
+				},
+				{
 					label: "Getting started",
 					items: [
 						"getting-started/overview",
