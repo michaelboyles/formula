@@ -13,6 +13,7 @@ export default defineConfig({
 				dark: "./src/assets/logo-dark.svg",
 				replacesTitle: true
 			},
+			favicon: "./src/assets/logo-simple.ico",
 			sidebar: [
 				{
 					label: "Getting started",
