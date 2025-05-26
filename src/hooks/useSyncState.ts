@@ -1,4 +1,4 @@
-import { FormState, FormStateType } from "./FormStateManager.ts";
+import { FormState, FormStateType } from "../FormStateManager.ts";
 import { useSyncExternalStore } from "react";
 import { _Form } from "./useForm.ts";
 

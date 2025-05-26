@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import type { Form } from "./useForm.ts";
-import { useIsSubmitting } from "./useIsSubmitting.ts";
+import type { Form } from "./hooks/useForm.ts";
+import { useIsSubmitting } from "./hooks/useIsSubmitting.ts";
 
 export type Props = {
     form: Form<any>

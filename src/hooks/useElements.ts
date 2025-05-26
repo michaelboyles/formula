@@ -1,4 +1,4 @@
-import type { FormField } from "./FormField.ts";
+import type { FormField } from "../FormField.ts";
 import { useSyncExternalStore } from "react";
 
 export function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T>> {

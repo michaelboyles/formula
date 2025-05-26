@@ -1,18 +1,18 @@
 import { useSyncExternalStore } from "react";
-import type { FormField } from "./FormField.ts";
+import type { FormField } from "../FormField.ts";
 
-export function useFieldValue<T>(field: FormField<T>): T {
+export function useIsTouched(field: FormField<any>): boolean {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {
-            const unsubscribe = field.subscribeToValue(onStoreChange);
+            const unsubscribe = field.subscribeToTouched(onStoreChange);
             return () => {
                 unsubscribe();
             }
         },
         // Get snapshot
-        () => field.getValue(),
+        () => field.isTouched(),
         // Get server snapshot
-        () => field.getValue()
+        () => field.isTouched()
     );
 }

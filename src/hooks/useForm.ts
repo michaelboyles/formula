@@ -1,12 +1,12 @@
 import { FormEvent, useCallback, useMemo, useRef } from "react";
-import { FormField, FormFieldImpl } from "./FormField.ts";
-import { FieldPath } from "./FieldPath.ts";
-import { FormStateTree, Subscriber, Unsubscribe } from "./FormStateTree.ts";
-import { FormState, FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "./FormStateManager.ts";
-import { getValidationIssues } from "./validate-std-schema.ts";
+import { FormField, FormFieldImpl } from "../FormField.ts";
+import { FieldPath } from "../FieldPath.ts";
+import { FormStateTree, Subscriber, Unsubscribe } from "../FormStateTree.ts";
+import { FormState, FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "../FormStateManager.ts";
+import { getValidationIssues } from "../validate-std-schema.ts";
 import { StandardSchemaV1 } from "@standard-schema/spec";
-import { validateObject } from "./validate-native.ts";
-import { Visitor } from "./validate.ts";
+import { validateObject } from "../validate-native.ts";
+import { Visitor } from "../validate.ts";
 
 // TODO 2
 type BaseForm = Record<string | number, any>;

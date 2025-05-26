@@ -3,18 +3,18 @@ import { afterEach, expect, expectTypeOf, describe, it, test } from 'vitest';
 import { cleanup, render, renderHook } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm.ts";
-import { Input } from "../controls/Input.tsx";
+import { Input } from "../../controls/Input.tsx";
 import { useFieldErrors } from "../useFieldErrors.ts";
 import { useSubmissionError } from "../useSubmissionError.ts";
-import { IntegerInput } from "../controls/IntegerInput.tsx";
+import { IntegerInput } from "../../controls/IntegerInput.tsx";
 import { useIsSubmitting } from "../useIsSubmitting.ts";
 import { useElements } from "../useElements.ts";
 import { useIsTouched } from "../useIsTouched.ts";
 import { useFieldValue } from "../useFieldValue.ts";
 import * as z from "zod";
-import type { FormField } from "../FormField.ts";
+import type { FormField } from "../../FormField.ts";
 import { Fragment, useState } from "react";
-import { TextArea } from "../controls/TextArea.tsx";
+import { TextArea } from "../../controls/TextArea.tsx";
 
 const user = userEvent.setup();
 

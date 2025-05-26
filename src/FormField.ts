@@ -1,4 +1,4 @@
-import type { FormAccess } from "./useForm.ts";
+import type { FormAccess } from "./hooks/useForm.ts";
 import type { FieldPath } from "./FieldPath.ts";
 import type { Subscriber, Unsubscribe } from "./FormStateTree.ts";
 
