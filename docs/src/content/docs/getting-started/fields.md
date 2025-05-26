@@ -1,6 +1,6 @@
 ---
 title: Fields
-description: A guide
+description: An introduction to the Form Field concept within Formula
 ---
 
 Within Formula form data, everything's considered a field, not just primitive types like `string` that can be 

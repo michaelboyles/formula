@@ -1,6 +1,6 @@
 ---
 title: Input
-description: An input component
+description: A component for creating input controls in Formula
 slug: components/Input
 ---
 

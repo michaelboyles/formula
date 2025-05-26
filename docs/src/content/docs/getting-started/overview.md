@@ -1,6 +1,6 @@
 ---
 title: Overview
-description: A guide
+description: An introduction to Formula
 tableOfContents: false
 ---
 

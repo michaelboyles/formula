@@ -1,6 +1,6 @@
 ---
 title: IntegerInput
-description: An integer input component
+description: A component for creating integer inputs within Formula
 slug: components/IntegerInput
 ---
 
