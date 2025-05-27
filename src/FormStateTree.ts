@@ -1,5 +1,7 @@
 import { FieldPath } from "./FieldPath.ts";
 
+const NO_ERRORS = Object.freeze([] as string[]);
+
 export class FormStateTree {
     private root: TreeNode = {}
 
@@ -7,11 +9,12 @@ export class FormStateTree {
         return hasError(this.root);
     }
 
-    getErrors(path: FieldPath): ReadonlyArray<string> | undefined {
+    getErrors(path: FieldPath): ReadonlyArray<string> {
         const node = this.getNode(path);
         if (node) {
-            return node.errors;
+            return node.errors ?? NO_ERRORS;
         }
+        return NO_ERRORS;
     }
 
     appendErrors(path: FieldPath, errors: string[]) {

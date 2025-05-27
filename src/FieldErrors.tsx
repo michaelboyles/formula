@@ -4,7 +4,7 @@ import { useFieldErrors } from "./hooks/useFieldErrors.ts";
 
 export type Props<T> = {
     field: FormField<T>
-    children: (value: ReadonlyArray<string> | undefined) => ReactNode
+    children: (value: ReadonlyArray<string>) => ReactNode
 }
 export function FieldErrors<T>(props: Props<T>) {
     const errors = useFieldErrors(props.field);

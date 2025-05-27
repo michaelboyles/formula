@@ -192,7 +192,7 @@ export type FormAccess = {
     updateValue: <T>(path: FieldPath, update: (value: T) => T) => void
     subscribeToValue: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
-    getErrors: (path: FieldPath) => ReadonlyArray<string> | undefined
+    getErrors: (path: FieldPath) => ReadonlyArray<string>
     setErrors: (path: FieldPath, errors: string | string[] | undefined) => void
     subscribeToErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 

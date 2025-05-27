@@ -91,7 +91,7 @@ type BaseField<Value, SetValue = Value> = {
     setValue: (value: SetValue) => void
     subscribeToValue: (subscriber: Subscriber) => Unsubscribe
 
-    getErrors: () => ReadonlyArray<string> | undefined
+    getErrors: () => ReadonlyArray<string>
     setErrors: (errors: string | string[] | undefined) => void
     subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
 

@@ -7,7 +7,7 @@ slug: components/FieldErrors
 ```typescript
 function FieldErrors<T>(props: {
     field: FormField<T>
-    children: (value: ReadonlyArray<string> | undefined) => ReactNode
+    children: (value: ReadonlyArray<string>) => ReactNode
 })
 ```
 

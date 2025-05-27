@@ -27,7 +27,7 @@ describe("Checkbox", () => {
                     <form onSubmit={form.submit}>
                         <Checkbox field={form.get("isPublic")} data-testid="checkbox"/>
                         {
-                            errors ? JSON.stringify(errors) : null
+                            errors.length ? JSON.stringify(errors) : null
                         }
                     </form>
                 </>

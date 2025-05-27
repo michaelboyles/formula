@@ -132,8 +132,8 @@ describe("useForm", () => {
                 <form onSubmit={form.submit}>
                     <Input field={form.get("title")} data-testid="input" />
                     <input type="submit" value="Submit" data-testid="submit" />
-                    { titleErrors ? titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) : null }
-                    { firstTagErrors ? firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) : null }
+                    { titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) }
+                    { firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) }
                 </form>
             )
         }
@@ -165,7 +165,7 @@ describe("useForm", () => {
                 <form onSubmit={form.submit}>
                     <Input field={form.get("title")} data-testid="input" />
                     <input type="submit" value="Submit" data-testid="submit" />
-                    { titleErrors ? titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) : null }
+                    { titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) }
                 </form>
             )
         }
@@ -337,7 +337,6 @@ describe("Native validation", () => {
     test("for array", async () => {
         function ErrorComp(props: { field: FormField<any>, id: number }) {
             const errors = useFieldErrors(props.field);
-            if (!errors) return null;
             return (
                 errors.map((err, i) => <div key={i} data-testid={`tag-${props.id}-error-${i}`}>{ err }</div>)
             )
@@ -373,7 +372,7 @@ describe("Native validation", () => {
                         ))
                     }
                     <button type="button" onClick={() => tags.push("")} data-testid="add-tag">Add tag</button>
-                    { tagErrors && tagErrors.length > 0 ? <div data-testid="tagErrors">{ tagErrors.join(", ") }</div> : null }
+                    { tagErrors.length > 0 ? <div data-testid="tagErrors">{ tagErrors.join(", ") }</div> : null }
                     <input type="submit" value="Submit" data-testid="submit" />
                 </form>
             )
@@ -436,13 +435,13 @@ describe("Native validation", () => {
             return (
                 <form onSubmit={form.submit}>
                     {
-                        metaErrors ? <div>{ metaErrors.join(", ")} </div> : null
+                        metaErrors.length ? <div>{ metaErrors.join(", ")} </div> : null
                     }
                     {
-                        humanReadableErrors ? <div>{ humanReadableErrors.join(", ")} </div> : null
+                        humanReadableErrors.length ? <div>{ humanReadableErrors.join(", ")} </div> : null
                     }
                     {
-                        unixTimestampErrors ? <div>{ unixTimestampErrors.join(", ")} </div> : null
+                        unixTimestampErrors.length ? <div>{ unixTimestampErrors.join(", ")} </div> : null
                     }
                     <input type="submit" value="Submit" data-testid="submit" />
                 </form>
@@ -478,7 +477,7 @@ describe("Native validation", () => {
             return (
                 <form onSubmit={form.submit}>
                     {
-                        errors ? <div>{ errors.join(", ")} </div> : null
+                        errors.length ? <div>{ errors.join(", ")} </div> : null
                     }
                     <input type="submit" value="Submit" data-testid="submit" />
                 </form>
@@ -512,7 +511,7 @@ describe("Native validation", () => {
             return (
                 <form onSubmit={form.submit}>
                     {
-                        errors ? <div>{ errors.join(", ")} </div> : null
+                        errors.length ? <div>{ errors.join(", ")} </div> : null
                     }
                     <input type="submit" value="Submit" data-testid="submit" />
                 </form>

@@ -34,7 +34,7 @@ describe("DebugField", () => {
         await user.type(input, "My title{tab}");
 
         const expectedJson = {
-            path: "title", value: "My title", blurred: true
+            path: "title", value: "My title", blurred: true, errors: []
         }
         expect(getByTestId("pre").textContent).toBe(JSON.stringify(expectedJson, null, 2));
     })

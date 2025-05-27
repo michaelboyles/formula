@@ -5,7 +5,7 @@ slug: hooks/useFieldErrors
 ---
 
 ```typescript
-function useFieldErrors(field: FormField<any>): ReadonlyArray<string> | undefined
+function useFieldErrors(field: FormField<any>): ReadonlyArray<string>
 ```
 
 `useFieldErrors` subscribes to the validation errors for a field. It will only trigger a rerender when the value

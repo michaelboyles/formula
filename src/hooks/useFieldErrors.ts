@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { FormField } from "../FormField.ts";
 
-export function useFieldErrors(field: FormField<any>): ReadonlyArray<string> | undefined {
+export function useFieldErrors(field: FormField<any>): ReadonlyArray<string> {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {
