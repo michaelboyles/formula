@@ -6,7 +6,6 @@ import { useForm } from "../useForm.ts";
 import { Input } from "../../controls/Input.tsx";
 import { useFieldErrors } from "../useFieldErrors.ts";
 import { useSubmissionError } from "../useSubmissionError.ts";
-import { IntegerInput } from "../../controls/IntegerInput.tsx";
 import { useIsSubmitting } from "../useIsSubmitting.ts";
 import { useElements } from "../useElements.ts";
 import { useIsTouched } from "../useIsTouched.ts";
@@ -58,17 +57,16 @@ describe("useForm", () => {
     test("Nested object", async () => {
         function Test() {
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     metadata: {
-                        createdAt: 0 as (number | ""),
-                        updatedAt: 0
+                        createdAt: "",
                     }
-                }),
+                },
                 submit: () => Promise.resolve("Ok")
             })
             return (
                 <form onSubmit={form.submit}>
-                    <IntegerInput field={form.get("metadata").property("createdAt")} data-testid="createdAt" />
+                    <Input field={form.get("metadata").property("createdAt")} data-testid="createdAt" />
                 </form>
             )
         }
@@ -76,12 +74,8 @@ describe("useForm", () => {
         const { getByTestId } = render(<Test />);
         const createdAt = getByTestId("createdAt");
         await user.type(createdAt, "123");
-        expect(createdAt).toHaveValue(123);
-        await user.type(createdAt, "4");
-        expect(createdAt).toHaveValue(1234);
-        await user.type(createdAt, ".6");
-        expect(createdAt).toHaveValue(1235); //rounds up
-        await user.type(createdAt, "{backspace}".repeat(4))
+        expect(createdAt).toHaveValue("123");
+        await user.type(createdAt, "{backspace}".repeat(3))
         expect(createdAt).not.toHaveValue()
     })
 

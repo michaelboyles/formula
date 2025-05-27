@@ -27,10 +27,10 @@ describe("Input", () => {
             )
         }
 
-        const { getByTestId, queryByText } = render(<Test />);
+        const { getByTestId } = render(<Test />);
         const input = getByTestId("input");
 
-        expect(queryByText("My title")).not.toBeInTheDocument();
+        expect(input).toHaveValue("");
         await user.type(input, "My title");
         expect(input).toHaveValue("My title");
         expect(formRenderCount).toBe(1);

@@ -4,7 +4,7 @@ import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
-    field: FormField<"" | number>
+    field: FormField<number>
 } & Omit<DefaultInputProps, "type" | "value">;
 export function IntegerInput(props: Props) {
     const { field, onChange, onBlur, ...rest } = props;
@@ -14,20 +14,14 @@ export function IntegerInput(props: Props) {
         <input
             {...rest}
             type="number"
-            value={value}
+            value={Number.isNaN(value) ? "" : value}
             onChange={e => {
-                const value = e.target.value;
-                if (value === "") {
+                const value = e.target.valueAsNumber;
+                if (Number.isSafeInteger(value)) {
                     field.setValue(value);
-                    onChange?.(e);
-                    return;
-                }
-                const number = Number(value);
-                if (Number.isSafeInteger(number)) {
-                    field.setValue(number);
                 }
                 else {
-                    field.setValue(Math.round(number));
+                    field.setValue(Math.round(value));
                 }
                 onChange?.(e);
             }}
