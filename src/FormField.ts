@@ -15,6 +15,10 @@ export class FormFieldImpl<Value>
         this.form = formAccess;
     }
 
+    toString() {
+        return this.path.toString();
+    }
+
     getValue(): Readonly<Value> {
         return this.form.getValue(this.path);
     }
