@@ -16,10 +16,10 @@ describe("Select", () => {
             type Animal = "cat" | "dog" | "mouse";
 
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     animal: "cat" as Animal
-                }),
-                submit: () => Promise.resolve("Ok")
+                },
+                submit() {}
             })
             return (
                 <form onSubmit={form.submit}>
@@ -47,10 +47,10 @@ describe("Select", () => {
             type Vehicle = { type: "bike" } | { type: "car" }
 
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     vehicle: { type: "bike" } as Vehicle
-                }),
-                submit: () => Promise.resolve("Ok")
+                },
+                submit() {}
             })
             return (
                 <form onSubmit={form.submit}>
