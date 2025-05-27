@@ -38,7 +38,6 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     const stateManager = useRef(new FormStateManager());
 
     const setValue = useCallback((path: FieldPath, value: any) => {
-        console.log("setValue", path.toString());
         data.current = path.getDataWithValue(data.current, value);
         stateTree.current.notifyValueChanged(path);
     }, []);
@@ -108,10 +107,10 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             const unsubscribe = stateTree.current.subscribeToErrors(path, subscriber);
             return () => unsubscribe();
         },
-        isTouched: path => stateTree.current.isTouched(path),
-        setTouched: (path, touched) => stateTree.current.setTouched(path, touched),
-        subscribeToTouched: (path, subscriber) => {
-            const unsubscribe = stateTree.current.subscribeToTouched(path, subscriber);
+        blurred: path => stateTree.current.blurred(path),
+        setBlurred: (path, blurred) => stateTree.current.setBlurred(path, blurred),
+        subscribeToBlurred: (path, subscriber) => {
+            const unsubscribe = stateTree.current.subscribeToBlurred(path, subscriber);
             return () => unsubscribe();
         }
     }), []);
@@ -197,9 +196,9 @@ export type FormAccess = {
     setErrors: (path: FieldPath, errors: string | string[] | undefined) => void
     subscribeToErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
-    isTouched: (path: FieldPath) => boolean
-    setTouched: (path: FieldPath, touched: boolean) => void
-    subscribeToTouched: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+    blurred: (path: FieldPath) => boolean
+    setBlurred: (path: FieldPath, blurred: boolean) => void
+    subscribeToBlurred: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 }
 
 function convertSubmissionError(e: unknown) {

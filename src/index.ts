@@ -7,10 +7,10 @@ export type { FormField } from "./FormField.ts"
 
 export { useElements } from "./hooks/useElements.ts"
 export { useForm } from "./hooks/useForm.ts"
+export { useBlurred } from "./hooks/useBlurred.ts"
 export { useFieldErrors } from "./hooks/useFieldErrors.ts"
 export { useFieldValue } from "./hooks/useFieldValue.ts"
 export { useIsSubmitting } from "./hooks/useIsSubmitting.ts"
-export { useIsTouched } from "./hooks/useIsTouched.ts"
 export { useSubmissionError } from "./hooks/useSubmissionError.ts"
 
 // Components

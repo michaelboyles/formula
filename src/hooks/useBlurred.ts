@@ -1,18 +1,18 @@
 import { useSyncExternalStore } from "react";
 import type { FormField } from "../FormField.ts";
 
-export function useIsTouched(field: FormField<any>): boolean {
+export function useBlurred(field: FormField<any>): boolean {
     return useSyncExternalStore(
         // Subscribe
         (onStoreChange) => {
-            const unsubscribe = field.subscribeToTouched(onStoreChange);
+            const unsubscribe = field.subscribeToBlurred(onStoreChange);
             return () => {
                 unsubscribe();
             }
         },
         // Get snapshot
-        () => field.isTouched(),
+        () => field.blurred(),
         // Get server snapshot
-        () => field.isTouched()
+        () => field.blurred()
     );
 }

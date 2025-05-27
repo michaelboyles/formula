@@ -36,7 +36,7 @@ export function RadioButton<T>(props: Props<T>) {
                 onChange?.(e);
             }}
             onBlur={e => {
-                field.setTouched(true);
+                field.setBlurred(true);
                 onBlur?.(e);
             }}
         />

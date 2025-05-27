@@ -39,16 +39,16 @@ export class FormFieldImpl<Value>
         return this.form.subscribeToErrors(this.path, subscriber);
     }
 
-    isTouched(): boolean {
-        return this.form.isTouched(this.path);
+    blurred(): boolean {
+        return this.form.blurred(this.path);
     }
 
-    setTouched(touched: boolean): void {
-        return this.form.setTouched(this.path, touched);
+    setBlurred(blurred: boolean): void {
+        return this.form.setBlurred(this.path, blurred);
     }
 
-    subscribeToTouched(subscriber: Subscriber): Unsubscribe {
-        return this.form.subscribeToTouched(this.path, subscriber);
+    subscribeToBlurred(subscriber: Subscriber): Unsubscribe {
+        return this.form.subscribeToBlurred(this.path, subscriber);
     }
 
     property(key: string | number) {
@@ -91,9 +91,9 @@ type BaseField<Value, SetValue = Value> = {
     setErrors: (errors: string | string[] | undefined) => void
     subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
 
-    isTouched: () => boolean
-    setTouched: (touched: boolean) => void
-    subscribeToTouched: (subscriber: Subscriber) => Unsubscribe
+    blurred: () => boolean
+    setBlurred: (blurred: boolean) => void
+    subscribeToBlurred: (subscriber: Subscriber) => Unsubscribe
 }
 
 type ObjectMethods<T extends object> = {

@@ -18,7 +18,7 @@ export function TextArea(props: Props) {
                 onChange?.(e);
             }}
             onBlur={e => {
-                field.setTouched(true);
+                field.setBlurred(true);
                 onBlur?.(e);
             }}
         />

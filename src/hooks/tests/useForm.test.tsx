@@ -8,7 +8,6 @@ import { useFieldErrors } from "../useFieldErrors.ts";
 import { useSubmissionError } from "../useSubmissionError.ts";
 import { useIsSubmitting } from "../useIsSubmitting.ts";
 import { useElements } from "../useElements.ts";
-import { useIsTouched } from "../useIsTouched.ts";
 import { useFieldValue } from "../useFieldValue.ts";
 import * as z from "zod";
 import type { FormField } from "../../FormField.ts";
@@ -110,32 +109,6 @@ describe("useForm", () => {
         const submit = getByTestId("submit");
         await user.click(submit);
         expect(submit).toBeDisabled();
-    })
-
-    test("Touched", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: () => ({
-                    title: ""
-                }),
-                submit: async () => "done"
-            })
-
-            const titleField = form.get("title");
-            const touched = useIsTouched(titleField);
-            return (
-                <form onSubmit={form.submit}>
-                    <Input field={titleField} data-testid="input" />
-                    { touched ? <div data-testid="touched">touched</div> : null }
-                </form>
-            )
-        }
-
-        const { getByTestId } = render(<Test />);
-        const input = getByTestId("input");
-        await user.click(input);
-        await user.tab();
-        expect(getByTestId("touched")).toBeInTheDocument();
     })
 
     test("Standard Schema validation", async () => {

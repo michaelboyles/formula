@@ -41,16 +41,16 @@ export class FormStateTree {
         });
     }
 
-    isTouched(path: FieldPath): boolean {
+    blurred(path: FieldPath): boolean {
         const node = this.getNode(path);
-        return node?.touched ?? false;
+        return node?.blurred ?? false;
     }
 
-    setTouched(path: FieldPath, touched: boolean) {
+    setBlurred(path: FieldPath, blurred: boolean) {
         for (let i = 0; i < path.nodes.length; ++i) {
             const node = this.getOrCreateNode(path.sliceTo(i + 1));
-            node.touched = touched;
-            node.touchedSubscribers?.forEach(notify => notify());
+            node.blurred = blurred;
+            node.blurredSubscribers?.forEach(notify => notify());
         }
     }
 
@@ -62,8 +62,8 @@ export class FormStateTree {
         return this.subscribe(path, "errorSubscribers", subscriber);
     }
 
-    subscribeToTouched(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        return this.subscribe(path, "touchedSubscribers", subscriber);
+    subscribeToBlurred(path: FieldPath, subscriber: Subscriber): Unsubscribe {
+        return this.subscribe(path, "blurredSubscribers", subscriber);
     }
 
     private subscribe<K extends keyof Subscribers>(path: FieldPath, key: K, subscriber: Subscriber): Unsubscribe {
@@ -188,7 +188,7 @@ export class FormStateTree {
         if (node.propertyToNode) {
             for (const [key, child] of Object.entries(node.propertyToNode)) {
                 child.errors = undefined;
-                child.touched = undefined;
+                child.blurred = undefined;
                 this.clearStateAndPrune(child);
                 if (this.isNodeEmpty(child)) {
                     delete node.propertyToNode[key];
@@ -201,7 +201,7 @@ export class FormStateTree {
         if (node.indexToNode) {
             for (const [key, child] of Object.entries(node.indexToNode)) {
                 child.errors = undefined;
-                child.touched = undefined;
+                child.blurred = undefined;
                 this.clearStateAndPrune(child);
                 if (this.isNodeEmpty(child)) {
                     delete node.indexToNode[Number(key)];
@@ -214,13 +214,13 @@ export class FormStateTree {
     }
 
     private isNodeEmpty(node: TreeNode): boolean {
-        const hasState = node.touched === true
+        const hasState = node.blurred === true
             || (node.errors && node.errors.length > 0)
             || (node.propertyToNode && Object.keys(node.propertyToNode).length > 0)
             || (node.indexToNode && Object.keys(node.indexToNode).length > 0)
             || (node.valueSubscribers && node.valueSubscribers.length > 0)
             || (node.errorSubscribers && node.errorSubscribers.length > 0)
-            || (node.touchedSubscribers && node.touchedSubscribers.length > 0);
+            || (node.blurredSubscribers && node.blurredSubscribers.length > 0);
         return !hasState;
     }
 }
@@ -229,12 +229,12 @@ type TreeNode = {
     propertyToNode?: Record<string, TreeNode>
     indexToNode?: Record<number, TreeNode>
     errors?: string[],
-    touched?: boolean
+    blurred?: boolean
 } & Subscribers;
 type Subscribers = {
     valueSubscribers?: Subscriber[]
     errorSubscribers?: Subscriber[]
-    touchedSubscribers?: Subscriber[]
+    blurredSubscribers?: Subscriber[]
 }
 
 export type Unsubscribe = () => void;
