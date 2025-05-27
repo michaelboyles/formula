@@ -24,7 +24,7 @@ type Option<T> = {
 } & Omit<DefaultOptionProps, "value">
 
 export function Select<T>(props: Props<T>) {
-    const { field, mapToValue, options, onChange, ...rest } = props;
+    const { field, mapToValue, options, onChange, onBlur, ...rest } = props;
     const mapper = createMapper(mapToValue);
 
     const value = useFieldValue(field);
@@ -35,6 +35,10 @@ export function Select<T>(props: Props<T>) {
             onChange={e => {
                 field.setValue(findOption(e.target.value, mapper, options));
                 onChange?.(e);
+            }}
+            onBlur={e => {
+                field.setBlurred(true);
+                onBlur?.(e);
             }}
         >
         {

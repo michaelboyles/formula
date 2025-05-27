@@ -7,7 +7,7 @@ export type Props = {
     field: FormField<boolean>
 } & Omit<DefaultCheckboxProps, "type" | "checked">;
 export function Checkbox(props: Props) {
-    const { field, onChange, ...rest } = props;
+    const { field, onChange, onBlur, ...rest } = props;
     const value = useFieldValue(field);
     return (
         <input
@@ -18,6 +18,10 @@ export function Checkbox(props: Props) {
                 onChange?.(e);
             }}
             checked={value}
+            onBlur={e => {
+                field.setBlurred(true);
+                onBlur?.(e);
+            }}
         />
     )
 }
