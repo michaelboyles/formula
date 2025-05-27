@@ -17,7 +17,6 @@ export function Input(props: Props) {
             type={type}
             value={value}
             onChange={e => {
-                console.log("change", e.target.value.length)
                 field.setValue(e.target.value);
                 onChange?.(e);
             }}

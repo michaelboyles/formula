@@ -6,7 +6,7 @@ import { FormState, FormStateManager, FormStateType, StateSubscriber, Unsubscrib
 import { getValidationIssues } from "../validate-std-schema.ts";
 import { StandardSchemaV1 } from "@standard-schema/spec";
 import { validateObject } from "../validate-native.ts";
-import { Visitor } from "../validate.ts";
+import { Issue, Visitor } from "../validate.ts";
 
 // TODO 2
 type BaseForm = Record<string | number, any>;
@@ -56,21 +56,22 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             const values = data.current;
             stateTree.current.clearAllErrors();
 
-            const getIssues = async () => {
-                const result = await Promise.all([
-                    getValidationIssues(values, validators ?? []),
-                    validate ? validateObject(values, values, validate, ROOT_PATH) : Promise.resolve([])
-                ]);
-                return result.flatMap(a => a);
+            const pendingValidations: Array<Promise<Issue[]>> = [];
+            if (validators) {
+                pendingValidations.push(getValidationIssues(values, validators));
             }
-            const issues = await getIssues();
-            if (issues.length) {
+            if (validate) {
+                pendingValidations.push(validateObject(values, values, validate, ROOT_PATH));
+            }
+            if (pendingValidations.length) {
+                const issues = (await Promise.all(pendingValidations)).flatMap(a => a);
                 issues.forEach(issue => {
                     stateTree.current.appendErrors(issue.path, [issue.message]);
                 });
-
-                console.log("Failed to submit because of validation errors", JSON.stringify(issues));
-                return;
+                if (issues.length) {
+                    console.log("Failed to submit because of validation errors", JSON.stringify(issues));
+                    return;
+                }
             }
 
             try {
