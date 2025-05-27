@@ -3,14 +3,14 @@ import { afterEach, expect, describe, it } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../hooks/useForm.ts";
-import { RadioInput } from "../RadioInput.tsx";
+import { RadioButton } from "../RadioButton.tsx";
 
 const user = userEvent.setup();
 
 // https://testing-library.com/docs/react-testing-library/api/#cleanup
 afterEach(() => cleanup());
 
-describe("RadioInput", () => {
+describe("RadioButton", () => {
     it("can change option", async () => {
         function Test() {
             type Animal = "cat" | "dog" | "mouse";
@@ -24,9 +24,9 @@ describe("RadioInput", () => {
             const animalField = form.get("animal");
             return (
                 <form onSubmit={form.submit}>
-                    <RadioInput field={animalField} value="cat" name="animal" data-testid="cat" />
-                    <RadioInput field={animalField} value="dog" name="animal" data-testid="dog" />
-                    <RadioInput field={animalField} value="mouse" name="animal" data-testid="mouse" />
+                    <RadioButton field={animalField} value="cat" name="animal" data-testid="cat" />
+                    <RadioButton field={animalField} value="dog" name="animal" data-testid="dog" />
+                    <RadioButton field={animalField} value="mouse" name="animal" data-testid="mouse" />
                 </form>
             )
         }
@@ -58,14 +58,14 @@ describe("RadioInput", () => {
             const mapToValue = (vehicle: Vehicle) => vehicle.type;
             return (
                 <form onSubmit={form.submit}>
-                    <RadioInput
+                    <RadioButton
                         field={form.get("vehicle")}
                         value={{ type: "bike" }}
                         name="bike"
                         mapToValue={mapToValue}
                         data-testid="bike"
                     />
-                    <RadioInput
+                    <RadioButton
                         field={form.get("vehicle")}
                         value={{ type: "car" }}
                         name="car"

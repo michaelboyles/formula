@@ -18,7 +18,7 @@ type MapperProps<T> =
         mapToValue: Mapper<T>
     };
 
-export function RadioInput<T>(props: Props<T>) {
+export function RadioButton<T>(props: Props<T>) {
     const { field, value, onChange, onBlur, mapToValue, ...rest } = props;
     const mapper = createMapper(mapToValue);
 
