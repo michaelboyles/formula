@@ -38,6 +38,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     const stateManager = useRef(new FormStateManager());
 
     const setValue = useCallback((path: FieldPath, value: any) => {
+        console.log("setValue", path.toString());
         data.current = path.getDataWithValue(data.current, value);
         stateTree.current.notifyValueChanged(path);
     }, []);

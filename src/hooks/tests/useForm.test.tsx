@@ -13,6 +13,8 @@ import { useFieldValue } from "../useFieldValue.ts";
 import * as z from "zod";
 import type { FormField } from "../../FormField.ts";
 import { Fragment, useState } from "react";
+import { ForEachElement } from "../../ForEachElement.tsx";
+import { FieldErrors } from "../../FieldErrors.tsx";
 
 const user = userEvent.setup();
 
@@ -306,6 +308,55 @@ describe("useForm", () => {
             await user.click(getByTestId("removeSecondTagBtn"));
             expect(queryAllByText("tag 2")).toHaveLength(0);
         })
+    })
+
+    it("should clear errors from previous elements", async () => {
+        function Test() {
+            const form = useForm({
+                initialValues: {
+                    tags: ["typescript", "react"]
+                },
+                submit() {}
+            });
+
+            const tagsField = form.get("tags");
+            const tagFields = useElements(tagsField);
+            function addErrors() {
+                tagFields.forEach(tagField => {
+                    tagField.setErrors("Invalid tag");
+                })
+            }
+
+            function swapTags() {
+                tagsField.remove(1);
+                tagsField.remove(0);
+                tagsField.push("java");
+            }
+
+            return (
+                <>
+                    <button onClick={addErrors} data-testid="addErrors">Add errors</button>
+                    <button onClick={swapTags} data-testid="swap">Swap</button>
+                    <ForEachElement field={tagsField}>
+                    { tagField => (
+                        <FieldErrors field={tagField}>
+                            { errors => errors && errors.length ? <div>Errors: { errors }</div> : null }
+                        </FieldErrors>
+                    )}
+                    </ForEachElement>
+                </>
+            )
+        }
+
+        // WHEN you have an error associated with an element, then clear that element and replace it with
+        // another
+        // THEN that new element should have no errors
+        const { queryAllByText, getByTestId } = render(<Test />);
+        expect(queryAllByText("Errors: Invalid tag").length).toBe(0);
+        await user.click(getByTestId("addErrors"));
+        expect(queryAllByText("Errors: Invalid tag").length).toBe(2);
+        await user.click(getByTestId("swap"));
+        expect(queryAllByText("Errors: Invalid tag").length).toBe(0);
     })
 })
 

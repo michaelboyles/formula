@@ -142,6 +142,7 @@ export class FormStateTree {
         // children
         if (path.isRoot()) {
             this.notifyAll(currentNode, n => n.valueSubscribers);
+            this.clearStateAndPrune(currentNode);
             return;
         }
         for (let i = 0; i < path.nodes.length; i++) {
@@ -149,6 +150,7 @@ export class FormStateTree {
             currentNode.valueSubscribers?.forEach(notifySub => notifySub());
             if (i === path.nodes.length - 1) {
                 this.notifyAll(currentNode, n => n.valueSubscribers);
+                this.clearStateAndPrune(currentNode);
             }
             else {
                 const node = path.nodes[i];
@@ -168,18 +170,58 @@ export class FormStateTree {
 
     private visitAllChildren(node: TreeNode, visit: (n: TreeNode) => void) {
         visit(node);
-        node.propertyToNode && Object.values(node.propertyToNode).forEach(node => {
-            this.visitAllChildren(node, visit);
-        })
-        node.indexToNode && Object.values(node.indexToNode).forEach(node => {
-            this.visitAllChildren(node, visit);
-        })
+        node.propertyToNode && Object.values(node.propertyToNode).forEach(child => {
+            this.visitAllChildren(child, visit);
+        });
+        node.indexToNode && Object.values(node.indexToNode).forEach(child => {
+            this.visitAllChildren(child, visit);
+        });
     }
 
     private notifyAll(node: TreeNode, getSubscribers: (n: TreeNode) => Subscriber[] | undefined) {
         this.visitAllChildren(node, n => {
             getSubscribers(n)?.forEach(notifySub => notifySub());
         });
+    }
+
+    private clearStateAndPrune(node: TreeNode) {
+        if (node.propertyToNode) {
+            for (const [key, child] of Object.entries(node.propertyToNode)) {
+                child.errors = undefined;
+                child.touched = undefined;
+                this.clearStateAndPrune(child);
+                if (this.isNodeEmpty(child)) {
+                    delete node.propertyToNode[key];
+                }
+            }
+            if (Object.keys(node.propertyToNode).length === 0) {
+                delete node.propertyToNode;
+            }
+        }
+        if (node.indexToNode) {
+            for (const [key, child] of Object.entries(node.indexToNode)) {
+                child.errors = undefined;
+                child.touched = undefined;
+                this.clearStateAndPrune(child);
+                if (this.isNodeEmpty(child)) {
+                    delete node.indexToNode[Number(key)];
+                }
+            }
+            if (Object.keys(node.indexToNode).length === 0) {
+                delete node.indexToNode;
+            }
+        }
+    }
+
+    private isNodeEmpty(node: TreeNode): boolean {
+        const hasState = node.touched === true
+            || (node.errors && node.errors.length > 0)
+            || (node.propertyToNode && Object.keys(node.propertyToNode).length > 0)
+            || (node.indexToNode && Object.keys(node.indexToNode).length > 0)
+            || (node.valueSubscribers && node.valueSubscribers.length > 0)
+            || (node.errorSubscribers && node.errorSubscribers.length > 0)
+            || (node.touchedSubscribers && node.touchedSubscribers.length > 0);
+        return !hasState;
     }
 }
 
