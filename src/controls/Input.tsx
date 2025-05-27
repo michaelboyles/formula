@@ -1,11 +1,12 @@
 import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import type { InputType } from "./types.ts";
 import { useFieldValue } from "../hooks/useFieldValue.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
     field: FormField<string>
-    type?: "text" | "password" | "email" | "search" | "tel" | "url"
+    type?: Exclude<InputType, "button" | "checkbox" | "file" | "image" | "radio" | "reset" | "submit">
 } & Omit<DefaultInputProps, "type" | "value">;
 export function Input(props: Props) {
     const { field, type = "text", onChange, onBlur, ...rest } = props;
@@ -16,6 +17,7 @@ export function Input(props: Props) {
             type={type}
             value={value}
             onChange={e => {
+                console.log("change", e.target.value.length)
                 field.setValue(e.target.value);
                 onChange?.(e);
             }}
