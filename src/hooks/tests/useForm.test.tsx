@@ -14,6 +14,7 @@ import type { FormField } from "../../FormField.ts";
 import { Fragment, useState } from "react";
 import { ForEachElement } from "../../ForEachElement.tsx";
 import { FieldErrors } from "../../FieldErrors.tsx";
+import { ForEachElement as ForEachElement2 } from "../../validate.ts";
 
 const user = userEvent.setup();
 
@@ -523,5 +524,82 @@ describe("Native validation", () => {
         const { getByTestId, queryByText } = render(<Test />);
         await user.click(getByTestId("submit"));
         expect(queryByText("Required")).toBeInTheDocument();
+    })
+
+    it("validates recursively", async () => {
+        type TreeNode = {
+            id: string
+            children: TreeNode[]
+        }
+        type FormData = {
+            tree: TreeNode
+        }
+
+        function TreeNodeDisplay({ nodeField }: { nodeField: FormField<TreeNode> }) {
+            const nodeId = useFieldValue(nodeField.property("id"));
+            const nodeIdErrors = useFieldErrors(nodeField.property("id"));
+            return (
+                <div>
+                    <h2>Node { nodeId }</h2>
+                    Errors: <div>{ nodeIdErrors.join(", ") }</div>
+                    Children:
+                    <ForEachElement field={nodeField.property("children")}>
+                    {childNodeField => <TreeNodeDisplay nodeField={childNodeField} />}
+                    </ForEachElement>
+                </div>
+            )
+        }
+
+        function Test() {
+            function validateNodes(_nodes: TreeNode[], forEach: ForEachElement2<TreeNode, FormData>) {
+                forEach((_node: TreeNode, visit) => {
+                    visit({
+                        id(id) {
+                            if (!id.length) return "required";
+                        },
+                        children(children, forEachChild) {
+                            validateNodes(children, forEachChild);
+                        }
+                    })
+                });
+            }
+
+            const form = useForm<FormData, any>({
+                initialValues: {
+                    tree: {
+                        id: "1",
+                        children: [{
+                            id: "2",
+                            children: [{
+                                id: "",
+                                children: []
+                            }]
+                        }]
+                    }
+                },
+                submit() {},
+                validate: {
+                    tree(_tree, visitTree) {
+                        visitTree({
+                            id(id) {
+                                if (!id.length) return "required";
+                            },
+                            children: validateNodes
+                        })
+                    }
+                }
+            });
+
+            return (
+                <form onSubmit={form.submit}>
+                    <TreeNodeDisplay nodeField={form.get("tree")} />
+                    <input type="submit" value="Submit" data-testid="submit" />
+                </form>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        await user.click(getByTestId("submit"));
+        expect(queryByText("required")).toBeInTheDocument();
     })
 });
