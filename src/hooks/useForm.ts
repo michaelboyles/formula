@@ -135,7 +135,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             setData: data => {
                 setValue(ROOT_PATH, data);
             },
-            resetData: () => {
+            reset: () => {
                 const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
                 setValue(ROOT_PATH, newValues);
             },
@@ -168,8 +168,8 @@ export type Form<Data> = {
     // Set the current form data
     setData: (data: Data) => void
 
-    // Discards the current form data and sets the value using `initialValues`
-    resetData: () => void
+    // Discards the current form state and sets the value using `initialValues`
+    reset: () => void
 }
 
 export type _Form<T = unknown> = {

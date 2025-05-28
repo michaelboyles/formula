@@ -193,7 +193,7 @@ describe("useForm", () => {
             // This is just here to force the re-render. This isn't the recommended way to use it
             useFieldValue(form.get("title"));
             return (
-                <form onReset={() => form.resetData()}>
+                <form onReset={() => form.reset()}>
                     <div>{ form.getData().title }</div>
                     <button
                         type="button"
@@ -247,7 +247,7 @@ describe("useForm", () => {
 
                 const tags = useFieldValue(form.get("tags"));
                 return (
-                    <form onReset={() => form.resetData()}>
+                    <form onReset={() => form.reset()}>
                         {
                             tags.map((tag, idx) => <div key={idx} data-testid="tag">{tag}</div>)
                         }
