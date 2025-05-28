@@ -21,7 +21,7 @@ const user = userEvent.setup();
 afterEach(() => cleanup());
 
 describe("useForm", () => {
-    test("Submission fails", async () => {
+    it("supports an onError callback", async () => {
         function Test() {
             const [errorJson, setErrorJson] = useState("");
 
@@ -29,7 +29,9 @@ describe("useForm", () => {
                 initialValues: {
                     tags: [] as string[]
                 },
-                submit: () => Promise.reject("Submission failed"),
+                submit: () => {
+                    throw new Error("Submission failed");
+                },
                 onError: (_e, { form }) => {
                     setErrorJson(JSON.stringify(form.getData().tags));
                 }
@@ -49,13 +51,13 @@ describe("useForm", () => {
             )
         }
 
-        const { getByTestId } = render(<Test />);
+        const { getByTestId, queryByTestId } = render(<Test />);
         await user.click(getByTestId("submit"));
-        expect(getByTestId("error")).toBeInTheDocument();
-        expect(getByTestId("json")).toHaveTextContent("[]");
+        expect(queryByTestId("error")).toBeInTheDocument();
+        expect(queryByTestId("json")).toHaveTextContent("[]");
     })
 
-    test("Nested object", async () => {
+    it("supports nested objects", async () => {
         function Test() {
             const form = useForm({
                 initialValues: {
@@ -80,7 +82,7 @@ describe("useForm", () => {
         expect(createdAt).not.toHaveValue()
     })
 
-    test("Array elements", async () => {
+    it("supports arrays", async () => {
         function Test() {
             const form = useForm({
                 initialValues: () => ({
@@ -111,7 +113,7 @@ describe("useForm", () => {
         expect(submit).toBeDisabled();
     })
 
-    test("Standard Schema validation", async () => {
+    it("supports Standard Schema validation", async () => {
         const validator = z.object({
             title: z.string().max(5),
             tags: z.string().max(5).array()
@@ -146,42 +148,7 @@ describe("useForm", () => {
         expect(getAllByTestId("tag-error").length).toBe(1);
     })
 
-    test("Native validation for string", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: () => ({
-                    title: "",
-                }),
-                submit: async () => "done",
-                validate: {
-                    title(title) {
-                        if (title.length < 5) return "Title too short";
-                        if (title.length > 10) return "Title too long";
-                    }
-                }
-            });
-            const titleErrors = useFieldErrors(form.get("title"));
-            return (
-                <form onSubmit={form.submit}>
-                    <Input field={form.get("title")} data-testid="input" />
-                    <input type="submit" value="Submit" data-testid="submit" />
-                    { titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) }
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        const input = getByTestId("input");
-        await user.type(input, "123");
-        await user.type(input, "{enter}");
-        expect(queryByText("Title too short")).toBeInTheDocument();
-
-        await user.type(input, "now too much");
-        await user.type(input, "{enter}");
-        expect(queryByText("Title too long")).toBeInTheDocument();
-    })
-
-    test("getData, setData, resetData", async () => {
+    test("getData, setData, reset", async () => {
         function Test() {
             const form = useForm({
                 initialValues: () => ({
@@ -334,7 +301,42 @@ describe("useForm", () => {
 })
 
 describe("Native validation", () => {
-    test("for array", async () => {
+    it("validates a string", async () => {
+        function Test() {
+            const form = useForm({
+                initialValues: () => ({
+                    title: "",
+                }),
+                submit: async () => "done",
+                validate: {
+                    title(title) {
+                        if (title.length < 5) return "Title too short";
+                        if (title.length > 10) return "Title too long";
+                    }
+                }
+            });
+            const titleErrors = useFieldErrors(form.get("title"));
+            return (
+                <form onSubmit={form.submit}>
+                    <Input field={form.get("title")} data-testid="input" />
+                    <input type="submit" value="Submit" data-testid="submit" />
+                    { titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) }
+                </form>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        const input = getByTestId("input");
+        await user.type(input, "123");
+        await user.type(input, "{enter}");
+        expect(queryByText("Title too short")).toBeInTheDocument();
+
+        await user.type(input, "now too much");
+        await user.type(input, "{enter}");
+        expect(queryByText("Title too long")).toBeInTheDocument();
+    })
+
+    it("validates an array", async () => {
         function ErrorComp(props: { field: FormField<any>, id: number }) {
             const errors = useFieldErrors(props.field);
             return (
@@ -395,7 +397,7 @@ describe("Native validation", () => {
         expect(queryByTestId("tag-0-error-0")).not.toBeInTheDocument()
     })
 
-    test("For object", async () => {
+    it("validates an object", async () => {
         function Test() {
             const form = useForm({
                 initialValues: () => ({
@@ -455,7 +457,7 @@ describe("Native validation", () => {
         expect(queryByText("Must be after epoch")).toBeInTheDocument();
     })
 
-    test("For nullable", async () => {
+    it("validates nullables", async () => {
         function Test() {
             type FormValues = {
                 value: number | null
@@ -489,7 +491,7 @@ describe("Native validation", () => {
         expect(queryByText("Required")).toBeInTheDocument();
     })
 
-    test("For numeric field", async () => {
+    it("validates numeric object key", async () => {
         function Test() {
             type FormValues = {
                 1: string | null
