@@ -5,20 +5,40 @@ export type Issue = {
     message: string
 }
 
-export type ForEachElement<Element, FormValues> = (validator: FieldVisitor<Element, FormValues>) => void;
-export type ArrayValidator<Element, FormValues> = (value: Element[], forEachElement: ForEachElement<Element, FormValues>) => ValidatorReturn;
+export type Validator<T, AllValues = unknown> =
+    [T] extends [Array<infer U>] ? Supplier<ArrayValidator<U, AllValues>> :
+        [T] extends [object] ? Supplier<ObjectValidator<T, AllValues>> :
+            ValueValidator<T, AllValues>;
 
-export type VisitObjectKeys<Object> = (visitor: Visitor<Object>) => void;
-export type ObjValidator<Object> = (object: Object, visit: VisitObjectKeys<Object>) => ValidatorReturn;
+// Validates a single value. Usually a primitive, but can be used for objects and arrays via _self
+export type ValueValidator<T, AllValues> = (value: T, values: AllValues) => ValidatorReturn;
 
-export type FieldVisitor<T, D> =
-    [T] extends [Array<infer A>] ? ArrayValidator<A, D> :
-        [T] extends [object] ? ObjValidator<T> :
-            Validator<T, D>;
+export type ObjectValidator<T, AllValues = unknown> = ({
+    _self?: ValueValidator<T, AllValues>;
+} & {
+    [K in keyof T]?: Validator<T[K], AllValues>;
+});
 
-export type Visitor<T> = {
-    [K in keyof T]?: FieldVisitor<T[K], T>
+export type ArrayValidator<T, AllValues = unknown> = {
+    _self?: ValueValidator<T, AllValues>;
+    _each?: Validator<T, AllValues>;
+};
+
+type ValidatorReturn = string | string[] | undefined | null | Promise<string | string[] | undefined | null>;
+
+const LAZY_SYMBOL = Symbol("lazyValidator");
+
+export type Supplier<T> = T | Lazy<T>;
+
+export type Lazy<T> = (() => T) & { [LAZY_SYMBOL]: true };
+
+export function lazy<T>(fn: () => T): Lazy<T> {
+    const newFn = fn as Lazy<T>;
+    newFn[LAZY_SYMBOL] = true;
+    return newFn;
 }
 
-export type ValidatorReturn = string | string[] | undefined | null | void | Promise<string | string[] | undefined | null | void>;
-export type Validator<Value, FormValues> = (value: Value, values: FormValues) => ValidatorReturn;
+export function isLazy<T>(value: unknown): value is Supplier<T> {
+    return typeof value === "function" && (value as any)[LAZY_SYMBOL] === true;
+}
+

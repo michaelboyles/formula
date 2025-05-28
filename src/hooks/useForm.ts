@@ -5,8 +5,8 @@ import { FormStateTree, Subscriber, Unsubscribe } from "../FormStateTree.ts";
 import { FormState, FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "../FormStateManager.ts";
 import { getValidationIssues } from "../validate-std-schema.ts";
 import { StandardSchemaV1 } from "@standard-schema/spec";
-import { validateObject } from "../validate-native.ts";
-import { Issue, Visitor } from "../validate.ts";
+import { validateRecursive } from "../validate-native.ts";
+import { Issue, Validator } from "../validate.ts";
 
 // TODO 2
 type BaseForm = Record<string | number, any>;
@@ -23,7 +23,7 @@ type UseFormOpts<T extends BaseForm, R> = {
     // Error.cause will be set.
     onError?: (error: Error, ctx: { form: Form<T> }) => void
 
-    validate?: Visitor<NoInfer<T>>
+    validate?: Validator<NoInfer<T>, NoInfer<T>>
     validators?: StandardSchemaV1<Partial<T>>[]
 }
 
@@ -61,7 +61,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
                 pendingValidations.push(getValidationIssues(values, validators));
             }
             if (validate) {
-                pendingValidations.push(validateObject(values, values, validate, ROOT_PATH));
+                pendingValidations.push(validateRecursive(values, values, validate, ROOT_PATH));
             }
             if (pendingValidations.length) {
                 const issues = (await Promise.all(pendingValidations)).flatMap(a => a);

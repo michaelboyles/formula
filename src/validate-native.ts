@@ -1,74 +1,75 @@
 import { FieldPath } from "./FieldPath.ts";
-import { ArrayValidator, FieldVisitor, Issue, ObjValidator, Validator, Visitor } from "./validate.ts";
+import {
+    Validator,
+    ObjectValidator,
+    Issue,
+    ArrayValidator,
+    ValueValidator,
+    isLazy,
+    Supplier
+} from "./validate.ts";
 
-export async function validateObject<R, T extends Record<string, unknown>>(rootData: R, data: T, visitor: Visitor<T>, path: FieldPath) {
-    if (!data) return [];
-    const promises: Promise<Issue[]>[] = [];
-    for (const key in visitor) {
-        const keyVisitor = visitor[key];
-        if (!keyVisitor) continue;
-        promises.push(validateValue(rootData as any, data[key], keyVisitor, path.withProperty(key)));
-    }
-    return (await Promise.all(promises)).flatMap(issues => issues);
-}
+export async function validateRecursive<T, R>(rootData: R, value: T, validator: Validator<T, R>, path: FieldPath): Promise<Issue[]> {
+    if (!validator) return [];
 
-async function validateValue<V, R>(rootData: R, value: V, keyVisitor: FieldVisitor<V, R>, path: FieldPath): Promise<Issue[]> {
     const issues: Issue[] = [];
-    function pushIssues(_issues: string | string[]) {
-        if (typeof _issues === "string") {
-            issues.push({ path, message: _issues });
+
+    const pushIssues = (msgs: string | string[] | undefined | null) => {
+        if (!msgs) return;
+        if (typeof msgs === "string") {
+            issues.push({ path, message: msgs });
         }
         else {
-            for (const message of _issues) {
+            for (const message of msgs) {
                 issues.push({ path, message });
             }
         }
     }
 
     if (Array.isArray(value)) {
-        const arrVisitor = keyVisitor as ArrayValidator<unknown, R>;
-        const promises: Promise<Issue[]>[] = [];
-        const arrayIssues = await arrVisitor(
-            value,
-            validator => {
-                for (let i = 0; i < value.length; ++i) {
-                    promises.push(validateValue(rootData, value[i], validator, path.withArrayIndex(i)));
-                }
-            }
-        );
-        if (arrayIssues) {
-            pushIssues(arrayIssues);
+        const arrValidator = resolve(validator as ArrayValidator<any, any>);
+
+        if (arrValidator._self) {
+            pushIssues(await arrValidator._self(value, rootData));
         }
 
-        const elementIssues = (await Promise.all(promises)).flatMap(a => a);
-        if (elementIssues) {
-            issues.push(...elementIssues);
+        if (arrValidator._each) {
+            for (let i = 0; i < value.length; i++) {
+                const item = value[i];
+                const itemValidator = resolve(arrValidator._each);
+                const itemIssues = await validateRecursive(rootData, item, itemValidator as any, path.withArrayIndex(i));
+                issues.push(...itemIssues);
+            }
         }
     }
     else if (typeof value === "object" && value !== null) {
-        const objVisitor = keyVisitor as ObjValidator<{}>;
+        const objValidator = resolve(validator as Supplier<ObjectValidator<T, R>>);
         const promises: Promise<Issue[]>[] = [];
-        const objectIssues = await objVisitor(
-            value,
-            visitor => {
-                promises.push(validateObject(rootData, value, visitor, path));
-            }
-        );
-        if (objectIssues) {
-            pushIssues(objectIssues);
+        if (objValidator._self && typeof objValidator._self === "function") {
+            const issues = await objValidator._self(value, rootData);
+            pushIssues(issues);
         }
 
+        for (const [key, keyValidator] of Object.entries(objValidator)) {
+            if (key === "_self") continue;
+            const fieldValue = (value as any)[key];
+            promises.push(validateRecursive(rootData, fieldValue, keyValidator as any, path.withProperty(key)));
+        }
         const keyIssues = (await Promise.all(promises)).flatMap(a => a);
         if (keyIssues.length) {
             issues.push(...keyIssues);
         }
     }
-    else {
-        const primitiveVisitor = keyVisitor as Validator<V, R>;
-        const issues = await primitiveVisitor(value, rootData);
-        if (issues) {
-            pushIssues(issues);
-        }
+    else if (typeof validator === "function") {
+        const primitiveValidator = validator as ValueValidator<any, any>;
+        pushIssues(await primitiveValidator(value, rootData));
     }
     return issues;
+}
+
+function resolve<T, R>(v: Supplier<ObjectValidator<T, R>>): ObjectValidator<T, R> {
+    if (isLazy(v) && typeof v === "function") {
+        return v();
+    }
+    return v;
 }

@@ -1,27 +1,5 @@
-import { Form, useForm } from "./hooks/useForm.ts";
-import { useElements } from "./hooks/useElements.ts";
-import type { FormField } from "./FormField.ts";
-import { Input } from "./controls/Input.tsx";
-import { useIsSubmitting } from "./hooks/useIsSubmitting.ts";
+import { useForm } from "./hooks/useForm.ts";
 import { useFieldErrors } from "./hooks/useFieldErrors.ts";
-import type { Visitor } from "./validate.ts";
-
-type Category = {
-    name: string,
-    subcategories: Category[]
-}
-
-type Foo = "foo" | "bar";
-
-type FormValues = {
-    title: string
-    isPublic: boolean
-    numLikes: number | ""
-    tags: string[]
-    category: Category
-    arrayOfArray: Foo[][]
-    foo: Foo
-}
 
 export function Test1() {
     type FormValues = {
@@ -55,43 +33,5 @@ export function Test1() {
                 <input type="submit" value="Submit" data-testid="submit" />
             </form>
         </>
-    )
-}
-
-function validateCategory(visit: (visitor: Visitor<Category>) => void) {
-    visit({
-        name(name) {
-            if (name === "name") {
-                return "BAD";
-            }
-        },
-        subcategories(_subcategories, forEachElement) {
-            forEachElement((_subcategory, visitSubcategory) => {
-                validateCategory(visitSubcategory);
-            })
-        }
-    })
-}
-
-function Tags(props: { field: FormField<string[]> }) {
-    const elemns = useElements(props.field);
-    return (
-        <>
-            <h2>Tags</h2>
-            { elemns.map(((tag, idx) => <Tag key={idx} field={tag} />) )}
-        </>
-    );
-}
-
-function Tag(props: { field: FormField<string> }) {
-    return (
-        <div>Tag: <Input field={props.field} /></div>
-    )
-}
-
-function DisableSubmitButton(props: { form: Form<any> }) {
-    const isSubmitting = useIsSubmitting(props.form);
-    return (
-        <button type="submit" disabled={isSubmitting}>Submit</button>
     )
 }

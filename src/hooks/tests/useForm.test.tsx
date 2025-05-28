@@ -14,7 +14,7 @@ import type { FormField } from "../../FormField.ts";
 import { Fragment, useState } from "react";
 import { ForEachElement } from "../../ForEachElement.tsx";
 import { FieldErrors } from "../../FieldErrors.tsx";
-import { ForEachElement as ForEachElement2 } from "../../validate.ts";
+import { lazy, ObjectValidator } from "../../validate.ts";
 
 const user = userEvent.setup();
 
@@ -352,11 +352,13 @@ describe("Native validation", () => {
                 }),
                 submit: async () => "done",
                 validate: {
-                    async tags(tags, forEachTag) {
-                        if (!(tags.length >= 1)) return "Requires at least 1 tag"
-                        forEachTag(tag => {
+                    tags: {
+                        _self(tags) {
+                            if (!(tags.length >= 1)) return "Requires at least 1 tag"
+                        },
+                        _each(tag) {
                             if (!tag.length) return ["Cannot be blank", "Required"];
-                        });
+                        }
                     }
                 }
             });
@@ -412,21 +414,17 @@ describe("Native validation", () => {
                 }),
                 submit: async () => "done",
                 validate: {
-                    meta(meta, visitMeta) {
-                        visitMeta({
-                            createdAt(_createdAt, visitCreatedAt) {
-                                visitCreatedAt({
-                                    humanReadable(humanReadable) {
-                                        if (!humanReadable.length) return "Human-readable creation time is required";
-                                    },
-                                    unixTimestamp(unixTimestamp) {
-                                        if (unixTimestamp < 0) return "Must be after epoch";
-                                    }
-                                })
+                    meta: {
+                        _self(meta) {
+                            if (!meta.updatedAt.length) return "Update time is required";
+                        },
+                        createdAt: {
+                            humanReadable(humanReadable) {
+                                if (!humanReadable.length) return "Human-readable creation time is required";
+                            },
+                            unixTimestamp(unixTimestamp) {
+                                if (unixTimestamp < 0) return "Must be after epoch";
                             }
-                        });
-                        if (!meta.updatedAt.length) {
-                            return "Update time is required";
                         }
                     }
                 }
@@ -550,20 +548,18 @@ describe("Native validation", () => {
             )
         }
 
-        function Test() {
-            function validateNodes(_nodes: TreeNode[], forEach: ForEachElement2<TreeNode, FormData>) {
-                forEach((_node: TreeNode, visit) => {
-                    visit({
-                        id(id) {
-                            if (!id.length) return "required";
-                        },
-                        children(children, forEachChild) {
-                            validateNodes(children, forEachChild);
-                        }
-                    })
-                });
+        function getValidator(): ObjectValidator<TreeNode> {
+            return {
+                id(id) {
+                    if (!id.length) return "required";
+                },
+                children: {
+                    _each: lazy(getValidator)
+                }
             }
+        }
 
+        function Test() {
             const form = useForm<FormData, any>({
                 initialValues: {
                     tree: {
@@ -579,14 +575,7 @@ describe("Native validation", () => {
                 },
                 submit() {},
                 validate: {
-                    tree(_tree, visitTree) {
-                        visitTree({
-                            id(id) {
-                                if (!id.length) return "required";
-                            },
-                            children: validateNodes
-                        })
-                    }
+                    tree: lazy(getValidator)
                 }
             });
 
