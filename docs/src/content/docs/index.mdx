@@ -12,4 +12,25 @@ hero:
 tableOfContents: false
 ---
 
-Sample text
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid>
+    <Card title="Complex data" icon="approve-check">
+        Your data format can be arbitrarily complex, including nested objects, arrays, etc.
+    </Card>
+    <Card title="Validation" icon="approve-check">
+        Built-in validation, or use any standard-schema validation library (e.g. Zod).
+    </Card>
+    <Card title="Type-safe" icon="approve-check">
+        Maximizing type-safety is a core design principle.
+    </Card>
+    <Card title="Performant" icon="approve-check">
+        Granular updates prevent unnecessary re-renders.
+    </Card>
+    <Card title="Headless" icon="approve-check">
+        Formula doesn't impose any specific UI or styling.
+    </Card>
+    <Card title="Small footprint" icon="approve-check">
+        Formula is small, tree-shakeable by design, and has no dependencies.
+    </Card>
+</CardGrid>
