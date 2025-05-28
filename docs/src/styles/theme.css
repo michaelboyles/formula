@@ -1,28 +1,15 @@
 :root {
-    --sl-color-accent-low: #131e4f;
-    --sl-color-accent: #3447ff;
-    --sl-color-accent-high: #b3c7ff;
-    --sl-color-white: #ffffff;
-    --sl-color-gray-1: #eceef2;
-    --sl-color-gray-2: #c0c2c7;
-    --sl-color-gray-3: #888b96;
-    --sl-color-gray-4: #545861;
-    --sl-color-gray-5: #353841;
-    --sl-color-gray-6: #24272f;
-    --sl-color-black: #17181c;
+    --sl-text-h1: 1.8rem;
+    --sl-text-h2: 1.4rem;
+    --sl-text-h3: 1.2rem;
+    --sl-text-h4: 1rem;
 }
-
 :root[data-theme='light'] {
-    --sl-color-accent-low: #c7d6ff;
-    --sl-color-accent: #322444;
-    --sl-color-accent-high: #182775;
-    --sl-color-white: #17181c;
-    --sl-color-gray-1: #24272f;
-    --sl-color-gray-2: #353841;
-    --sl-color-gray-3: #545861;
-    --sl-color-gray-4: #888b96;
-    --sl-color-gray-5: #c0c2c7;
-    --sl-color-gray-6: #eceef2;
-    --sl-color-gray-7: #f5f6f8;
-    --sl-color-black: #ffffff;
+    --sl-color-text-accent: #322444;
+}
+:root[data-theme='light'] .right-sidebar-panel {
+    --sl-color-text-accent: #8c1b4b;
+}
+.card-grid {
+    --sl-text-h4: 1.5rem;
 }
