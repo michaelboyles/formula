@@ -20,7 +20,7 @@ export type ObjectValidator<T, AllValues = unknown> = ({
 });
 
 export type ArrayValidator<T, AllValues = unknown> = {
-    _self?: ValueValidator<T, AllValues>;
+    _self?: ValueValidator<T[], AllValues>;
     _each?: Validator<T, AllValues>;
 };
 

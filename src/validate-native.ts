@@ -67,7 +67,9 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
     return issues;
 }
 
-function resolve<T, R>(v: Supplier<ObjectValidator<T, R>>): ObjectValidator<T, R> {
+function resolve<T, R>(v: Supplier<ArrayValidator<T, R>>): ArrayValidator<T, R>;
+function resolve<T, R>(v: Supplier<ObjectValidator<T, R>>): ObjectValidator<T, R>;
+function resolve<T, R>(v: Supplier<ArrayValidator<T, R>> | Supplier<ObjectValidator<T, R>>): ArrayValidator<T, R> | ObjectValidator<T, R> {
     if (isLazy(v) && typeof v === "function") {
         return v();
     }

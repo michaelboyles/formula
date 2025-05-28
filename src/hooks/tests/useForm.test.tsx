@@ -456,6 +456,44 @@ describe("Native validation", () => {
         expect(queryByText("Must be after epoch")).toBeInTheDocument();
     })
 
+    it("validates an array of objects", async () => {
+        function Test() {
+            const form = useForm({
+                initialValues: () => ({
+                    tags: [{ name: "react" }, { name: "" }]
+                }),
+                submit() {},
+                validate: {
+                    tags: {
+                        _self(tags) {
+                            if (!tags.length) return "Requires at least 1 tag"
+                        },
+                        _each: {
+                            name(name) {
+                                if (!name.length) return "Cannot be blank";
+                            }
+                        }
+                    }
+                }
+            });
+            return (
+                <form onSubmit={form.submit}>
+                    <ForEachElement field={form.get("tags")}>
+                    {tagField =>
+                        <FieldErrors field={tagField.property("name")}>{errors => <div>{ errors.join(",") }</div>}</FieldErrors>
+                    }
+                    </ForEachElement>
+                    <input type="submit" value="Submit" data-testid="submit" />
+                </form>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        expect(queryByText("Cannot be blank")).not.toBeInTheDocument();
+        await user.click(getByTestId("submit"));
+        expect(queryByText("Cannot be blank")).toBeInTheDocument();
+    })
+
     it("validates nullables", async () => {
         function Test() {
             type FormValues = {
