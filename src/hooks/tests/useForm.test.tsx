@@ -299,442 +299,442 @@ describe("useForm", () => {
         await user.click(getByTestId("swap"));
         expect(queryAllByText("Errors: Invalid tag").length).toBe(0);
     })
-})
 
-describe("Native validation", () => {
-    it("validates a string", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    title: "",
-                },
-                submit() {},
-                validate: {
-                    title(title) {
-                        if (title.length < 5) return "Title too short";
-                        if (title.length > 10) return "Title too long";
-                    }
-                }
-            });
-            const titleErrors = useFieldErrors(form("title"));
-            return (
-                <form onSubmit={form.submit}>
-                    <Input field={form("title")} data-testid="input" />
-                    <input type="submit" value="Submit" data-testid="submit" />
-                    { titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) }
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        const input = getByTestId("input");
-        await user.type(input, "123");
-        await user.type(input, "{enter}");
-        expect(queryByText("Title too short")).toBeInTheDocument();
-
-        await user.type(input, "now too much");
-        await user.type(input, "{enter}");
-        expect(queryByText("Title too long")).toBeInTheDocument();
-    })
-
-    it("validates an entire array", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    tags: [] as string[]
-                },
-                submit() {},
-                validate: {
-                    tags(tags) {
-                        if (!tags.length) return "Must have at least 1 tag";
-                    }
-                }
-            });
-            const tagErrors = useFieldErrors(form("tags"));
-            return (
-                <form onSubmit={form.submit}>
-                    <div>{ tagErrors.join(", ") }</div>
-                    <input type="submit" value="Submit" data-testid="submit" />
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        await user.click(getByTestId("submit"));
-        expect(queryByText("Must have at least 1 tag")).toBeInTheDocument();
-    })
-
-    it("validates an array by elements", async () => {
-        function ErrorComp(props: { field: FormField<any>, id: number }) {
-            const errors = useFieldErrors(props.field);
-            return (
-                errors.map((err, i) => <div key={i} data-testid={`tag-${props.id}-error-${i}`}>{ err }</div>)
-            )
-        }
-
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    tags: [] as string[]
-                },
-                submit() {},
-                validate: {
-                    tags: {
-                        _self(tags) {
-                            if (!(tags.length >= 1)) return "Requires at least 1 tag"
-                        },
-                        _each(tag) {
-                            if (!tag.length) return ["Cannot be blank", "Required"];
+    describe("Native validation", () => {
+        it("validates a string", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        title: "",
+                    },
+                    submit() {},
+                    validate: {
+                        title(title) {
+                            if (title.length < 5) return "Title too short";
+                            if (title.length > 10) return "Title too long";
                         }
                     }
-                }
-            });
-            const tags = form("tags");
-            const tagErrors = useFieldErrors(tags);
-
-            const tagFields = useElements(form("tags"));
-            return (
-                <form onSubmit={form.submit}>
-                    {
-                        tagFields.map((tagField, i) => (
-                            <Fragment key={i}>
-                                <Input field={tagField} data-testid={`tag-${i}`} />
-                                <ErrorComp field={tagField} id={i} />
-                            </Fragment>
-                        ))
-                    }
-                    <button type="button" onClick={() => tags.push("")} data-testid="add-tag">Add tag</button>
-                    { tagErrors.length > 0 ? <div data-testid="tagErrors">{ tagErrors.join(", ") }</div> : null }
-                    <input type="submit" value="Submit" data-testid="submit" />
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByTestId, queryByText } = render(<Test />);
-        const submit = getByTestId("submit");
-        await user.click(submit);
-        expect(queryByText("Requires at least 1 tag")).toBeInTheDocument();
-
-        const addTag = getByTestId("add-tag");
-        await user.click(addTag);
-        await user.click(submit);
-        expect(queryByTestId("tag-0-error-0")).toHaveTextContent("Cannot be blank");
-
-        const tag0 = getByTestId("tag-0");
-        await user.type(tag0, "news");
-        await user.click(submit);
-
-        expect(queryByTestId("tag-0-error-0")).not.toBeInTheDocument()
-    })
-
-    it("validates an entire object", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    address: { number: "", street: "", city: "" }
-                },
-                submit() {},
-                validate: {
-                    address({ number, street, city }) {
-                        if (!number.length || !street.length || !city.length) return "Incomplete";
-                    }
-                }
-            });
-
-            const addressErrors = useFieldErrors(form("address"));
-            return (
-                <form onSubmit={form.submit}>
-                    {
-                        addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
-                    }
-                    <input type="submit" value="Submit" data-testid="submit" />
-                </form>
-            )
-        }
-        const { getByTestId, queryByText } = render(<Test />);
-        await user.click(getByTestId("submit"));
-        expect(queryByText("Incomplete")).toBeInTheDocument();
-    })
-
-    it("validates an object by properties", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    meta: {
-                        createdAt: {
-                            humanReadable: "",
-                            unixTimestamp: -1
-                        },
-                        updatedAt: ""
-                    }
-                },
-                submit() {},
-                validate: {
-                    meta: {
-                        _self(meta) {
-                            if (!meta.updatedAt.length) return "Update time is required";
-                        },
-                        createdAt: {
-                            humanReadable(humanReadable) {
-                                if (!humanReadable.length) return "Human-readable creation time is required";
-                            },
-                            unixTimestamp(unixTimestamp) {
-                                if (unixTimestamp < 0) return "Must be after epoch";
-                            }
-                        }
-                    }
-                }
-            });
-
-            const metaErrors = useFieldErrors(form("meta"));
-            const humanReadableErrors = useFieldErrors(form("meta")("createdAt")("humanReadable"));
-            const unixTimestampErrors = useFieldErrors(form("meta")("createdAt")("unixTimestamp"));
-            return (
-                <form onSubmit={form.submit}>
-                    {
-                        metaErrors.length ? <div>{ metaErrors.join(", ")} </div> : null
-                    }
-                    {
-                        humanReadableErrors.length ? <div>{ humanReadableErrors.join(", ")} </div> : null
-                    }
-                    {
-                        unixTimestampErrors.length ? <div>{ unixTimestampErrors.join(", ")} </div> : null
-                    }
-                    <input type="submit" value="Submit" data-testid="submit" />
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        await user.click(getByTestId("submit"));
-        expect(queryByText("Update time is required")).toBeInTheDocument();
-        expect(queryByText("Human-readable creation time is required")).toBeInTheDocument();
-        expect(queryByText("Must be after epoch")).toBeInTheDocument();
-    })
-
-    it("validates an array of objects", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    tags: [{ name: "react" }, { name: "" }]
-                },
-                submit() {},
-                validate: {
-                    tags: {
-                        _self(tags) {
-                            if (!tags.length) return "Requires at least 1 tag"
-                        },
-                        _each: {
-                            name(name) {
-                                if (!name.length) return "Cannot be blank";
-                            }
-                        }
-                    }
-                }
-            });
-            return (
-                <form onSubmit={form.submit}>
-                    <ForEachElement field={form("tags")}>
-                    {tagField =>
-                        <FieldErrors field={tagField("name")}>{errors => <div>{ errors.join(",") }</div>}</FieldErrors>
-                    }
-                    </ForEachElement>
-                    <input type="submit" value="Submit" data-testid="submit" />
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        expect(queryByText("Cannot be blank")).not.toBeInTheDocument();
-        await user.click(getByTestId("submit"));
-        expect(queryByText("Cannot be blank")).toBeInTheDocument();
-    })
-
-    it("validates nullables", async () => {
-        function Test() {
-            type FormValues = {
-                value: number | null
+                });
+                const titleErrors = useFieldErrors(form("title"));
+                return (
+                    <form onSubmit={form.submit}>
+                        <Input field={form("title")} data-testid="input" />
+                        <input type="submit" value="Submit" data-testid="submit" />
+                        { titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) }
+                    </form>
+                )
             }
 
-            const form = useForm<FormValues, any>({
-                initialValues: {
-                    value: null
-                },
-                submit: async () => "done",
-                validate: {
-                    value(value) {
-                        if (value == null) return "Required";
-                    }
-                }
-            });
+            const { getByTestId, queryByText } = render(<Test />);
+            const input = getByTestId("input");
+            await user.type(input, "123");
+            await user.type(input, "{enter}");
+            expect(queryByText("Title too short")).toBeInTheDocument();
 
-            const errors = useFieldErrors(form("value"));
-            return (
-                <form onSubmit={form.submit}>
-                    {
-                        errors.length ? <div>{ errors.join(", ")} </div> : null
-                    }
-                    <input type="submit" value="Submit" data-testid="submit" />
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        await user.click(getByTestId("submit"));
-        expect(queryByText("Required")).toBeInTheDocument();
-    })
-
-    // TODO 3 revisit this, because for nested it might be weird
-    it("validates numeric object key", async () => {
-        function Test() {
-            type FormValues = {
-                1: string | null
-            }
-
-            const form = useForm<FormValues, any>({
-                initialValues: {
-                    1: null
-                },
-                submit: async () => "done",
-                validate: {
-                    1(one) {
-                        if (one == null) return "Required";
-                    }
-                }
-            });
-
-            const errors = useFieldErrors(form(1));
-            return (
-                <form onSubmit={form.submit}>
-                    {
-                        errors.length ? <div>{ errors.join(", ")} </div> : null
-                    }
-                    <input type="submit" value="Submit" data-testid="submit" />
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        await user.click(getByTestId("submit"));
-        expect(queryByText("Required")).toBeInTheDocument();
-    })
-
-    it("validates recursively", async () => {
-        type TreeNode = {
-            id: string
-            children: TreeNode[]
-        }
-        type FormData = {
-            tree: TreeNode
-        }
-
-        function TreeNodeDisplay({ nodeField }: { nodeField: FormField<TreeNode> }) {
-            const nodeId = useFieldValue(nodeField("id"));
-            const nodeIdErrors = useFieldErrors(nodeField("id"));
-            return (
-                <div>
-                    <h2>Node { nodeId }</h2>
-                    Errors: <div>{ nodeIdErrors.join(", ") }</div>
-                    Children:
-                    <ForEachElement field={nodeField("children")}>
-                    {childNodeField => <TreeNodeDisplay nodeField={childNodeField} />}
-                    </ForEachElement>
-                </div>
-            )
-        }
-
-        function getValidator(): ObjectValidator<TreeNode> {
-            return {
-                id(id) {
-                    if (!id.length) return "required";
-                },
-                children: {
-                    _each: lazy(getValidator)
-                }
-            }
-        }
-
-        function Test() {
-            const form = useForm<FormData, any>({
-                initialValues: {
-                    tree: {
-                        id: "1",
-                        children: [{
-                            id: "2",
-                            children: [{
-                                id: "",
-                                children: []
-                            }]
-                        }]
-                    }
-                },
-                submit() {},
-                validate: {
-                    tree: getValidator()
-                }
-            });
-
-            return (
-                <form onSubmit={form.submit}>
-                    <TreeNodeDisplay nodeField={form("tree")} />
-                    <input type="submit" value="Submit" data-testid="submit" />
-                </form>
-            )
-        }
-
-        const { getByTestId, queryByText } = render(<Test />);
-        await user.click(getByTestId("submit"));
-        expect(queryByText("required")).toBeInTheDocument();
-    })
-
-    it("supports void-returning validators", async () => {
-        // There's no practical reason for a user to write this, but they may be in this state while they're
-        // in the middle of writing a validator. It's annoying for TypeScript to say "that isn't valid" when the only
-        // problem is that it doesn't do anything useful yet. We should just accept it.
-        // No assertions here because we're mainly testing that it typechecks. But it does at least "assert" that
-        // it doesn't throw
-        renderHook(() => {
-            const form = useForm({
-                initialValues: { name: "" },
-                submit() {},
-                validate: {
-                    name() {
-                    }
-                }
-            });
-            form.submit();
+            await user.type(input, "now too much");
+            await user.type(input, "{enter}");
+            expect(queryByText("Title too long")).toBeInTheDocument();
         })
-    })
 
-    it("supports validateOnBlur", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    address: { number: "", street: "", city: "" }
-                },
-                submit() {},
-                validate: {
-                    address({ number, street, city }) {
-                        if (!number.length || !street.length || !city.length) return "Incomplete";
+        it("validates an entire array", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        tags: [] as string[]
+                    },
+                    submit() {},
+                    validate: {
+                        tags(tags) {
+                            if (!tags.length) return "Must have at least 1 tag";
+                        }
                     }
-                },
-                validateOnBlur: true
-            });
+                });
+                const tagErrors = useFieldErrors(form("tags"));
+                return (
+                    <form onSubmit={form.submit}>
+                        <div>{ tagErrors.join(", ") }</div>
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                )
+            }
 
-            const addressErrors = useFieldErrors(form("address"));
-            return (
-                <form onSubmit={form.submit}>
-                    <Input field={form("address")("number")} data-testid="input" />
-                    {
-                        addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
+            const { getByTestId, queryByText } = render(<Test />);
+            await user.click(getByTestId("submit"));
+            expect(queryByText("Must have at least 1 tag")).toBeInTheDocument();
+        })
+
+        it("validates an array by elements", async () => {
+            function ErrorComp(props: { field: FormField<any>, id: number }) {
+                const errors = useFieldErrors(props.field);
+                return (
+                    errors.map((err, i) => <div key={i} data-testid={`tag-${props.id}-error-${i}`}>{ err }</div>)
+                )
+            }
+
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        tags: [] as string[]
+                    },
+                    submit() {},
+                    validate: {
+                        tags: {
+                            _self(tags) {
+                                if (!(tags.length >= 1)) return "Requires at least 1 tag"
+                            },
+                            _each(tag) {
+                                if (!tag.length) return ["Cannot be blank", "Required"];
+                            }
+                        }
                     }
-                </form>
-            )
-        }
-        const { getByTestId, queryByText } = render(<Test />);
-        await user.type(getByTestId("input"), "123");
-        expect(queryByText("Incomplete")).not.toBeInTheDocument();
-        await user.type(getByTestId("input"), "{tab}");
-        expect(queryByText("Incomplete")).toBeInTheDocument();
-    })
-});
+                });
+                const tags = form("tags");
+                const tagErrors = useFieldErrors(tags);
+
+                const tagFields = useElements(form("tags"));
+                return (
+                    <form onSubmit={form.submit}>
+                        {
+                            tagFields.map((tagField, i) => (
+                                <Fragment key={i}>
+                                    <Input field={tagField} data-testid={`tag-${i}`} />
+                                    <ErrorComp field={tagField} id={i} />
+                                </Fragment>
+                            ))
+                        }
+                        <button type="button" onClick={() => tags.push("")} data-testid="add-tag">Add tag</button>
+                        { tagErrors.length > 0 ? <div data-testid="tagErrors">{ tagErrors.join(", ") }</div> : null }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                )
+            }
+
+            const { getByTestId, queryByTestId, queryByText } = render(<Test />);
+            const submit = getByTestId("submit");
+            await user.click(submit);
+            expect(queryByText("Requires at least 1 tag")).toBeInTheDocument();
+
+            const addTag = getByTestId("add-tag");
+            await user.click(addTag);
+            await user.click(submit);
+            expect(queryByTestId("tag-0-error-0")).toHaveTextContent("Cannot be blank");
+
+            const tag0 = getByTestId("tag-0");
+            await user.type(tag0, "news");
+            await user.click(submit);
+
+            expect(queryByTestId("tag-0-error-0")).not.toBeInTheDocument()
+        })
+
+        it("validates an entire object", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        address: { number: "", street: "", city: "" }
+                    },
+                    submit() {},
+                    validate: {
+                        address({ number, street, city }) {
+                            if (!number.length || !street.length || !city.length) return "Incomplete";
+                        }
+                    }
+                });
+
+                const addressErrors = useFieldErrors(form("address"));
+                return (
+                    <form onSubmit={form.submit}>
+                        {
+                            addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
+                        }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                )
+            }
+            const { getByTestId, queryByText } = render(<Test />);
+            await user.click(getByTestId("submit"));
+            expect(queryByText("Incomplete")).toBeInTheDocument();
+        })
+
+        it("validates an object by properties", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        meta: {
+                            createdAt: {
+                                humanReadable: "",
+                                unixTimestamp: -1
+                            },
+                            updatedAt: ""
+                        }
+                    },
+                    submit() {},
+                    validate: {
+                        meta: {
+                            _self(meta) {
+                                if (!meta.updatedAt.length) return "Update time is required";
+                            },
+                            createdAt: {
+                                humanReadable(humanReadable) {
+                                    if (!humanReadable.length) return "Human-readable creation time is required";
+                                },
+                                unixTimestamp(unixTimestamp) {
+                                    if (unixTimestamp < 0) return "Must be after epoch";
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const metaErrors = useFieldErrors(form("meta"));
+                const humanReadableErrors = useFieldErrors(form("meta")("createdAt")("humanReadable"));
+                const unixTimestampErrors = useFieldErrors(form("meta")("createdAt")("unixTimestamp"));
+                return (
+                    <form onSubmit={form.submit}>
+                        {
+                            metaErrors.length ? <div>{ metaErrors.join(", ")} </div> : null
+                        }
+                        {
+                            humanReadableErrors.length ? <div>{ humanReadableErrors.join(", ")} </div> : null
+                        }
+                        {
+                            unixTimestampErrors.length ? <div>{ unixTimestampErrors.join(", ")} </div> : null
+                        }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                )
+            }
+
+            const { getByTestId, queryByText } = render(<Test />);
+            await user.click(getByTestId("submit"));
+            expect(queryByText("Update time is required")).toBeInTheDocument();
+            expect(queryByText("Human-readable creation time is required")).toBeInTheDocument();
+            expect(queryByText("Must be after epoch")).toBeInTheDocument();
+        })
+
+        it("validates an array of objects", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        tags: [{ name: "react" }, { name: "" }]
+                    },
+                    submit() {},
+                    validate: {
+                        tags: {
+                            _self(tags) {
+                                if (!tags.length) return "Requires at least 1 tag"
+                            },
+                            _each: {
+                                name(name) {
+                                    if (!name.length) return "Cannot be blank";
+                                }
+                            }
+                        }
+                    }
+                });
+                return (
+                    <form onSubmit={form.submit}>
+                        <ForEachElement field={form("tags")}>
+                        {tagField =>
+                            <FieldErrors field={tagField("name")}>{errors => <div>{ errors.join(",") }</div>}</FieldErrors>
+                        }
+                        </ForEachElement>
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                )
+            }
+
+            const { getByTestId, queryByText } = render(<Test />);
+            expect(queryByText("Cannot be blank")).not.toBeInTheDocument();
+            await user.click(getByTestId("submit"));
+            expect(queryByText("Cannot be blank")).toBeInTheDocument();
+        })
+
+        it("validates nullables", async () => {
+            function Test() {
+                type FormValues = {
+                    value: number | null
+                }
+
+                const form = useForm<FormValues, any>({
+                    initialValues: {
+                        value: null
+                    },
+                    submit: async () => "done",
+                    validate: {
+                        value(value) {
+                            if (value == null) return "Required";
+                        }
+                    }
+                });
+
+                const errors = useFieldErrors(form("value"));
+                return (
+                    <form onSubmit={form.submit}>
+                        {
+                            errors.length ? <div>{ errors.join(", ")} </div> : null
+                        }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                )
+            }
+
+            const { getByTestId, queryByText } = render(<Test />);
+            await user.click(getByTestId("submit"));
+            expect(queryByText("Required")).toBeInTheDocument();
+        })
+
+        // TODO 3 revisit this, because for nested it might be weird
+        it("validates numeric object key", async () => {
+            function Test() {
+                type FormValues = {
+                    1: string | null
+                }
+
+                const form = useForm<FormValues, any>({
+                    initialValues: {
+                        1: null
+                    },
+                    submit: async () => "done",
+                    validate: {
+                        1(one) {
+                            if (one == null) return "Required";
+                        }
+                    }
+                });
+
+                const errors = useFieldErrors(form(1));
+                return (
+                    <form onSubmit={form.submit}>
+                        {
+                            errors.length ? <div>{ errors.join(", ")} </div> : null
+                        }
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                )
+            }
+
+            const { getByTestId, queryByText } = render(<Test />);
+            await user.click(getByTestId("submit"));
+            expect(queryByText("Required")).toBeInTheDocument();
+        })
+
+        it("validates recursively", async () => {
+            type TreeNode = {
+                id: string
+                children: TreeNode[]
+            }
+            type FormData = {
+                tree: TreeNode
+            }
+
+            function TreeNodeDisplay({ nodeField }: { nodeField: FormField<TreeNode> }) {
+                const nodeId = useFieldValue(nodeField("id"));
+                const nodeIdErrors = useFieldErrors(nodeField("id"));
+                return (
+                    <div>
+                        <h2>Node { nodeId }</h2>
+                        Errors: <div>{ nodeIdErrors.join(", ") }</div>
+                        Children:
+                        <ForEachElement field={nodeField("children")}>
+                        {childNodeField => <TreeNodeDisplay nodeField={childNodeField} />}
+                        </ForEachElement>
+                    </div>
+                )
+            }
+
+            function getValidator(): ObjectValidator<TreeNode> {
+                return {
+                    id(id) {
+                        if (!id.length) return "required";
+                    },
+                    children: {
+                        _each: lazy(getValidator)
+                    }
+                }
+            }
+
+            function Test() {
+                const form = useForm<FormData, any>({
+                    initialValues: {
+                        tree: {
+                            id: "1",
+                            children: [{
+                                id: "2",
+                                children: [{
+                                    id: "",
+                                    children: []
+                                }]
+                            }]
+                        }
+                    },
+                    submit() {},
+                    validate: {
+                        tree: getValidator()
+                    }
+                });
+
+                return (
+                    <form onSubmit={form.submit}>
+                        <TreeNodeDisplay nodeField={form("tree")} />
+                        <input type="submit" value="Submit" data-testid="submit" />
+                    </form>
+                )
+            }
+
+            const { getByTestId, queryByText } = render(<Test />);
+            await user.click(getByTestId("submit"));
+            expect(queryByText("required")).toBeInTheDocument();
+        })
+
+        it("supports void-returning validators", async () => {
+            // There's no practical reason for a user to write this, but they may be in this state while they're
+            // in the middle of writing a validator. It's annoying for TypeScript to say "that isn't valid" when the only
+            // problem is that it doesn't do anything useful yet. We should just accept it.
+            // No assertions here because we're mainly testing that it typechecks. But it does at least "assert" that
+            // it doesn't throw
+            renderHook(() => {
+                const form = useForm({
+                    initialValues: { name: "" },
+                    submit() {},
+                    validate: {
+                        name() {
+                        }
+                    }
+                });
+                form.submit();
+            })
+        })
+
+        it("supports validateOnBlur", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        address: { number: "", street: "", city: "" }
+                    },
+                    submit() {},
+                    validate: {
+                        address({ number, street, city }) {
+                            if (!number.length || !street.length || !city.length) return "Incomplete";
+                        }
+                    },
+                    validateOnBlur: true
+                });
+
+                const addressErrors = useFieldErrors(form("address"));
+                return (
+                    <form onSubmit={form.submit}>
+                        <Input field={form("address")("number")} data-testid="input" />
+                        {
+                            addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
+                        }
+                    </form>
+                )
+            }
+            const { getByTestId, queryByText } = render(<Test />);
+            await user.type(getByTestId("input"), "123");
+            expect(queryByText("Incomplete")).not.toBeInTheDocument();
+            await user.type(getByTestId("input"), "{tab}");
+            expect(queryByText("Incomplete")).toBeInTheDocument();
+        })
+    });
+})
