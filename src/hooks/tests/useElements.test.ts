@@ -33,4 +33,10 @@ describe("useElements", () => {
         expect(result.current).toBe(0);
         expect(errorLogs).toContainEqual(["Expected an array but got string", "the name"]);
     })
+
+    it("throws when given non-field", () => {
+        expect(() => renderHook(() => {
+            useElements(null as any);
+        })).toThrow("Field is null");
+    })
 })

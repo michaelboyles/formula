@@ -2,6 +2,7 @@ import type { FormField } from "../FormField.ts";
 import { useSyncExternalStore } from "react";
 
 export function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T>> {
+    if (!field) throw new Error("Field is " + field);
     const length = useSyncNumElements(field);
     return Array.from(Array(length), (_, idx) => field.element(idx) as FormField<T>);
 }
