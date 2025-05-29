@@ -337,7 +337,34 @@ describe("Native validation", () => {
         expect(queryByText("Title too long")).toBeInTheDocument();
     })
 
-    it("validates an array", async () => {
+    it("validates an entire array", async () => {
+        function Test() {
+            const form = useForm({
+                initialValues: {
+                    tags: [] as string[]
+                },
+                submit() {},
+                validate: {
+                    tags(tags) {
+                        if (!tags.length) return "Must have at least 1 tag";
+                    }
+                }
+            });
+            const tagErrors = useFieldErrors(form.get("tags"));
+            return (
+                <form onSubmit={form.submit}>
+                    <div>{ tagErrors.join(", ") }</div>
+                    <input type="submit" value="Submit" data-testid="submit" />
+                </form>
+            )
+        }
+
+        const { getByTestId, queryByText } = render(<Test />);
+        await user.click(getByTestId("submit"));
+        expect(queryByText("Must have at least 1 tag")).toBeInTheDocument();
+    })
+
+    it("validates an array by elements", async () => {
         function ErrorComp(props: { field: FormField<any>, id: number }) {
             const errors = useFieldErrors(props.field);
             return (
@@ -398,6 +425,35 @@ describe("Native validation", () => {
         await user.click(submit);
 
         expect(queryByTestId("tag-0-error-0")).not.toBeInTheDocument()
+    })
+
+    it("validates an entire object", async () => {
+        function Test() {
+            const form = useForm({
+                initialValues: {
+                    address: { number: "", street: "", city: "" }
+                },
+                submit() {},
+                validate: {
+                    address({ number, street, city }) {
+                        if (!number.length || !street.length || !city.length) return "Incomplete";
+                    }
+                }
+            });
+
+            const addressErrors = useFieldErrors(form.get("address"));
+            return (
+                <form onSubmit={form.submit}>
+                    {
+                        addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
+                    }
+                    <input type="submit" value="Submit" data-testid="submit" />
+                </form>
+            )
+        }
+        const { getByTestId, queryByText } = render(<Test />);
+        await user.click(getByTestId("submit"));
+        expect(queryByText("Incomplete")).toBeInTheDocument();
     })
 
     it("validates an object by properties", async () => {

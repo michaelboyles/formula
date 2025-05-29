@@ -6,9 +6,9 @@ export type Issue = {
 }
 
 export type Validator<T, AllValues = unknown> =
-    [T] extends [Array<infer U>] ? Supplier<ArrayValidator<U, AllValues>> :
-        [T] extends [object] ? Supplier<ObjectValidator<T, AllValues>> :
-            ValueValidator<T, AllValues>;
+    ValueValidator<T, AllValues> |
+        ([T] extends [Array<infer U>] ? Supplier<ArrayValidator<U, AllValues>> :
+                [T] extends [object] ? Supplier<ObjectValidator<T, AllValues>> : never);
 
 // Validates a single value. Usually a primitive, but can be used for objects and arrays via _self
 export type ValueValidator<T, AllValues> = (value: T, values: AllValues) => ValidatorReturn;

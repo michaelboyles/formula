@@ -26,7 +26,11 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
         }
     }
 
-    if (Array.isArray(value)) {
+    if (typeof validator === "function" && !isLazy(validator)) {
+        const primitiveValidator = validator as ValueValidator<any, any>;
+        pushIssues(await primitiveValidator(value, rootData));
+    }
+    else if (Array.isArray(value) && typeof validator === "object") {
         const arrValidator = resolve(validator as ArrayValidator<any, any>);
 
         if (arrValidator._self) {
@@ -36,8 +40,7 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
         if (arrValidator._each) {
             for (let i = 0; i < value.length; i++) {
                 const item = value[i];
-                const itemValidator = resolve(arrValidator._each);
-                const itemIssues = await validateRecursive(rootData, item, itemValidator as any, path.withArrayIndex(i));
+                const itemIssues = await validateRecursive(rootData, item, arrValidator._each, path.withArrayIndex(i));
                 issues.push(...itemIssues);
             }
         }
@@ -59,10 +62,6 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
         if (keyIssues.length) {
             issues.push(...keyIssues);
         }
-    }
-    else if (typeof validator === "function") {
-        const primitiveValidator = validator as ValueValidator<any, any>;
-        pushIssues(await primitiveValidator(value, rootData));
     }
     return issues;
 }
