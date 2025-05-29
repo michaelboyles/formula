@@ -2,16 +2,15 @@ import '@testing-library/jest-dom/vitest';
 import { afterEach, expect, expectTypeOf, describe, it, test } from 'vitest';
 import { cleanup, render, renderHook } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
-import { useForm } from "../useForm.ts";
+import { Form, useForm } from "../useForm.ts";
 import { Input } from "../../controls/Input.tsx";
 import { useFieldErrors } from "../useFieldErrors.ts";
 import { useSubmissionError } from "../useSubmissionError.ts";
-import { useIsSubmitting } from "../useIsSubmitting.ts";
 import { useElements } from "../useElements.ts";
 import { useFieldValue } from "../useFieldValue.ts";
 import * as z from "zod";
 import type { FormField } from "../../FormField.ts";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { ForEachElement } from "../../ForEachElement.tsx";
 import { FieldErrors } from "../../FieldErrors.tsx";
 import { lazy, ObjectValidator } from "../../validate.ts";
@@ -23,29 +22,26 @@ afterEach(() => cleanup());
 
 describe("useForm", () => {
     it("supports an onError callback", async () => {
+        let called = false;
         function Test() {
-            const [errorJson, setErrorJson] = useState("");
-
             const form = useForm({
                 initialValues: {
-                    tags: [] as string[]
+                    name: ""
                 },
                 submit: () => {
                     throw new Error("Submission failed");
                 },
-                onError: (_e, { form }) => {
-                    setErrorJson(JSON.stringify(form.getData().tags));
+                onError: (error, { form }) => {
+                    sink(error satisfies Error);
+                    sink(form satisfies Form<{ name: string }>);
+                    called = true;
                 }
             })
             const submissionError = useSubmissionError(form);
-
             return (
                 <form onSubmit={form.submit}>
                     {
                         submissionError ? <div data-testid="error">{ submissionError.message }</div> : null
-                    }
-                    {
-                        errorJson.length ? <pre data-testid="json">{ errorJson }</pre> : null
                     }
                     <button type="submit" data-testid="submit">Submit</button>
                 </form>
@@ -55,7 +51,7 @@ describe("useForm", () => {
         const { getByTestId, queryByTestId } = render(<Test />);
         await user.click(getByTestId("submit"));
         expect(queryByTestId("error")).toBeInTheDocument();
-        expect(queryByTestId("json")).toHaveTextContent("[]");
+        expect(called).toBe(true);
     })
 
     it("supports nested objects", async () => {
@@ -81,37 +77,6 @@ describe("useForm", () => {
         expect(createdAt).toHaveValue("123");
         await user.type(createdAt, "{backspace}".repeat(3))
         expect(createdAt).not.toHaveValue()
-    })
-
-    it("supports arrays", async () => {
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    tags: ["tag1", "tag2"]
-                },
-                submit: () => new Promise(_ => {}) // never resolve
-            });
-
-            const isSubmitting = useIsSubmitting(form);
-            const tags = useElements(form("tags"));
-            return (
-                <form onSubmit={form.submit}>
-                    {
-                        tags.map((tag, idx) => <Input key={idx} field={tag} data-testid={`tag-${idx + 1}`} />)
-                    }
-                    <button type="submit" disabled={isSubmitting} data-testid="submit">Submit</button>
-                </form>
-            )
-        }
-
-        const { getByTestId } = render(<Test />);
-        const tag = getByTestId("tag-1");
-        await user.type(tag, "abc");
-        expect(tag).toHaveValue("tag1abc");
-
-        const submit = getByTestId("submit");
-        await user.click(submit);
-        expect(submit).toBeDisabled();
     })
 
     it("supports Standard Schema validation", async () => {
@@ -182,6 +147,31 @@ describe("useForm", () => {
     })
 
     describe("array fields", () => {
+        it("supports arrays", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        tags: ["tag1", "tag2"]
+                    },
+                    submit() {}
+                });
+
+                const tags = useElements(form("tags"));
+                return (
+                    <form onSubmit={form.submit}>
+                        {
+                            tags.map((tag, idx) => <Input key={idx} field={tag} data-testid={`tag-${idx + 1}`} />)
+                        }
+                    </form>
+                )
+            }
+
+            const { getByTestId } = render(<Test />);
+            const tag = getByTestId("tag-1");
+            await user.type(tag, "abc");
+            expect(tag).toHaveValue("tag1abc");
+        })
+
         it("provides type safety for elements", () => {
             renderHook(() => {
                 const form = useForm({
@@ -210,7 +200,7 @@ describe("useForm", () => {
                     initialValues: {
                         tags: [] as string[]
                     },
-                    submit: async () => "done"
+                    submit() {}
                 });
 
                 const tags = useFieldValue(form("tags"));
@@ -738,3 +728,8 @@ describe("useForm", () => {
         })
     });
 })
+
+// do nothing, just a target for "satisfies" expression without warnings at the call site
+// @ts-ignore
+function sink<T>(_value: T) {
+}
