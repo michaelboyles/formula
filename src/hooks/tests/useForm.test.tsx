@@ -70,7 +70,7 @@ describe("useForm", () => {
             })
             return (
                 <form onSubmit={form.submit}>
-                    <Input field={form.get("metadata").property("createdAt")} data-testid="createdAt" />
+                    <Input field={form("metadata")("createdAt")} data-testid="createdAt" />
                 </form>
             )
         }
@@ -93,7 +93,7 @@ describe("useForm", () => {
             });
 
             const isSubmitting = useIsSubmitting(form);
-            const tags = useElements(form.get("tags"));
+            const tags = useElements(form("tags"));
             return (
                 <form onSubmit={form.submit}>
                     {
@@ -129,11 +129,11 @@ describe("useForm", () => {
                 submit() {},
                 validators: [validator]
             });
-            const titleErrors = useFieldErrors(form.get("title"));
-            const firstTagErrors = useFieldErrors(form.get("tags").element(0));
+            const titleErrors = useFieldErrors(form("title"));
+            const firstTagErrors = useFieldErrors(form("tags")(0));
             return (
                 <form onSubmit={form.submit}>
-                    <Input field={form.get("title")} data-testid="input" />
+                    <Input field={form("title")} data-testid="input" />
                     <input type="submit" value="Submit" data-testid="submit" />
                     { titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) }
                     { firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) }
@@ -159,7 +159,7 @@ describe("useForm", () => {
             });
 
             // This is just here to force the re-render. This isn't the recommended way to use it
-            useFieldValue(form.get("title"));
+            useFieldValue(form("title"));
             return (
                 <form onReset={() => form.reset()}>
                     <div>{ form.getData().title }</div>
@@ -190,9 +190,9 @@ describe("useForm", () => {
                     },
                     submit() {}
                 });
-                const tagsField = form.get("tags");
+                const tagsField = form("tags");
                 expectTypeOf(tagsField.getValue).toEqualTypeOf<() => Readonly<string[]>>();
-                const firstTag = form.get("tags").element(1);
+                const firstTag = form("tags")(1);
                 expectTypeOf(firstTag.getValue).toEqualTypeOf<() => string | undefined>();
                 expectTypeOf(firstTag.setValue).toEqualTypeOf<(value: string) => void>();
 
@@ -213,7 +213,7 @@ describe("useForm", () => {
                     submit: async () => "done"
                 });
 
-                const tags = useFieldValue(form.get("tags"));
+                const tags = useFieldValue(form("tags"));
                 return (
                     <form onReset={() => form.reset()}>
                         {
@@ -221,13 +221,13 @@ describe("useForm", () => {
                         }
                         <button
                             type="button"
-                            onClick={() => form.get("tags").push("tag " + (tags.length + 1))}
+                            onClick={() => form("tags").push("tag " + (tags.length + 1))}
                             data-testid="pushTagBtn"
                         >Push tag
                         </button>
                         <button
                             type="button"
-                            onClick={() => form.get("tags").remove(1)}
+                            onClick={() => form("tags").remove(1)}
                             data-testid="removeSecondTagBtn"
                         >Remove 2nd tag
                         </button>
@@ -260,7 +260,7 @@ describe("useForm", () => {
                 submit() {}
             });
 
-            const tagsField = form.get("tags");
+            const tagsField = form("tags");
             const tagFields = useElements(tagsField);
             function addErrors() {
                 tagFields.forEach(tagField => {
@@ -316,10 +316,10 @@ describe("Native validation", () => {
                     }
                 }
             });
-            const titleErrors = useFieldErrors(form.get("title"));
+            const titleErrors = useFieldErrors(form("title"));
             return (
                 <form onSubmit={form.submit}>
-                    <Input field={form.get("title")} data-testid="input" />
+                    <Input field={form("title")} data-testid="input" />
                     <input type="submit" value="Submit" data-testid="submit" />
                     { titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) }
                 </form>
@@ -350,7 +350,7 @@ describe("Native validation", () => {
                     }
                 }
             });
-            const tagErrors = useFieldErrors(form.get("tags"));
+            const tagErrors = useFieldErrors(form("tags"));
             return (
                 <form onSubmit={form.submit}>
                     <div>{ tagErrors.join(", ") }</div>
@@ -389,10 +389,10 @@ describe("Native validation", () => {
                     }
                 }
             });
-            const tags = form.get("tags");
+            const tags = form("tags");
             const tagErrors = useFieldErrors(tags);
 
-            const tagFields = useElements(form.get("tags"));
+            const tagFields = useElements(form("tags"));
             return (
                 <form onSubmit={form.submit}>
                     {
@@ -441,7 +441,7 @@ describe("Native validation", () => {
                 }
             });
 
-            const addressErrors = useFieldErrors(form.get("address"));
+            const addressErrors = useFieldErrors(form("address"));
             return (
                 <form onSubmit={form.submit}>
                     {
@@ -486,9 +486,9 @@ describe("Native validation", () => {
                 }
             });
 
-            const metaErrors = useFieldErrors(form.get("meta"));
-            const humanReadableErrors = useFieldErrors(form.get("meta").property("createdAt").property("humanReadable"));
-            const unixTimestampErrors = useFieldErrors(form.get("meta").property("createdAt").property("unixTimestamp"));
+            const metaErrors = useFieldErrors(form("meta"));
+            const humanReadableErrors = useFieldErrors(form("meta")("createdAt")("humanReadable"));
+            const unixTimestampErrors = useFieldErrors(form("meta")("createdAt")("unixTimestamp"));
             return (
                 <form onSubmit={form.submit}>
                     {
@@ -534,9 +534,9 @@ describe("Native validation", () => {
             });
             return (
                 <form onSubmit={form.submit}>
-                    <ForEachElement field={form.get("tags")}>
+                    <ForEachElement field={form("tags")}>
                     {tagField =>
-                        <FieldErrors field={tagField.property("name")}>{errors => <div>{ errors.join(",") }</div>}</FieldErrors>
+                        <FieldErrors field={tagField("name")}>{errors => <div>{ errors.join(",") }</div>}</FieldErrors>
                     }
                     </ForEachElement>
                     <input type="submit" value="Submit" data-testid="submit" />
@@ -568,7 +568,7 @@ describe("Native validation", () => {
                 }
             });
 
-            const errors = useFieldErrors(form.get("value"));
+            const errors = useFieldErrors(form("value"));
             return (
                 <form onSubmit={form.submit}>
                     {
@@ -584,6 +584,7 @@ describe("Native validation", () => {
         expect(queryByText("Required")).toBeInTheDocument();
     })
 
+    // TODO 3 revisit this, because for nested it might be weird
     it("validates numeric object key", async () => {
         function Test() {
             type FormValues = {
@@ -602,7 +603,7 @@ describe("Native validation", () => {
                 }
             });
 
-            const errors = useFieldErrors(form.get(1));
+            const errors = useFieldErrors(form(1));
             return (
                 <form onSubmit={form.submit}>
                     {
@@ -628,14 +629,14 @@ describe("Native validation", () => {
         }
 
         function TreeNodeDisplay({ nodeField }: { nodeField: FormField<TreeNode> }) {
-            const nodeId = useFieldValue(nodeField.property("id"));
-            const nodeIdErrors = useFieldErrors(nodeField.property("id"));
+            const nodeId = useFieldValue(nodeField("id"));
+            const nodeIdErrors = useFieldErrors(nodeField("id"));
             return (
                 <div>
                     <h2>Node { nodeId }</h2>
                     Errors: <div>{ nodeIdErrors.join(", ") }</div>
                     Children:
-                    <ForEachElement field={nodeField.property("children")}>
+                    <ForEachElement field={nodeField("children")}>
                     {childNodeField => <TreeNodeDisplay nodeField={childNodeField} />}
                     </ForEachElement>
                 </div>
@@ -675,7 +676,7 @@ describe("Native validation", () => {
 
             return (
                 <form onSubmit={form.submit}>
-                    <TreeNodeDisplay nodeField={form.get("tree")} />
+                    <TreeNodeDisplay nodeField={form("tree")} />
                     <input type="submit" value="Submit" data-testid="submit" />
                 </form>
             )

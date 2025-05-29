@@ -17,7 +17,7 @@ changes.
 const form = useForm({
    //... 
 });
-const errors = useFieldErrors(form.get("username"));
+const errors = useFieldErrors(form("username"));
 //^? ReadonlyArray<string> | undefined
 if (errors && errors.length) {
     return (

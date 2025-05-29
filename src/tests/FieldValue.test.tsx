@@ -22,8 +22,8 @@ describe("FieldValue", () => {
             })
             return (
                 <form onSubmit={form.submit}>
-                    <Input field={form.get("name")} data-testid="input" />
-                    <FieldValue field={form.get("name")}>
+                    <Input field={form("name")} data-testid="input" />
+                    <FieldValue field={form("name")}>
                         { name => <div>Your name is { name satisfies string }</div>}
                     </FieldValue>
                 </form>

@@ -22,8 +22,8 @@ describe("ForEachElement", () => {
             })
 
             return (
-                <ForEachElement field={form.get("tags")}>
-                {tagField => <Input field={tagField.property("label")} data-testid="input" />}
+                <ForEachElement field={form("tags")}>
+                {tagField => <Input field={tagField("label")} data-testid="input" />}
                 </ForEachElement>
             )
         }

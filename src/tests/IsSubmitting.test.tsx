@@ -22,7 +22,7 @@ describe("IsSubmitting", () => {
             })
             return (
                 <form onSubmit={form.submit}>
-                    <Input field={form.get("name")} data-testid="input" />
+                    <Input field={form("name")} data-testid="input" />
                     <IsSubmitting form={form}>
                         { (isSubmitting: boolean) => <button type="submit" disabled={isSubmitting} data-testid="submit">Submit</button> }
                     </IsSubmitting>

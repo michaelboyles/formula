@@ -24,7 +24,7 @@ describe("Input", () => {
                 }
             })
             return (
-                <Input field={form.get("title")} data-testid="input" />
+                <Input field={form("title")} data-testid="input" />
             )
         }
 
@@ -46,7 +46,7 @@ describe("Input", () => {
                 submit: async () => "done"
             })
 
-            const titleField = form.get("title");
+            const titleField = form("title");
             const wasBlurred = useBlurred(titleField);
             return (
                 <form onSubmit={form.submit}>

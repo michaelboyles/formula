@@ -20,7 +20,7 @@ const form = useForm({
         tags: ["typescript", "react"]
     }
 });
-const tagFields = useElements(form.get("tags"));
+const tagFields = useElements(form("tags"));
 return (
     <ul>
     {

@@ -23,8 +23,8 @@ describe("DebugField", () => {
             })
             return (
                 <>
-                    <DebugField field={form.get("title")} data-testid="pre" />
-                    <Input field={form.get("title")} data-testid="input" />
+                    <DebugField field={form("title")} data-testid="pre" />
+                    <Input field={form("title")} data-testid="input" />
                 </>
             )
         }

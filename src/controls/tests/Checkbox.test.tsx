@@ -20,12 +20,12 @@ describe("Checkbox", () => {
                 },
                 submit: () => "done"
             })
-            const errors = useFieldErrors(form.get("isPublic"));
+            const errors = useFieldErrors(form("isPublic"));
 
             return (
                 <>
                     <form onSubmit={form.submit}>
-                        <Checkbox field={form.get("isPublic")} data-testid="checkbox"/>
+                        <Checkbox field={form("isPublic")} data-testid="checkbox"/>
                         {
                             errors.length ? JSON.stringify(errors) : null
                         }

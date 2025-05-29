@@ -27,11 +27,11 @@ function NewBlogPostPage() {
     });
     return (
         <form onSubmit={form.submit}>
-            <Input field={form.get("title")} />
-            <TextArea field={form.get("content")} />
+            <Input field={form("title")} />
+            <TextArea field={form("content")} />
             <label>
                 Draft?
-                <Checkbox field={form.get("isDraft")} />
+                <Checkbox field={form("isDraft")} />
             </label>
             <button type="submit">Create post</button>
         </form>

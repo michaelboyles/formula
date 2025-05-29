@@ -26,7 +26,7 @@ describe("useElements", () => {
                 submit: () => {}
             });
             // Deliberately fudge the type
-            const nameField = form.get("name") as any as FormField<string[]>;
+            const nameField = form("name") as any as FormField<string[]>;
             const elements = useElements(nameField);
             return elements.length;
         });

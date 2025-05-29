@@ -25,7 +25,7 @@ describe("Select", () => {
                 <form onSubmit={form.submit}>
                     <Select
                         data-testid="animal"
-                        field={form.get("animal")}
+                        field={form("animal")}
                         options={[
                             { label: "Cat!", value: "cat" },
                             { label: "Dog!", value: "dog" },
@@ -56,7 +56,7 @@ describe("Select", () => {
                 <form onSubmit={form.submit}>
                     <Select
                         data-testid="vehicle"
-                        field={form.get("vehicle")}
+                        field={form("vehicle")}
                         options={[
                             { label: "** Car", value: { type: "car" } },
                             { label: "-- Bike", value: { type: "bike" } },

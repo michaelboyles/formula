@@ -29,11 +29,11 @@ const form = useForm({
     submit: values => login(values)
 });
 // ✅
-const usernameField = form.get("username");
+const usernameField = form("username");
 
 // ❌ Argument of type "title" is not assignable to 
 //    parameter of type "username" | "password"
-const unknownField = form.get("title");
+const unknownField = form("title");
 ```
 
 A field is basically a type-safe reference to a slice of the form data. It doesn't contain the data, but it knows
@@ -46,7 +46,7 @@ To subscribe to a field's value, use the [`useFieldValue` hook](/hooks/useFieldV
 one of the built-in controls, e.g. [`<Select>`](/components/Select).
 
 ```tsx
-const username = useFieldValue(form.get("username"));
+const username = useFieldValue(form("username"));
 return (
     <div>Username is: { username }</div>
 )

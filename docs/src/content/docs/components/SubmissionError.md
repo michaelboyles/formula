@@ -27,7 +27,7 @@ const form = useForm({
 })
 return (
     <form onSubmit={form.submit}>
-        Name: <Input field={form.get("name")} />
+        Name: <Input field={form("name")} />
         <button type="submit">Submit</button>
         <SubmissionError form={form}>
             { error => error ? "Failed to submit" : null }

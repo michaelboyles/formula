@@ -8,7 +8,7 @@ The `Checkbox` component renders an `<input type="checkbox">` element whose valu
 handlers required.
 
 ```tsx
-<Checkbox field={form.get("isPublic")} data-testid="checkbox" />
+<Checkbox field={form("isPublic")} data-testid="checkbox" />
 ```
 
 ## Required props

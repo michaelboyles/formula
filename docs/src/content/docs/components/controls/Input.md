@@ -17,8 +17,8 @@ const form = useForm({
 });
 return (
     <form onSubmit={form.submit}>
-       <Input field={form.get("username")} />
-       <Input field={form.get("password")} type="password" />
+       <Input field={form("username")} />
+       <Input field={form("password")} type="password" />
     </form>
 )
 ```

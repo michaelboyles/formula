@@ -18,10 +18,10 @@ describe("IntegerInput", () => {
                 initialValues: { age: NaN },
                 submit: () => "done"
             })
-            const age = useFieldValue(form.get("age"));
+            const age = useFieldValue(form("age"));
             return (
                 <>
-                    <IntegerInput field={form.get("age")} data-testid="input" />
+                    <IntegerInput field={form("age")} data-testid="input" />
                     <div>Age: { age } ({ typeof age })</div>
                 </>
             )
@@ -46,10 +46,10 @@ describe("IntegerInput", () => {
                 initialValues: { age: NaN },
                 submit: () => "done"
             })
-            const age = useFieldValue(form.get("age"));
+            const age = useFieldValue(form("age"));
             return (
                 <>
-                    <IntegerInput field={form.get("age")} data-testid="input" />
+                    <IntegerInput field={form("age")} data-testid="input" />
                     <div>Age: { age } ({ typeof age })</div>
                 </>
             )
@@ -80,7 +80,7 @@ describe("IntegerInput", () => {
                 submit: () => "done"
             })
             return (
-                <IntegerInput field={form.get("age")} data-testid="input" />
+                <IntegerInput field={form("age")} data-testid="input" />
             )
         }
 

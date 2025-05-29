@@ -23,7 +23,7 @@ const form = useForm({
    initialValues: { name: "" }
 });
 return (
-    <FieldValue field={form.get("name")}>
+    <FieldValue field={form("name")}>
         { name => <div>Your name is: {name} </div> }
     </FieldValue>
 )

@@ -19,6 +19,6 @@ const form = useForm({
     }
 });
 return (
-    <IntegerInput field={form.get("myNum")} />
+    <IntegerInput field={form("myNum")} />
 )
 ```

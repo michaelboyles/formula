@@ -23,7 +23,7 @@ describe("TextArea", () => {
                 }
             })
             return (
-                <TextArea field={form.get("title")} data-testid="textarea" />
+                <TextArea field={form("title")} data-testid="textarea" />
             )
         }
 

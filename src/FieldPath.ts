@@ -9,7 +9,7 @@ export class FieldPath {
         return new FieldPath([]);
     }
 
-    withProperty(value: string | number): FieldPath {
+    withProperty(value: string | number | symbol): FieldPath {
         const node: FieldNode = Object.freeze({ type: "property", value });
         return new FieldPath([...this.nodes, node]);
     }
@@ -27,7 +27,7 @@ export class FieldPath {
         for (const node of this.nodes) {
             if (node.type === "property") {
                 if (str.length) str += ".";
-                str += node.value;
+                str += String(node.value);
             }
             else if (node.type === "index") {
                 str += `[${node.index}]`;
@@ -86,7 +86,7 @@ export class FieldPath {
 
 export type FieldNode = {
     readonly type: "property",
-    readonly value: string | number
+    readonly value: string | number | symbol
 } | {
     readonly type: "index"
     readonly index: number

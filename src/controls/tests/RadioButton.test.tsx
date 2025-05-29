@@ -21,7 +21,7 @@ describe("RadioButton", () => {
                 },
                 submit() {}
             })
-            const animalField = form.get("animal");
+            const animalField = form("animal");
             return (
                 <form onSubmit={form.submit}>
                     <RadioButton field={animalField} value="cat" name="animal" data-testid="cat" />
@@ -59,14 +59,14 @@ describe("RadioButton", () => {
             return (
                 <form onSubmit={form.submit}>
                     <RadioButton
-                        field={form.get("vehicle")}
+                        field={form("vehicle")}
                         value={{ type: "bike" }}
                         name="bike"
                         mapToValue={mapToValue}
                         data-testid="bike"
                     />
                     <RadioButton
-                        field={form.get("vehicle")}
+                        field={form("vehicle")}
                         value={{ type: "car" }}
                         name="car"
                         mapToValue={mapToValue}

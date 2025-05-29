@@ -2,80 +2,38 @@ import type { FormAccess } from "./hooks/useForm.ts";
 import type { FieldPath } from "./FieldPath.ts";
 import type { Subscriber, Unsubscribe } from "./FormStateTree.ts";
 
-export class FormFieldImpl<Value>
-    implements BaseField<Value>,
-        Pick<ObjectMethods<Record<string, any>>, "property">,
-        Pick<ArrayMethods<any>, "element" | "push" | "remove">
-{
-    protected readonly path: FieldPath
-    protected readonly form: FormAccess
-
-    constructor(path: FieldPath, formAccess: FormAccess) {
-        this.path = path;
-        this.form = formAccess;
+export function newFormField<T>(path: FieldPath, formAccess: FormAccess): BaseField<T> & ArrayMethods<any> {
+    const field = (...args: [string | number]) => {
+        const pathKey = args[0];
+        if (typeof pathKey === "string") {
+            return newFormField(path.withProperty(args[0]), formAccess);
+        }
+        else if (typeof pathKey === "number") {
+            return newFormField(path.withArrayIndex(pathKey), formAccess);
+        }
+        throw new Error("Unsupported path key " + pathKey);
     }
+    field.toString = () => path.toString();
+    field.getValue = () => formAccess.getValue(path);
+    field.setValue = (value: T) => formAccess.setValue(path, value);
+    field.subscribeToValue = (subscriber: Subscriber) => formAccess.subscribeToValue(path, subscriber);
+    field.getErrors = () => formAccess.getErrors(path);
+    field.setErrors = (errors: string | string[] | undefined) => formAccess.setErrors(path, errors);
+    field.subscribeToErrors = (subscriber: Subscriber) => formAccess.subscribeToErrors(path, subscriber);
+    field.blurred = () => formAccess.blurred(path);
+    field.setBlurred = (blurred: boolean) => formAccess.setBlurred(path, blurred);
+    field.subscribeToBlurred = (subscriber: Subscriber) => formAccess.subscribeToBlurred(path, subscriber);
 
-    toString() {
-        return this.path.toString();
-    }
-
-    getValue(): Readonly<Value> {
-        return this.form.getValue(this.path);
-    }
-
-    setValue(value: Value) {
-        return this.form.setValue(this.path, value);
-    }
-
-    subscribeToValue(subscriber: Subscriber): Unsubscribe {
-        return this.form.subscribeToValue(this.path, subscriber);
-    }
-
-    getErrors() {
-        return this.form.getErrors(this.path);
-    }
-
-    setErrors(errors: string | string[] | undefined) {
-        this.form.setErrors(this.path, errors);
-    }
-
-    subscribeToErrors(subscriber: Subscriber): Unsubscribe {
-        return this.form.subscribeToErrors(this.path, subscriber);
-    }
-
-    blurred(): boolean {
-        return this.form.blurred(this.path);
-    }
-
-    setBlurred(blurred: boolean): void {
-        return this.form.setBlurred(this.path, blurred);
-    }
-
-    subscribeToBlurred(subscriber: Subscriber): Unsubscribe {
-        return this.form.subscribeToBlurred(this.path, subscriber);
-    }
-
-    property(key: string | number) {
-        return new FormFieldImpl(this.path.withProperty(key), this.form);
-    }
-
-
-    // Array
-
-    element(idx: number) {
-        return new FormFieldImpl(this.path.withArrayIndex(idx), this.form);
-    }
-
-    push(...element: any) {
-        this.form.updateValue<unknown[]>(this.path, value => {
+    // Array methods
+    field.push = (...element: any) => {
+        formAccess.updateValue<unknown[]>(path, value => {
             const copy = [...value];
             copy.push(...element);
             return copy;
         });
     }
-
-    remove(index: number) {
-        this.form.updateValue<unknown[]>(this.path, value => {
+    field.remove = (index: number) => {
+        formAccess.updateValue<unknown[]>(path, value => {
             if (index < value.length) {
                 return [...value.slice(0, index), ...value.slice(index + 1)]
             }
@@ -84,6 +42,7 @@ export class FormFieldImpl<Value>
             }
         })
     }
+    return field;
 }
 
 type BaseField<Value, SetValue = Value> = {
@@ -100,12 +59,9 @@ type BaseField<Value, SetValue = Value> = {
     subscribeToBlurred: (subscriber: Subscriber) => Unsubscribe
 }
 
-type ObjectMethods<T extends object> = {
-    property: <K extends keyof T>(key: K) => FormField<T[K]>
-}
+type ObjectMethods<T extends object> = <K extends keyof T>(key: K) => FormField<T[K]>;
 
-type ArrayMethods<E> = {
-    element: (idx: number) => FormField<E | undefined, E>
+type ArrayMethods<E> = ((idx: number) => FormField<E | undefined, E>) & {
     push: (...items: E[]) => void
     remove: (index: number) => void
 }

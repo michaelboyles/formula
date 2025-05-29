@@ -22,9 +22,9 @@ The counterpart hook is [`useFieldErrors`](/hooks/useFieldErrors).
 const form = useForm({
    initialValues: { name: "" }
 });
-const nameErrors = useFieldErrors(form.get("name"));
+const nameErrors = useFieldErrors(form("name"));
 return (
-    <FieldErrors field={form.get("name")}>
+    <FieldErrors field={form("name")}>
     { errors => errors && errors.length ?
         <ul>
             { errors.map((err, idx) => <li key={idx}>{ err }</li>) }  

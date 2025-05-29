@@ -25,7 +25,7 @@ const form = useForm({
    }
 });
 return (
-    <ForEachElement field={form.get("tags")}>
+    <ForEachElement field={form("tags")}>
         { tagField => <Input field={tagField} /> }
     </ForEachElement>
 )

@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useMemo, useRef } from "react";
-import { FormField, FormFieldImpl } from "../FormField.ts";
+import { FormField, newFormField } from "../FormField.ts";
 import { FieldPath } from "../FieldPath.ts";
 import { FormStateTree, Subscriber, Unsubscribe } from "../FormStateTree.ts";
 import { FormState, FormStateManager, FormStateType, StateSubscriber, UnsubscribeFromState } from "../FormStateManager.ts";
@@ -116,48 +116,41 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     }), []);
 
     return useMemo(() => {
-        const form: _Form<T> = {
-            [FORM_SYM]: 0,
-            get: key => new FormFieldImpl(ROOT_PATH.withProperty(key), formAccess) as any,
-            getUnsafeField: path => {
-                let fieldPath = ROOT_PATH;
-                for (const part of path) {
-                    if (typeof part === "string") {
-                        fieldPath = fieldPath.withProperty(part);
-                    }
-                    else {
-                        fieldPath = fieldPath.withArrayIndex(part);
-                    }
+        const form = (key: keyof T) => newFormField(ROOT_PATH.withProperty(key), formAccess) as any;
+        form[FORM_SYM] = 0 as const;
+        form.getUnsafeField = (path: any[]) => {
+            let fieldPath = ROOT_PATH;
+            for (const part of path) {
+                if (typeof part === "string") {
+                    fieldPath = fieldPath.withProperty(part);
                 }
-                return new FormFieldImpl(fieldPath, formAccess);
-            },
-            getData: () => data.current,
-            setData: data => {
-                setValue(ROOT_PATH, data);
-            },
-            reset: () => {
-                const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
-                setValue(ROOT_PATH, newValues);
-            },
-            submit,
-            getState: state => stateManager.current.getValue(state),
-            subscribeToState: (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
-                stateManager.current.subscribe(state, subscriber);
-                return () => stateManager.current.unsubscribe(state, subscriber);
+                else {
+                    fieldPath = fieldPath.withArrayIndex(part);
+                }
             }
+            return newFormField(fieldPath, formAccess);
         };
-        self.current = form;
+        form.getData = () => data.current;
+        form.setData = (data: T) => setValue(ROOT_PATH, data);
+        form.reset = () => {
+            const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
+            setValue(ROOT_PATH, newValues);
+        };
+        form.submit = submit;
+        form.getState = <T extends FormStateType>(state: T) => stateManager.current.getValue(state);
+        form.subscribeToState = (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
+            stateManager.current.subscribe(state, subscriber);
+            return () => stateManager.current.unsubscribe(state, subscriber);
+        }
+        self.current = form satisfies _Form<T>;
         return form;
     }, [initialValues, submit]);
 }
 
-export type Form<Data> = {
+export type Form<Data> = (<K extends keyof Omit<Data, symbol>>(key: K) => FormField<Data[K]>) & {
     // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`, but there may be cases
     // where you call it programmatically.
     submit: (e?: FormEvent) => void
-
-    // Get a field with the given key
-    get: <K extends keyof Omit<Data, symbol>>(key: K) => FormField<Data[K]>
 
     // Get a field, ignoring type-safety. Generally you should use 'get' instead.
     getUnsafeField: (path: (string | number)[]) => FormField<unknown>

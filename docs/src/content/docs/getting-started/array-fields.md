@@ -3,7 +3,7 @@ title: Array fields
 description: Using arrays as form data in Formula
 ---
 
-If you have an array field in Formula, one of the things you'll notice is that `form.get("myArrayField")` will
+If you have an array field in Formula, one of the things you'll notice is that `form("myArrayField")` will
 return a different type to, say, a plain `string` field.
 
 To access the array elements and their child fields in a typesafe way, there are two special ways of iterating
@@ -29,7 +29,7 @@ const form = useForm({
     submit: post => createNewPost(post)
 });
 
-const tagsField = form.get("tags");
+const tagsField = form("tags");
 return (
     <form onSubmit={form.submit}>
         <ForEachElement field={tagsField}>

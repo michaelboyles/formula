@@ -8,7 +8,7 @@ The `<TextArea>` component renders a `<textarea>` element whose value field is b
 required for interacting with Formula.
 
 ```tsx
-<TextArea field={form.get("description")} />
+<TextArea field={form("description")} />
 ```
 
 ## Required props 

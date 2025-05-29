@@ -23,7 +23,7 @@ export function Test1() {
         }
     });
 
-    const errors = useFieldErrors(form.get("value"));
+    const errors = useFieldErrors(form("value"));
     return (
         <>
             <form onSubmit={form.submit}>

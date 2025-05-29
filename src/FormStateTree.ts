@@ -88,7 +88,7 @@ export class FormStateTree {
                         node.propertyToNode = propertyToNode;
                     }
 
-                    const name = pathPart.value;
+                    const name = pathPart.value as string | number;
                     let next = propertyToNode[name];
                     if (!next) {
                         next = {};
@@ -123,7 +123,7 @@ export class FormStateTree {
         for (const pathPart of path.nodes) {
             switch (pathPart.type) {
                 case "property": {
-                    const next = node.propertyToNode?.[pathPart.value];
+                    const next = node.propertyToNode?.[pathPart.value as string | number];
                     if (!next) return;
                     node = next;
                     break;
@@ -159,7 +159,7 @@ export class FormStateTree {
                 const node = path.nodes[i];
                 switch (node.type) {
                     case "property": {
-                        currentNode = currentNode.propertyToNode?.[node.value];
+                        currentNode = currentNode.propertyToNode?.[node.value as string | number];
                         break;
                     }
                     case "index": {

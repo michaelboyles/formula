@@ -19,7 +19,7 @@ const form = useForm({
     }
     //...
 });
-const username: string = useFieldValue(form.get("username"));
+const username: string = useFieldValue(form("username"));
 return (
     <div>Username: { username }</div>
 )

@@ -19,7 +19,7 @@ function MyForm() {
         <form onSubmit={form.submit}>
             <div>MyForm renders: { renderCount.current }</div>
             Name:
-            <Input field={form.get("name")} />
+            <Input field={form("name")} />
         </form>
     )
 }
@@ -36,11 +36,11 @@ Suppose we need the `name` value elsewhere in our form. We modify our code to us
 const renderCount = useRef(0);
 renderCount.current++;
 const form = useForm({/*...*/});
-const name = useFieldValue(form.get("name"));
+const name = useFieldValue(form("name"));
 return (
     <form onSubmit={form.submit}>
         <div>MyForm renders: { renderCount.current }</div>
-        Name: <Input field={form.get("name")} />
+        Name: <Input field={form("name")} />
         <div>Your name is { name }</div>
     </form>
 )
@@ -62,8 +62,8 @@ function MyForm() {
     return (
         <form onSubmit={form.submit}>
             <div>MyForm renders: { renderCount.current }</div>
-            Name: <Input field={form.get("name")} />
-            <NameSection nameField={form.get("name")} />
+            Name: <Input field={form("name")} />
+            <NameSection nameField={form("name")} />
         </form>
     )
 }
@@ -93,8 +93,8 @@ function MyForm() {
     return (
         <form onSubmit={form.submit}>
             <div>MyForm renders: { renderCount.current }</div>
-            Name: <Input field={form.get("name")} />
-            <FieldValue field={form.get("name")}>
+            Name: <Input field={form("name")} />
+            <FieldValue field={form("name")}>
                 { (name: string) => <div>Your name is { name }</div> }
             </FieldValue>
         </form>

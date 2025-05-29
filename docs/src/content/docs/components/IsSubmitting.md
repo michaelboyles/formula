@@ -25,7 +25,7 @@ const form = useForm({
 })
 return (
     <form onSubmit={form.submit}>
-        Name: <Input field={form.get("name")} />
+        Name: <Input field={form("name")} />
         <IsSubmitting form={form}>
             { isSubmitting => <button type="submit" disabled={isSubmitting}>Submit</button> }
         </IsSubmitting>

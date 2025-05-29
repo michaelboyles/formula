@@ -10,7 +10,7 @@ element, the value isn't required to be a number or string. It can be anything, 
 
 ```tsx
 <Select
-    field={form.get("animal")}
+    field={form("animal")}
     options={[
         { label: "Cat", value: 1 },
         { label: "Dog", value: 2 },
@@ -39,7 +39,7 @@ number.
 
 ```tsx
 <Select
-    field={form.get("animal")}
+    field={form("animal")}
     options={[
         { label: "Cat", value: { type: "cat" } },
         { label: "Dog", value: { type: "dog" } },

@@ -20,6 +20,6 @@ const form = useForm({
    initialValues: { name: "" }
 });
 return (
-    <DebugField field={form.get("name")} />
+    <DebugField field={form("name")} />
 )
 ```
