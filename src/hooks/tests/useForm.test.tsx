@@ -669,7 +669,7 @@ describe("Native validation", () => {
                 },
                 submit() {},
                 validate: {
-                    tree: lazy(getValidator)
+                    tree: getValidator()
                 }
             });
 
@@ -684,5 +684,24 @@ describe("Native validation", () => {
         const { getByTestId, queryByText } = render(<Test />);
         await user.click(getByTestId("submit"));
         expect(queryByText("required")).toBeInTheDocument();
+    })
+
+    it("supports void-returning validators", async () => {
+        // There's no practical reason for a user to write this, but they may be in this state while they're
+        // in the middle of writing a validator. It's annoying for TypeScript to say "that isn't valid" when the only
+        // problem is that it doesn't do anything useful yet. We should just accept it.
+        // No assertions here because we're mainly testing that it typechecks. But it does at least "assert" that
+        // it doesn't throw
+        renderHook(() => {
+            const form = useForm({
+                initialValues: { name: "" },
+                submit() {},
+                validate: {
+                    name() {
+                    }
+                }
+            });
+            form.submit();
+        })
     })
 });

@@ -14,7 +14,7 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
 
     const issues: Issue[] = [];
 
-    const pushIssues = (msgs: string | string[] | undefined | null) => {
+    const pushIssues = (msgs: string | string[] | undefined | null | void) => {
         if (!msgs) return;
         if (typeof msgs === "string") {
             issues.push({ path, message: msgs });

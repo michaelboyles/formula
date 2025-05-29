@@ -24,7 +24,7 @@ export type ArrayValidator<T, AllValues = unknown> = {
     _each?: Validator<T, AllValues>;
 };
 
-type ValidatorReturn = string | string[] | undefined | null | Promise<string | string[] | undefined | null>;
+type ValidatorReturn = string | string[] | undefined | null | void | Promise<string | string[] | undefined | null | void>;
 
 const LAZY_SYMBOL = Symbol("lazyValidator");
 
