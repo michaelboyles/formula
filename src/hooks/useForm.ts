@@ -25,12 +25,15 @@ type UseFormOpts<T extends BaseForm, R> = {
 
     validate?: Validator<NoInfer<T>, NoInfer<T>>
     validators?: StandardSchemaV1<Partial<T>>[]
+
+    // Whether to perform validation after a field is blurred. Default: false
+    validateOnBlur?: boolean
 }
 
 const ROOT_PATH = FieldPath.create();
 
 export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T> {
-    const { initialValues, submit: submitForm, onSuccess, onError, validate, validators } = opts;
+    const { initialValues, submit: submitForm, onSuccess, onError, validate, validators, validateOnBlur = false } = opts;
 
     const self = useRef<_Form<T> | null>(null);
     const data = useRef(typeof initialValues === "function" ? initialValues() : initialValues);
@@ -41,6 +44,26 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         data.current = path.getDataWithValue(data.current, value);
         stateTree.current.notifyValueChanged(path);
     }, []);
+
+    const validateAll = async (values: T) => {
+        stateTree.current.clearAllErrors();
+
+        const pendingValidations: Array<Promise<Issue[]>> = [];
+        if (validators) {
+            pendingValidations.push(getValidationIssues(values, validators));
+        }
+        if (validate) {
+            pendingValidations.push(validateRecursive(values, values, validate, ROOT_PATH));
+        }
+        if (pendingValidations.length) {
+            const issues = (await Promise.all(pendingValidations)).flatMap(a => a);
+            issues.forEach(issue => {
+                stateTree.current.appendErrors(issue.path, [issue.message]);
+            });
+            return issues;
+        }
+        return [];
+    }
 
     const submit = useCallback(async (e?: FormEvent) => {
         e?.preventDefault();
@@ -54,24 +77,10 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
 
         try {
             const values = data.current;
-            stateTree.current.clearAllErrors();
-
-            const pendingValidations: Array<Promise<Issue[]>> = [];
-            if (validators) {
-                pendingValidations.push(getValidationIssues(values, validators));
-            }
-            if (validate) {
-                pendingValidations.push(validateRecursive(values, values, validate, ROOT_PATH));
-            }
-            if (pendingValidations.length) {
-                const issues = (await Promise.all(pendingValidations)).flatMap(a => a);
-                issues.forEach(issue => {
-                    stateTree.current.appendErrors(issue.path, [issue.message]);
-                });
-                if (issues.length) {
-                    console.log("Failed to submit because of validation errors", JSON.stringify(issues));
-                    return;
-                }
+            const issues = await validateAll(values);
+            if (issues.length) {
+                console.log("Failed to submit because of validation errors", JSON.stringify(issues));
+                return;
             }
 
             try {
@@ -108,12 +117,17 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             return () => unsubscribe();
         },
         blurred: path => stateTree.current.blurred(path),
-        setBlurred: (path, blurred) => stateTree.current.setBlurred(path, blurred),
+        setBlurred: (path, blurred) => {
+            stateTree.current.setBlurred(path, blurred);
+            if (validateOnBlur) {
+                validateAll(data.current);
+            }
+        },
         subscribeToBlurred: (path, subscriber) => {
             const unsubscribe = stateTree.current.subscribeToBlurred(path, subscriber);
             return () => unsubscribe();
         }
-    }), []);
+    }), [validateOnBlur]);
 
     return useMemo(() => {
         const form = (key: keyof T) => newFormField(ROOT_PATH.withProperty(key), formAccess) as any;

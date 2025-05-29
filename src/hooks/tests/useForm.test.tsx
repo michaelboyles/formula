@@ -705,4 +705,36 @@ describe("Native validation", () => {
             form.submit();
         })
     })
+
+    it("supports validateOnBlur", async () => {
+        function Test() {
+            const form = useForm({
+                initialValues: {
+                    address: { number: "", street: "", city: "" }
+                },
+                submit() {},
+                validate: {
+                    address({ number, street, city }) {
+                        if (!number.length || !street.length || !city.length) return "Incomplete";
+                    }
+                },
+                validateOnBlur: true
+            });
+
+            const addressErrors = useFieldErrors(form("address"));
+            return (
+                <form onSubmit={form.submit}>
+                    <Input field={form("address")("number")} data-testid="input" />
+                    {
+                        addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
+                    }
+                </form>
+            )
+        }
+        const { getByTestId, queryByText } = render(<Test />);
+        await user.type(getByTestId("input"), "123");
+        expect(queryByText("Incomplete")).not.toBeInTheDocument();
+        await user.type(getByTestId("input"), "{tab}");
+        expect(queryByText("Incomplete")).toBeInTheDocument();
+    })
 });
