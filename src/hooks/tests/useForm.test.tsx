@@ -66,7 +66,7 @@ describe("useForm", () => {
                         createdAt: "",
                     }
                 },
-                submit: () => Promise.resolve("Ok")
+                submit() {}
             })
             return (
                 <form onSubmit={form.submit}>
@@ -86,9 +86,9 @@ describe("useForm", () => {
     it("supports arrays", async () => {
         function Test() {
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     tags: ["tag1", "tag2"]
-                }),
+                },
                 submit: () => new Promise(_ => {}) // never resolve
             });
 
@@ -122,11 +122,11 @@ describe("useForm", () => {
 
         function Test() {
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     title: "",
                     tags: ["tag too long"]
-                }),
-                submit: async () => "done",
+                },
+                submit() {},
                 validators: [validator]
             });
             const titleErrors = useFieldErrors(form.get("title"));
@@ -152,10 +152,10 @@ describe("useForm", () => {
     test("getData, setData, reset", async () => {
         function Test() {
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     title: "Initial"
-                }),
-                submit: async () => "done"
+                },
+                submit() {}
             });
 
             // This is just here to force the re-render. This isn't the recommended way to use it
@@ -185,10 +185,10 @@ describe("useForm", () => {
         it("provides type safety for elements", () => {
             renderHook(() => {
                 const form = useForm({
-                    initialValues: () => ({
+                    initialValues: {
                         tags: [] as string[]
-                    }),
-                    submit: async () => "done"
+                    },
+                    submit() {}
                 });
                 const tagsField = form.get("tags");
                 expectTypeOf(tagsField.getValue).toEqualTypeOf<() => Readonly<string[]>>();
@@ -207,9 +207,9 @@ describe("useForm", () => {
         it("allows pushing/removing elements", async () => {
             function Test() {
                 const form = useForm({
-                    initialValues: () => ({
+                    initialValues: {
                         tags: [] as string[]
-                    }),
+                    },
                     submit: async () => "done"
                 });
 
@@ -305,10 +305,10 @@ describe("Native validation", () => {
     it("validates a string", async () => {
         function Test() {
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     title: "",
-                }),
-                submit: async () => "done",
+                },
+                submit() {},
                 validate: {
                     title(title) {
                         if (title.length < 5) return "Title too short";
@@ -347,10 +347,10 @@ describe("Native validation", () => {
 
         function Test() {
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     tags: [] as string[]
-                }),
-                submit: async () => "done",
+                },
+                submit() {},
                 validate: {
                     tags: {
                         _self(tags) {
@@ -400,10 +400,10 @@ describe("Native validation", () => {
         expect(queryByTestId("tag-0-error-0")).not.toBeInTheDocument()
     })
 
-    it("validates an object", async () => {
+    it("validates an object by properties", async () => {
         function Test() {
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     meta: {
                         createdAt: {
                             humanReadable: "",
@@ -411,8 +411,8 @@ describe("Native validation", () => {
                         },
                         updatedAt: ""
                     }
-                }),
-                submit: async () => "done",
+                },
+                submit() {},
                 validate: {
                     meta: {
                         _self(meta) {
@@ -459,9 +459,9 @@ describe("Native validation", () => {
     it("validates an array of objects", async () => {
         function Test() {
             const form = useForm({
-                initialValues: () => ({
+                initialValues: {
                     tags: [{ name: "react" }, { name: "" }]
-                }),
+                },
                 submit() {},
                 validate: {
                     tags: {
@@ -501,9 +501,9 @@ describe("Native validation", () => {
             }
 
             const form = useForm<FormValues, any>({
-                initialValues: () => ({
+                initialValues: {
                     value: null
-                }),
+                },
                 submit: async () => "done",
                 validate: {
                     value(value) {
