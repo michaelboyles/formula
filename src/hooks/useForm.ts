@@ -28,12 +28,23 @@ type UseFormOpts<T extends BaseForm, R> = {
 
     // Whether to perform validation after a field is blurred. Default: false
     validateOnBlur?: boolean
+    // Whether to perform validation after a field is changed. Default: false
+    validateOnChange?: boolean
 }
 
 const ROOT_PATH = FieldPath.create();
 
 export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T> {
-    const { initialValues, submit: submitForm, onSuccess, onError, validate, validators, validateOnBlur = false } = opts;
+    const {
+        initialValues,
+        submit: submitForm,
+        onSuccess,
+        onError,
+        validate,
+        validators,
+        validateOnBlur = false,
+        validateOnChange = false,
+    } = opts;
 
     const self = useRef<_Form<T> | null>(null);
     const data = useRef(typeof initialValues === "function" ? initialValues() : initialValues);
@@ -43,7 +54,10 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     const setValue = useCallback((path: FieldPath, value: any) => {
         data.current = path.getDataWithValue(data.current, value);
         stateTree.current.notifyValueChanged(path);
-    }, []);
+        if (validateOnChange) {
+            validateAll(data.current);
+        }
+    }, [validateOnChange]);
 
     const validateAll = async (values: T) => {
         stateTree.current.clearAllErrors();
@@ -127,7 +141,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             const unsubscribe = stateTree.current.subscribeToBlurred(path, subscriber);
             return () => unsubscribe();
         }
-    }), [validateOnBlur]);
+    }), [setValue, validateOnBlur]);
 
     return useMemo(() => {
         const form = (key: keyof T) => newFormField(ROOT_PATH.withProperty(key), formAccess) as any;

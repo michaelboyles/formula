@@ -726,6 +726,32 @@ describe("useForm", () => {
             await user.type(getByTestId("input"), "{tab}");
             expect(queryByText("Incomplete")).toBeInTheDocument();
         })
+
+        it("supports validateOnChange", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: { name: "" },
+                    submit() {},
+                    validate: {
+                        name(name) {
+                            if (name === "tom") return "nope";
+                        }
+                    },
+                    validateOnChange: true
+                });
+                return (
+                    <form>
+                        <Input field={form("name")} data-testid="input" />
+                        <FieldErrors field={form("name")}>{ err => err.join(",") }</FieldErrors>
+                    </form>
+                )
+            }
+            const { getByTestId, queryByText } = render(<Test />);
+            await user.type(getByTestId("input"), "to");
+            expect(queryByText("nope")).not.toBeInTheDocument();
+            await user.type(getByTestId("input"), "m");
+            expect(queryByText("nope")).toBeInTheDocument();
+        })
     });
 })
 
