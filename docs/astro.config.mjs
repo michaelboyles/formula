@@ -27,6 +27,7 @@ export default defineConfig({
 						"getting-started/fields",
 						"getting-started/array-fields",
 						"getting-started/optimizing-rerenders",
+						"getting-started/native-validation",
 					]
 				},
 				{
@@ -36,6 +37,7 @@ export default defineConfig({
 				{
 					label: "Components",
 					items: [
+						"components/DebugField",
 						"components/FieldErrors",
 						"components/FieldValue",
 						"components/ForEachElement",
