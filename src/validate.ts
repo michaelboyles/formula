@@ -38,7 +38,7 @@ export function lazy<T>(fn: () => T): Lazy<T> {
     return newFn;
 }
 
-export function isLazy<T>(value: unknown): value is Supplier<T> {
+export function isLazy<T>(value: unknown): value is Lazy<T> {
     return typeof value === "function" && (value as any)[LAZY_SYMBOL] === true;
 }
 

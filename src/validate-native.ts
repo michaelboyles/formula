@@ -56,7 +56,7 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
         for (const [key, keyValidator] of Object.entries(objValidator)) {
             if (key === "_self") continue;
             const fieldValue = (value as any)[key];
-            promises.push(validateRecursive(rootData, fieldValue, keyValidator as any, path.withProperty(key)));
+            promises.push(validateRecursive(rootData, fieldValue, keyValidator, path.withProperty(key)));
         }
         const keyIssues = (await Promise.all(promises)).flatMap(a => a);
         if (keyIssues.length) {
@@ -66,11 +66,9 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
     return issues;
 }
 
-function resolve<T, R>(v: Supplier<ArrayValidator<T, R>>): ArrayValidator<T, R>;
-function resolve<T, R>(v: Supplier<ObjectValidator<T, R>>): ObjectValidator<T, R>;
-function resolve<T, R>(v: Supplier<ArrayValidator<T, R>> | Supplier<ObjectValidator<T, R>>): ArrayValidator<T, R> | ObjectValidator<T, R> {
-    if (isLazy(v) && typeof v === "function") {
-        return v();
+function resolve<T>(supplier: Supplier<T>): T {
+    if (isLazy(supplier)) {
+        return supplier();
     }
-    return v;
+    return supplier;
 }
