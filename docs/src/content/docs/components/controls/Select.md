@@ -4,17 +4,17 @@ description: A component for creating select controls in Formula
 slug: components/Select
 ---
 
-The `Select` component renders a `<select>` element containing a number of `<option>`s. Unlike the native select
-element, the value isn't required to be a number or string. It can be anything, provided you provide a mapper with the
-`mapToValue` property.
+The `<Select>` component renders a `<select>` element containing a number of `<option>`s, which includes
+all of Formula's required handlers.
+
+Unlike the native select element, the value isn't required to be a number or string. It can be anything, provided you
+provide a mapper with the `mapToValue` property.
 
 ## Sample usage
 
 ```tsx
 const form = useForm({
-    initialValues: { 
-        animalId: 1
-    }
+    initialValues: { animalId: 1 }
 });
 return (
     <Select
@@ -57,4 +57,5 @@ type MapperProps<T> =
 ### Native props
 
 `<Select>` supports
-[all props of the native `<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#attributes).
+[all props of the native `<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#attributes),
+except for `value` which is bound automatically.

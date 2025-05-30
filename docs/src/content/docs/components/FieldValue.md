@@ -4,13 +4,6 @@ description: A component for watching a value in a Formula form
 slug: components/FieldValue
 ---
 
-```typescript
-function FieldValue<T>(props: {
-    field: FormField<T>
-    children: (value: T) => ReactNode
-})
-```
-
 `<FieldValue>` lets you watch the value of a field. It accepts a field and a render prop as its child, which
 is called every time the value changes.
 
@@ -27,4 +20,15 @@ return (
         { name => <div>Your name is: {name} </div> }
     </FieldValue>
 )
+```
+
+## Type
+
+```typescript
+function FieldValue<T>(props: {
+    // The field to watch the value for
+    field: FormField<T>
+    // A render function which will be passed the value
+    children: (value: T) => ReactNode
+})
 ```

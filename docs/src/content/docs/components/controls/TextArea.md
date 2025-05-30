@@ -4,8 +4,8 @@ description: A component for creating textarea controls in Formula
 slug: components/TextArea
 ---
 
-The `<TextArea>` component renders a `<textarea>` element whose value field is bound and includes all handlers
-required for interacting with Formula.
+The `<TextArea>` component renders a `<textarea>` element whose value field is bound and which includes
+all of Formula's required handlers.
 
 ## Sample usage
 
@@ -21,7 +21,7 @@ return (
 ## Type
 
 ```typescript
-export function TextArea(props: {
+function TextArea(props: {
     // The field to associate with this textarea
     field: FormField<string>
 } & Omit<DefaultInputProps, "value">)

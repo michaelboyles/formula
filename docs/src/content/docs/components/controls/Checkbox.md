@@ -4,8 +4,8 @@ description: A component for creating checkboxes in Formula
 slug: components/Checkbox
 ---
 
-The `Checkbox` component renders an `<input type="checkbox">` element whose value field is bound and includes all
-handlers required.
+The `<Checkbox>` component renders an `<input type="checkbox">` element whose value field is bound and which includes
+all of Formula's required handlers.
 
 ## Sample usage
 

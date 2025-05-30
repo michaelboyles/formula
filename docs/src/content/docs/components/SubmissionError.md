@@ -4,13 +4,6 @@ description: A component for monitoring the submission error of a Formula form
 slug: components/SubmissionError
 ---
 
-```typescript
-function SubmissionError(props: {
-    form: Form<any>
-    children: (submissionError: Error | undefined) => ReactNode
-})
-```
-
 `<SubmissionError>` subscribes to the latest submission error of the given form (if any) and exposes it to a
 render prop. You can use it to watch for submission errors without introducing unnecessary rerenders.
 
@@ -34,4 +27,15 @@ return (
         </SubmissionError>
     </form>
 )
+```
+
+## Type 
+
+```typescript
+function SubmissionError(props: {
+    // The form to watch for submission errors
+    form: Form<any>
+    // A render function which will be passed the submission error, if any
+    children: (submissionError: Error | undefined) => ReactNode
+})
 ```

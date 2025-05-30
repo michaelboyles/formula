@@ -4,12 +4,6 @@ description: A component for debugging a Formula field
 slug: components/DebugField
 ---
 
-```typescript
-function DebugField(props: {
-    field: FormField<any>
-})
-```
-
 `<DebugField>` renders a `<pre>` element containing the entire state of the given field as JSON. Like the name suggests,
 it's designed to help you debug issues with your form.
 
@@ -22,4 +16,13 @@ const form = useForm({
 return (
     <DebugField field={form("name")} />
 )
+```
+
+## Type
+
+```typescript
+function DebugField(props: {
+    // The field to print debug info for
+    field: FormField<any>
+})
 ```

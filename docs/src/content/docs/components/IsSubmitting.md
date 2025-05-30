@@ -4,13 +4,6 @@ description: A component for monitoring the submission state of a Formula form
 slug: components/IsSubmitting
 ---
 
-```typescript
-function IsSubmitting(props: {
-    form: Form<any>
-    children: (isSubmitting: boolean) => ReactNode
-})
-```
-
 `<IsSubmitting>` subscribes to the `isSubmitting` state of the given form and exposes it to a render prop. You can
 use it to watch the submission state without introducing unnecessary rerenders.
 
@@ -31,4 +24,15 @@ return (
         </IsSubmitting>
     </form>
 )
+```
+
+## Type
+
+```typescript
+function IsSubmitting(props: {
+    // The form to watch the isSubmitting status for
+    form: Form<any>
+    // A render function which will be passed the isSubmitting status
+    children: (isSubmitting: boolean) => ReactNode
+})
 ```
