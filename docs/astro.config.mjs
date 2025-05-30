@@ -22,12 +22,12 @@ export default defineConfig({
 				{
 					label: "Getting started",
 					items: [
-						"getting-started/overview",
-						"getting-started/installation",
-						"getting-started/fields",
-						"getting-started/array-fields",
-						"getting-started/optimizing-rerenders",
-						"getting-started/native-validation",
+						"guides/overview",
+						"guides/installation",
+						"guides/fields",
+						"guides/array-fields",
+						"guides/optimizing-rerenders",
+						"guides/native-validation",
 					]
 				},
 				{
