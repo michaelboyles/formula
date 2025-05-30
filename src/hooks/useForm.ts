@@ -11,20 +11,20 @@ import { Issue, Validator } from "../validate.ts";
 // TODO 2
 type BaseForm = Record<string | number, any>;
 
-type UseFormOpts<T extends BaseForm, R> = {
-    initialValues: T | (() => T)
-    submit?: (values: T) => R | Promise<R>
+type UseFormOpts<Data extends BaseForm, SubmitResponse> = {
+    initialValues: Data | (() => Data)
+    submit?: (values: Data) => SubmitResponse | Promise<SubmitResponse>
 
     // Optional
-    onSuccess?: (args: { result: NoInfer<R>, values: T }) => void
+    onSuccess?: (args: { result: NoInfer<SubmitResponse>, values: Data }) => void
 
     // A callback invoked when there is a form submission error. When the promise returned by 'submit' is rejected, this
     // function will be invoked. If the promise wasn't rejected with an Error then it will be wrapped in one, and
     // Error.cause will be set.
-    onError?: (error: Error, ctx: { form: Form<T> }) => void
+    onError?: (error: Error, ctx: { form: Form<Data> }) => void
 
-    validate?: Validator<NoInfer<T>, NoInfer<T>>
-    validators?: StandardSchemaV1<Partial<T>>[]
+    validate?: Validator<NoInfer<Data>, NoInfer<Data>>
+    validators?: StandardSchemaV1<Partial<Data>>[]
 
     // Whether to perform validation after a field is blurred. Default: false
     validateOnBlur?: boolean
@@ -34,7 +34,7 @@ type UseFormOpts<T extends BaseForm, R> = {
 
 const ROOT_PATH = FieldPath.create();
 
-export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T> {
+export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts<Data, SubmitResponse>): Form<Data> {
     const {
         initialValues,
         submit: submitForm,
@@ -46,7 +46,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         validateOnChange = false,
     } = opts;
 
-    const self = useRef<_Form<T> | null>(null);
+    const self = useRef<_Form<Data> | null>(null);
     const data = useRef(typeof initialValues === "function" ? initialValues() : initialValues);
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
@@ -59,7 +59,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
         }
     }, [validateOnChange]);
 
-    const validateAll = async (values: T) => {
+    const validateAll = async (values: Data) => {
         stateTree.current.clearAllErrors();
 
         const pendingValidations: Array<Promise<Issue[]>> = [];
@@ -160,7 +160,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
     }), [setValue, validateOnBlur]);
 
     return useMemo(() => {
-        const form = (key: keyof T) => newFormField(ROOT_PATH.withProperty(key), formAccess) as any;
+        const form = (key: keyof Data) => newFormField(ROOT_PATH.withProperty(key), formAccess) as any;
         form[FORM_SYM] = 0 as const;
         form.getUnsafeField = (path: any[]) => {
             let fieldPath = ROOT_PATH;
@@ -175,7 +175,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             return newFormField(fieldPath, formAccess);
         };
         form.getData = () => data.current;
-        form.setData = (data: T) => setValue(ROOT_PATH, data);
+        form.setData = (data: Data) => setValue(ROOT_PATH, data);
         form.reset = () => {
             const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
             setValue(ROOT_PATH, newValues);
@@ -186,7 +186,7 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
             stateManager.current.subscribe(state, subscriber);
             return () => stateManager.current.unsubscribe(state, subscriber);
         }
-        self.current = form satisfies _Form<T>;
+        self.current = form satisfies _Form<Data>;
         return form;
     }, [initialValues, submit]);
 }
@@ -209,13 +209,13 @@ export type Form<Data> = (<K extends keyof Omit<Data, symbol>>(key: K) => FormFi
     reset: () => void
 }
 
-export type _Form<T = unknown> = {
+export type _Form<Data = unknown> = {
     [FORM_SYM]: 0,
 
     getState: <T extends FormStateType>(state: T) => FormState[T]
 
     subscribeToState: (state: FormStateType, subscriber: StateSubscriber) => UnsubscribeFromState;
-} & Form<T>;
+} & Form<Data>;
 
 export function isInternalForm(form: Form<any>): form is _Form {
     return Object.hasOwn(form, FORM_SYM);
