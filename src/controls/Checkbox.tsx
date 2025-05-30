@@ -8,7 +8,7 @@ export type Props = {
 } & Omit<DefaultCheckboxProps, "type" | "checked">;
 export function Checkbox(props: Props) {
     const { field, onChange, onBlur, ...rest } = props;
-    const value = useFieldValue(field);
+    const checked = useFieldValue(field);
     return (
         <input
             {...rest}
@@ -17,7 +17,7 @@ export function Checkbox(props: Props) {
                 field.setValue(e.target.checked);
                 onChange?.(e);
             }}
-            checked={value}
+            checked={checked}
             onBlur={e => {
                 field.setBlurred(true);
                 onBlur?.(e);
