@@ -10,7 +10,12 @@ handlers required.
 ## Sample usage
 
 ```tsx
-<Checkbox field={form("isPublic")} className="my-checkbox" />
+const form = useForm({
+    initialValues: { isPublic: true }
+});
+return (
+    <Checkbox field={form("isPublic")} className="my-checkbox" />
+)
 ```
 
 ## Type

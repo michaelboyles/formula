@@ -11,14 +11,21 @@ element, the value isn't required to be a number or string. It can be anything, 
 ## Sample usage
 
 ```tsx
-<Select
-    field={form("animal")}
-    options={[
-        { label: "Cat", value: 1 },
-        { label: "Dog", value: 2 },
-        { label: "Mouse", value: 3, disabled: true }
-    ]}
-/>
+const form = useForm({
+    initialValues: { 
+        animalId: 1
+    }
+});
+return (
+    <Select
+        field={form("animalId")}
+        options={[
+            { label: "Cat", value: 1 },
+            { label: "Dog", value: 2 },
+            { label: "Mouse", value: 3, disabled: true }
+        ]}
+    />
+)
 ```
 
 ## Type
