@@ -13,7 +13,7 @@ type BaseForm = Record<string | number, any>;
 
 type UseFormOpts<T extends BaseForm, R> = {
     initialValues: T | (() => T)
-    submit: (values: T) => R | Promise<R>
+    submit?: (values: T) => R | Promise<R>
 
     // Optional
     onSuccess?: (args: { result: NoInfer<R>, values: T }) => void
@@ -97,14 +97,30 @@ export function useForm<T extends BaseForm, R>(opts: UseFormOpts<T, R>): Form<T>
                 return;
             }
 
-            try {
-                const result = await submitForm(values);
-                onSuccess?.({ result, values });
+            if (submitForm) {
+                try {
+                    const result = await submitForm(values);
+                    onSuccess?.({ result, values });
+                }
+                catch (e) {
+                    const error = convertSubmissionError(e);
+                    stateManager.current.setValue("submissionError", error);
+                    onError?.(error, { form: self.current! });
+                }
             }
-            catch (e) {
-                const error = convertSubmissionError(e);
-                stateManager.current.setValue("submissionError", error);
-                onError?.(error, { form: self.current! });
+            else if (e) {
+                if ("submit" in e.target && typeof e.target.submit === "function") {
+                    e.target.submit();
+                }
+                else {
+                    console.error("Can't submit form with event:", e);
+                }
+            }
+            else {
+                throw new Error(
+                    "Form is not submittable. You must either provide a 'submit' option to useForm, or " +
+                    "pass an event to form.submit"
+                );
             }
         }
         finally {

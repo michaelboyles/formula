@@ -61,13 +61,10 @@ describe("useForm", () => {
                     metadata: {
                         createdAt: "",
                     }
-                },
-                submit() {}
+                }
             })
             return (
-                <form onSubmit={form.submit}>
-                    <Input field={form("metadata")("createdAt")} data-testid="createdAt" />
-                </form>
+                <Input field={form("metadata")("createdAt")} data-testid="createdAt" />
             )
         }
 
@@ -91,7 +88,6 @@ describe("useForm", () => {
                     title: "",
                     tags: ["tag too long"]
                 },
-                submit() {},
                 validators: [validator]
             });
             const titleErrors = useFieldErrors(form("title"));
@@ -119,8 +115,7 @@ describe("useForm", () => {
             const form = useForm({
                 initialValues: {
                     title: "Initial"
-                },
-                submit() {}
+                }
             });
 
             // This is just here to force the re-render. This isn't the recommended way to use it
@@ -152,17 +147,14 @@ describe("useForm", () => {
                 const form = useForm({
                     initialValues: {
                         tags: ["tag1", "tag2"]
-                    },
-                    submit() {}
+                    }
                 });
-
-                const tags = useElements(form("tags"));
                 return (
-                    <form onSubmit={form.submit}>
-                        {
-                            tags.map((tag, idx) => <Input key={idx} field={tag} data-testid={`tag-${idx + 1}`} />)
-                        }
-                    </form>
+                    <ForEachElement field={form("tags")}>
+                    {
+                        (tag, idx) => <Input key={idx} field={tag} data-testid={`tag-${idx + 1}`} />
+                    }
+                    </ForEachElement>
                 )
             }
 
@@ -177,8 +169,7 @@ describe("useForm", () => {
                 const form = useForm({
                     initialValues: {
                         tags: [] as string[]
-                    },
-                    submit() {}
+                    }
                 });
                 const tagsField = form("tags");
                 expectTypeOf(tagsField.getValue).toEqualTypeOf<() => Readonly<string[]>>();
@@ -200,7 +191,6 @@ describe("useForm", () => {
                     initialValues: {
                         tags: [] as string[]
                     },
-                    submit() {}
                 });
 
                 const tags = useFieldValue(form("tags"));
@@ -246,8 +236,7 @@ describe("useForm", () => {
             const form = useForm({
                 initialValues: {
                     tags: ["typescript", "react"]
-                },
-                submit() {}
+                }
             });
 
             const tagsField = form("tags");
@@ -297,7 +286,6 @@ describe("useForm", () => {
                     initialValues: {
                         title: "",
                     },
-                    submit() {},
                     validate: {
                         title(title) {
                             if (title.length < 5) return "Title too short";
@@ -332,7 +320,6 @@ describe("useForm", () => {
                     initialValues: {
                         tags: [] as string[]
                     },
-                    submit() {},
                     validate: {
                         tags(tags) {
                             if (!tags.length) return "Must have at least 1 tag";
@@ -366,7 +353,6 @@ describe("useForm", () => {
                     initialValues: {
                         tags: [] as string[]
                     },
-                    submit() {},
                     validate: {
                         tags: {
                             _self(tags) {
@@ -422,7 +408,6 @@ describe("useForm", () => {
                     initialValues: {
                         address: { number: "", street: "", city: "" }
                     },
-                    submit() {},
                     validate: {
                         address({ number, street, city }) {
                             if (!number.length || !street.length || !city.length) return "Incomplete";
@@ -457,7 +442,6 @@ describe("useForm", () => {
                             updatedAt: ""
                         }
                     },
-                    submit() {},
                     validate: {
                         meta: {
                             _self(meta) {
@@ -507,7 +491,6 @@ describe("useForm", () => {
                     initialValues: {
                         tags: [{ name: "react" }, { name: "" }]
                     },
-                    submit() {},
                     validate: {
                         tags: {
                             _self(tags) {
@@ -549,7 +532,6 @@ describe("useForm", () => {
                     initialValues: {
                         value: null
                     },
-                    submit: async () => "done",
                     validate: {
                         value(value) {
                             if (value == null) return "Required";
@@ -584,7 +566,6 @@ describe("useForm", () => {
                     initialValues: {
                         1: null
                     },
-                    submit: async () => "done",
                     validate: {
                         1(one) {
                             if (one == null) return "Required";
@@ -657,7 +638,6 @@ describe("useForm", () => {
                             }]
                         }
                     },
-                    submit() {},
                     validate: {
                         tree: getValidator()
                     }
@@ -685,7 +665,6 @@ describe("useForm", () => {
             renderHook(() => {
                 const form = useForm({
                     initialValues: { name: "" },
-                    submit() {},
                     validate: {
                         name() {
                         }
@@ -701,7 +680,6 @@ describe("useForm", () => {
                     initialValues: {
                         address: { number: "", street: "", city: "" }
                     },
-                    submit() {},
                     validate: {
                         address({ number, street, city }) {
                             if (!number.length || !street.length || !city.length) return "Incomplete";
@@ -731,7 +709,6 @@ describe("useForm", () => {
             function Test() {
                 const form = useForm({
                     initialValues: { name: "" },
-                    submit() {},
                     validate: {
                         name(name) {
                             if (name === "tom") return "nope";
