@@ -279,6 +279,21 @@ describe("useForm", () => {
         expect(queryAllByText("Errors: Invalid tag").length).toBe(0);
     })
 
+    it("calls initialValues once", () => {
+        let initialValuesCalled = 0;
+        const { rerender } = renderHook(() => {
+            useForm({
+                initialValues: () => {
+                    initialValuesCalled++;
+                    return { name: "michael" }
+                }
+            })
+        });
+        expect(initialValuesCalled).toBe(1);
+        rerender();
+        expect(initialValuesCalled).toBe(1);
+    })
+
     describe("Native validation", () => {
         it("validates a string", async () => {
             function Test() {

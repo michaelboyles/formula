@@ -7,6 +7,7 @@ import { getValidationIssues } from "../validate-std-schema.ts";
 import { StandardSchemaV1 } from "@standard-schema/spec";
 import { validateRecursive } from "../validate-native.ts";
 import { Issue, Validator } from "../validate.ts";
+import { useLazyRef } from "./useLazyRef.ts";
 
 // TODO 2
 type BaseForm = Record<string | number, any>;
@@ -47,7 +48,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
     } = opts;
 
     const self = useRef<_Form<Data> | null>(null);
-    const data = useRef(typeof initialValues === "function" ? initialValues() : initialValues);
+    const data = useLazyRef(initialValues);
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
 
