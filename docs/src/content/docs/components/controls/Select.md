@@ -47,7 +47,7 @@ type MapperProps<T> =
     };
 ```
 
-### Native attributes
+### Native props
 
 `<Select>` supports
 [all props of the native `<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#attributes).

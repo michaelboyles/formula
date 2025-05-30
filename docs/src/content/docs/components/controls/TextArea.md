@@ -27,6 +27,6 @@ export function TextArea(props: {
 } & Omit<DefaultInputProps, "value">)
 ```
 
-### Native attributes
+### Native props
 
 `<TextArea>` supports [all props of the native `<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#attributes), except for `value` which is bound automatically.
