@@ -23,7 +23,7 @@ function Checkbox(props: {
 & Omit<DefaultCheckboxProps, "type" | "checked">)
 ```
 
-## Native props
+### Native props
 
 `<Checkbox>` supports [all the values of `<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes)
 except for `checked` (managed automatically) and `type` (always `checkbox`).

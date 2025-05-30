@@ -31,3 +31,9 @@ function IntegerInput(props: {
     field: FormField<number>
 } & Omit<DefaultInputProps, "type" | "value">)
 ```
+
+### Native props
+
+`<IntegerInput>` supports
+[all props of the native `<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes),
+except `type` which is hardcoded to `number`, and `value` which is bound automatically.

@@ -28,11 +28,12 @@ return (
 
 ```typescript
 function FileInput(props: {
+    // The field to associate with this file input
     field: FormField<FileList | null>
 } & Omit<DefaultInputProps, "type">) 
 ```
 
-## Native props
+### Native props
 
 `<FileInput>` supports
 [all props of the native `<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes),

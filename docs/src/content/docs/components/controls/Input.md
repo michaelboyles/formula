@@ -32,7 +32,13 @@ function Input(props: {
 } & Omit<DefaultInputProps, "type" | "value">)
 ```
 
-## Unsupported types
+### Native props
+
+`<Input>` supports
+[all props of the native `<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes),
+except `type` has some restrictions (see below), and `value` which is bound automatically.
+
+### Unsupported types
 
 Some input types are not supported by `<Input>`. Formally, an input type is supported if a
 [`change` event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event)
