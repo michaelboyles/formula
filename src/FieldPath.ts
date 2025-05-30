@@ -112,7 +112,7 @@ function getPropertyOrIndex(data: any, node: FieldNode): any {
             return data[node.index];
         }
         default: {
-            throw `has unknown node type ${node satisfies never}`;
+            throw new Error(`Unknown node type ${node satisfies never}`);
         }
     }
 }
