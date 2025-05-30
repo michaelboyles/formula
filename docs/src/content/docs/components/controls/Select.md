@@ -35,7 +35,7 @@ function Select<T>(props: {
     // The field to associate with this 'select' control
     field: FormField<T>
     // The options to be included
-    options: ReadonlyArray<Option<NoInfer<T>>>
+    options: Array<Option<T>>
 }
 & MapperProps<T>
 & DefaultSelectProps)
