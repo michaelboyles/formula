@@ -22,5 +22,5 @@ export { RadioButton, type Props as RadioInputProps } from "./controls/RadioButt
 export { Select } from "./controls/Select.tsx"
 export { TextArea } from "./controls/TextArea.tsx"
 
-export { FieldValue } from "./FieldValue.tsx"
-export { ForEachElement } from "./ForEachElement.tsx"
+export { FieldValue } from "./components/FieldValue.tsx"
+export { ForEachElement } from "./components/ForEachElement.tsx"

@@ -11,8 +11,8 @@ import { useFieldValue } from "../useFieldValue.ts";
 import * as z from "zod";
 import type { FormField } from "../../FormField.ts";
 import { Fragment } from "react";
-import { ForEachElement } from "../../ForEachElement.tsx";
-import { FieldErrors } from "../../FieldErrors.tsx";
+import { ForEachElement } from "../../components/ForEachElement.tsx";
+import { FieldErrors } from "../../components/FieldErrors.tsx";
 import { lazy, ObjectValidator } from "../../validate.ts";
 
 const user = userEvent.setup();

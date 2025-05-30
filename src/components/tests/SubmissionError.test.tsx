@@ -2,39 +2,41 @@ import '@testing-library/jest-dom/vitest';
 import { afterEach, expect, describe, it } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
-import { useForm } from "../hooks/useForm.ts";
-import { Input } from "../controls/Input.tsx";
-import { FieldValue } from "../FieldValue.tsx";
+import { useForm } from "../../hooks/useForm.ts";
+import { SubmissionError } from "../SubmissionError.tsx";
 
 const user = userEvent.setup();
 
 // https://testing-library.com/docs/react-testing-library/api/#cleanup
 afterEach(() => cleanup());
 
-describe("FieldValue", () => {
+describe("SubmissionError", () => {
     it("updates without rerendering the parent", async () => {
         let formRenderCount = 0;
         function Test() {
             formRenderCount++;
             const form = useForm({
-                initialValues: { name: "" },
-                submit: () => "ok"
+                initialValues: { name: "michael" },
+                submit: () => {
+                    throw "failed";
+                }
             })
             return (
                 <form onSubmit={form.submit}>
-                    <Input field={form("name")} data-testid="input" />
-                    <FieldValue field={form("name")}>
-                        { name => <div>Your name is { name satisfies string }</div>}
-                    </FieldValue>
+                    <button type="submit" data-testid="submit">Submit</button>
+                    <SubmissionError form={form}>
+                        { error => error ? `Error: ${String(error.cause)}` : null }
+                    </SubmissionError>
                 </form>
             )
         }
         const { getByTestId, queryByText } = render(<Test />);
-        expect(formRenderCount).toBe(1);
-        const input = getByTestId("input");
-        await user.type(input, "michael");
 
-        expect(queryByText("Your name is michael")).toBeInTheDocument();
+        const submit = getByTestId("submit");
+        expect(queryByText("Error:")).not.toBeInTheDocument();
+
+        await user.click(submit);
+        expect(queryByText("Error: failed")).toBeInTheDocument();
         expect(formRenderCount).toBe(1);
     })
 });
