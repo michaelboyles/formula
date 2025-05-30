@@ -7,16 +7,20 @@ type DefaultSelectProps = DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectEleme
 type DefaultOptionProps = DetailedHTMLProps<OptionHTMLAttributes<HTMLOptionElement>, HTMLOptionElement>;
 
 export type Props<T> = {
+    // The field to associate with this 'select' control
     field: FormField<T>
+    // The options to be included
     options: ReadonlyArray<Option<NoInfer<T>>>
 }
 & MapperProps<T>
-& Omit<DefaultSelectProps, "type" | "checked">;
+& DefaultSelectProps;
 
 type MapperProps<T> =
     [T] extends [string | number] ? {
+        // A mapper is optional if the value is already a string or number
         mapToValue?: Mapper<T>
     } : {
+        // A mapper is required if the value is a complex type
         mapToValue: Mapper<T>
     };
 type Option<T> = {

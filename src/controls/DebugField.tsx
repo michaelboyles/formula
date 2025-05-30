@@ -6,6 +6,7 @@ import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 
 type DefaultPreProps = DetailedHTMLProps<InputHTMLAttributes<HTMLPreElement>, HTMLPreElement>;
 export type Props = {
+    // The field to print debug info for
     field: FormField<any>
 } & DefaultPreProps;
 export function DebugField({ field, ...rest }: Props) {

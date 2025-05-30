@@ -7,18 +7,26 @@ slug: components/TextArea
 The `<TextArea>` component renders a `<textarea>` element whose value field is bound and includes all handlers
 required for interacting with Formula.
 
+## Sample usage
+
 ```tsx
-<TextArea field={form("description")} />
+const form = useForm({
+    initialValues: { content: "" }
+});
+return (
+    <TextArea field={form("content")} />
+)
 ```
 
-## Required props 
+## Type
 
-### field 
-
-The form field to associate with this control.
-
-## Optional props
+```typescript
+export function TextArea(props: {
+    // The field to associate with this textarea
+    field: FormField<string>
+} & Omit<DefaultInputProps, "value">)
+```
 
 ### Native attributes
 
-`<TextArea>` supports [all attributes of the native `<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#attributes)
+`<TextArea>` supports [all props of the native `<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/textarea#attributes), except for `value` which is bound automatically.

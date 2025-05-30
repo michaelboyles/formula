@@ -5,7 +5,9 @@ import { useFieldValue } from "../hooks/useFieldValue.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
+    // The field to associate with this input
     field: FormField<string>
+    // The type of the input. Supports all types which have a true string value
     type?: Exclude<InputType, "button" | "checkbox" | "file" | "image" | "radio" | "reset" | "submit">
 } & Omit<DefaultInputProps, "type" | "value">;
 export function Input(props: Props) {

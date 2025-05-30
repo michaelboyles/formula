@@ -4,6 +4,7 @@ import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
+    // The field to associate with this input
     field: FormField<number>
 } & Omit<DefaultInputProps, "type" | "value">;
 export function IntegerInput(props: Props) {

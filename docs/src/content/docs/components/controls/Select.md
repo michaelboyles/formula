@@ -8,6 +8,8 @@ The `Select` component renders a `<select>` element containing a number of `<opt
 element, the value isn't required to be a number or string. It can be anything, provided you provide a mapper with the
 `mapToValue` property.
 
+## Sample usage
+
 ```tsx
 <Select
     field={form("animal")}
@@ -19,36 +21,33 @@ element, the value isn't required to be a number or string. It can be anything, 
 />
 ```
 
-## Required props
+## Type
 
-### field
+```typescript
+function Select<T>(props: {
+    // The field to associate with this 'select' control
+    field: FormField<T>
+    // The options to be included
+    options: ReadonlyArray<Option<NoInfer<T>>>
+}
+& MapperProps<T>
+& DefaultSelectProps)
 
-The form field to associate with this control.
+type Option<T> = {
+    value: T
+} & Omit<DefaultOptionProps, "value">
 
-### options
-
-The available options for the select. Each option can specify
-[any of the attributes of the native `<option>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/option#attributes)
-
-## Optional props
-
-### mapToValue
-
-If option values aren’t strings or numbers, you must provide a mapper function to convert each value into a string or
-number.
-
-```tsx
-<Select
-    field={form("animal")}
-    options={[
-        { label: "Cat", value: { type: "cat" } },
-        { label: "Dog", value: { type: "dog" } },
-    ]}
-    mapToValue={val => val.type}
-/>
+type MapperProps<T> =
+    [T] extends [string | number] ? {
+        // A mapper is optional if the value is already a string or number
+        mapToValue?: Mapper<T>
+    } : {
+        // A mapper is required if the value is a complex type
+        mapToValue: Mapper<T>
+    };
 ```
 
 ### Native attributes
 
 `<Select>` supports
-[all attributes of the native `<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#attributes)
+[all props of the native `<select>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/select#attributes).

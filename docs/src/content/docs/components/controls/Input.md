@@ -11,9 +11,7 @@ required handlers.
 
 ```tsx
 const form = useForm({
-    initialValues: {
-        username: "", password: ""
-    }
+    initialValues: { username: "", password: "" }
 });
 return (
     <form onSubmit={form.submit}>
@@ -21,6 +19,17 @@ return (
        <Input field={form("password")} type="password" />
     </form>
 )
+```
+
+## Type
+
+```typescript
+function Input(props: {
+   // The field to associate with this input
+   field: FormField<string>
+   // The type of the input. Supports all types which have a true string value
+   type?: Exclude<InputType, "button" | "checkbox" | "file" | "image" | "radio" | "reset" | "submit">
+} & Omit<DefaultInputProps, "type" | "value">)
 ```
 
 ## Unsupported types

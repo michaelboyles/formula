@@ -5,7 +5,9 @@ import { createMapper, Mapper } from "./mapValue.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props<T> = {
+    // The field to associate with this radio button
     field: FormField<T>
+    // The value that will be used if this radio button is selected
     value: T
 }
 & MapperProps<T>

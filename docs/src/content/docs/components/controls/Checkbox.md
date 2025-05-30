@@ -7,17 +7,23 @@ slug: components/Checkbox
 The `Checkbox` component renders an `<input type="checkbox">` element whose value field is bound and includes all
 handlers required.
 
+## Sample usage
+
 ```tsx
-<Checkbox field={form("isPublic")} data-testid="checkbox" />
+<Checkbox field={form("isPublic")} className="my-checkbox" />
 ```
 
-## Required props
+## Type
 
-### field
+```typescript
+function Checkbox(props: {
+    // The field to associate with this checkbox
+    field: FormField<boolean>
+}
+& Omit<DefaultCheckboxProps, "type" | "checked">)
+```
 
-The form field to associate with this control.
-
-## Optional props
+## Native props
 
 `<Checkbox>` supports [all the values of `<input>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#attributes)
 except for `checked` (managed automatically) and `type` (always `checkbox`).

@@ -4,6 +4,7 @@ import { useFieldValue } from "../hooks/useFieldValue.ts";
 
 type DefaultCheckboxProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
+    // The field to associate with this checkbox
     field: FormField<boolean>
 } & Omit<DefaultCheckboxProps, "type" | "checked">;
 export function Checkbox(props: Props) {

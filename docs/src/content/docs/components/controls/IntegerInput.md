@@ -22,3 +22,12 @@ return (
     <IntegerInput field={form("myNum")} />
 )
 ```
+
+## Type
+
+```typescript
+function IntegerInput(props: {
+    // The field to associate with this input
+    field: FormField<number>
+} & Omit<DefaultInputProps, "type" | "value">)
+```

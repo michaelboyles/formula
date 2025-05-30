@@ -4,6 +4,7 @@ import { useFieldValue } from "../hooks/useFieldValue.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>;
 export type Props = {
+    // The field to associate with this textarea
     field: FormField<string>
 } & Omit<DefaultInputProps, "value">;
 export function TextArea(props: Props) {
