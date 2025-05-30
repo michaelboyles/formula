@@ -3,6 +3,8 @@ title: Installation
 description: How to install Formula
 ---
 
+Use the command corresponding to your tooling to install Formula.
+
 ## npm
 
 ```text
