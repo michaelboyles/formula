@@ -353,6 +353,8 @@ describe("useForm", () => {
                     initialValues: {
                         tags: [] as string[]
                     },
+                    submit() {
+                    },
                     validate: {
                         tags: {
                             _self(tags) {
@@ -660,11 +662,13 @@ describe("useForm", () => {
             // There's no practical reason for a user to write this, but they may be in this state while they're
             // in the middle of writing a validator. It's annoying for TypeScript to say "that isn't valid" when the only
             // problem is that it doesn't do anything useful yet. We should just accept it.
-            // No assertions here because we're mainly testing that it typechecks. But it does at least "assert" that
-            // it doesn't throw
+            let submitCalled = false;
             renderHook(() => {
                 const form = useForm({
                     initialValues: { name: "" },
+                    submit() {
+                        submitCalled = true;
+                    },
                     validate: {
                         name() {
                         }
@@ -672,6 +676,7 @@ describe("useForm", () => {
                 });
                 form.submit();
             })
+            await expect.poll(() => submitCalled, { timeout: 1000 }).toBe(true);
         })
 
         it("supports validateOnBlur", async () => {
@@ -690,7 +695,7 @@ describe("useForm", () => {
 
                 const addressErrors = useFieldErrors(form("address"));
                 return (
-                    <form onSubmit={form.submit}>
+                    <form>
                         <Input field={form("address")("number")} data-testid="input" />
                         {
                             addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
