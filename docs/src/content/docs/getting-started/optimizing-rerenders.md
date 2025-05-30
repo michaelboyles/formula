@@ -29,8 +29,8 @@ As you build more complex forms and make use of Formula's hooks (except for `use
 rerenders. This isn't always an issue, but it can affect performance. You should write whatever's most readable and
 optimize it once you know there's an issue.
 
-Suppose we need the `name` value elsewhere in our form. We modify our code to use the
-[`useFieldValue` hook](/hooks/useFieldValue).
+Suppose we need the `name` value elsewhere in our form, so we modify our code to use the
+[`useFieldValue` hook](/hooks/useFieldValue):
 
 ```tsx
 const renderCount = useRef(0);
@@ -78,7 +78,7 @@ function NameSection(props: { nameField: FormField<string> }) {
 
 The updated code now only rerenders `NameSection` when you type in the input. `MyForm` doesn't need to rerender because
 it doesn't depend on the name. Some people might like this code, but it's unfortunate to force you to create an extra
-component and force you to structure your code in a specific way.
+component and to structure your code in a specific way.
 
 For this reason, every hook in Formula ships with an equivalent component. You can use these components instead of
 defining an otherwise-unnecessary component of your own. The equivalent component for `useFieldValue` is 

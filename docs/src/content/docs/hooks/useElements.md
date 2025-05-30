@@ -24,7 +24,9 @@ const tagFields = useElements(form("tags"));
 return (
     <ul>
     {
-        tagFields.map((tagField, idx) => <li key={idx}><Input field={tagField} /></li>)
+        tagFields.map((tagField, idx) =>
+            <li key={idx}><Input field={tagField} /></li>
+        )
     }
     </ul>
 )
