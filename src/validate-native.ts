@@ -1,12 +1,12 @@
 import { FieldPath } from "./FieldPath.ts";
 import {
-    Validator,
-    ObjectValidator,
-    Issue,
-    ArrayValidator,
-    ValueValidator,
+    type ArrayValidator,
     isLazy,
-    Supplier
+    type Issue,
+    type ObjectValidator,
+    type Supplier,
+    type Validator,
+    type ValueValidator
 } from "./validate.ts";
 
 export async function validateRecursive<T, R>(rootData: R, value: T, validator: Validator<T, R>, path: FieldPath): Promise<Issue[]> {

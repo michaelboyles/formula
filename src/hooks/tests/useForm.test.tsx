@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { afterEach, expect, expectTypeOf, describe, it, test } from 'vitest';
 import { cleanup, render, renderHook } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
-import { Form, useForm } from "../useForm.ts";
+import { type Form, useForm } from "../useForm.ts";
 import { Input } from "../../controls/Input.tsx";
 import { useFieldErrors } from "../useFieldErrors.ts";
 import { useSubmissionError } from "../useSubmissionError.ts";
@@ -13,7 +13,7 @@ import type { FormField } from "../../FormField.ts";
 import { Fragment } from "react";
 import { ForEachElement } from "../../components/ForEachElement.tsx";
 import { FieldErrors } from "../../components/FieldErrors.tsx";
-import { lazy, ObjectValidator } from "../../validate.ts";
+import { lazy, type ObjectValidator } from "../../validate.ts";
 
 const user = userEvent.setup();
 

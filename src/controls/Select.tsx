@@ -1,7 +1,7 @@
 import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, OptionHTMLAttributes, SelectHTMLAttributes } from "react";
 import { useFieldValue } from "../hooks/useFieldValue.ts";
-import { createMapper, Mapper } from "./mapValue.ts";
+import { createMapper, type Mapper } from "./mapValue.ts";
 
 type DefaultSelectProps = DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
 type DefaultOptionProps = DetailedHTMLProps<OptionHTMLAttributes<HTMLOptionElement>, HTMLOptionElement>;

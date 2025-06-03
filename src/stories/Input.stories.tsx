@@ -2,7 +2,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Input, Props } from '../controls/Input.tsx';
+import { Input, type Props } from '../controls/Input.tsx';
 import { useForm } from "../hooks/useForm.ts";
 import { DebugField } from "../components/DebugField.tsx";
 

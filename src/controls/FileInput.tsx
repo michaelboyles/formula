@@ -1,5 +1,5 @@
 import type { FormField } from "../FormField.ts";
-import { DetailedHTMLProps, forwardRef, InputHTMLAttributes, useEffect, useRef } from "react";
+import { type DetailedHTMLProps, forwardRef, type InputHTMLAttributes, useEffect, useRef } from "react";
 import { useForkRef } from "../hooks/useForkRef.ts";
 import { useFieldValue } from "../hooks/useFieldValue.ts";
 

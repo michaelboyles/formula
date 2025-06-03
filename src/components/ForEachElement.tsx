@@ -1,5 +1,5 @@
 import type { FormField } from "../FormField.ts";
-import { Fragment, ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { useElements } from "../hooks/useElements.ts";
 
 export type Props<T> = {

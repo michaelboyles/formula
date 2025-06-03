@@ -1,7 +1,7 @@
 import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 import { useFieldValue } from "../hooks/useFieldValue.ts";
-import { createMapper, Mapper } from "./mapValue.ts";
+import { createMapper, type Mapper } from "./mapValue.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props<T> = {
