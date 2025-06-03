@@ -1,6 +1,5 @@
 {
   "name": "formula",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -9,10 +8,11 @@
     "test": "vitest run",
     "storybook": "storybook dev -p 6006"
   },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
   "dependencies": {
-    "@standard-schema/spec": "^1.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@standard-schema/spec": "^1.0.0"
   },
   "devDependencies": {
     "@storybook/react-vite": "^9.0.4",
