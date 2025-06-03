@@ -9,9 +9,8 @@
     "rewriteRelativeImportExtensions": true,
     "strict": true,
     "skipLibCheck": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
   },
-  "exclude": [
-    "docs/**"
-  ]
+  "include": ["./src"],
+  "exclude": ["docs/**"]
 }

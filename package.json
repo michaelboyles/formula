@@ -4,9 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "tsc --project tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "storybook": "storybook dev -p 6006"
