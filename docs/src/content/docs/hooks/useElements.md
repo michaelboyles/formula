@@ -4,10 +4,6 @@ description: A hook for mapping over the elements of an array in Formula
 slug: hooks/useElements
 ---
 
-```typescript
-function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T>>
-```
-
 `useElements` lets you map over the elements in an array in a typesafe way. It will only rerender when the number
 of elements changes. This means the value of a specific element can change without rerendering this hook, which
 would cause rerenders of every element.
@@ -30,4 +26,10 @@ return (
     }
     </ul>
 )
+```
+
+## Type
+
+```typescript
+function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T>>
 ```

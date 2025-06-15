@@ -4,10 +4,6 @@ description: A Formula hook to monitor submission errors
 slug: hooks/useSubmissionError
 ---
 
-```typescript
-function useSubmissionError(form: Form<any>): Error | undefined
-```
-
 `useSubmissionError` accepts a form and returns the
 [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) that was thrown when the
 form was last submitted, or `undefined`.
@@ -26,4 +22,10 @@ const submissionError = useSubmissionError(form);
 if (submissionError) {
     return <div>There was an error</div>
 }
+```
+
+## Type
+
+```typescript
+function useSubmissionError(form: Form<any>): Error | undefined
 ```
