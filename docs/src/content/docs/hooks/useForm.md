@@ -6,45 +6,81 @@ slug: hooks/useForm
 
 `useForm` is the entry point to Formula. It creates a new form.
 
-```typescript
+## Sample usage
+
+```tsx
 const form = useForm({
-    initialValues: {
-        username: "",
-        password: ""
+    initialValue: { username: "", password: "" },
+    submit: data => login(data.username, data.password),
+    onSuccess: ({ data }) => {
+        toast("Logged in");
     },
-    submit: values => login(values.username, values.password)
+    onError: ({ error }) => {
+        console.error("Failed to login", error);
+    }
 });
+return (
+    <form onSubmit={form.submit}>
+        <Input field={form("username")} />
+        <Input field={form("password")} type="password" />
+        <button type="submit">Login</button>
+    </form>
+)
 ```
 
-## Return value
+## Type
 
-todo
+```tsx
+function useForm<Data extends BaseForm, SubmitResponse>(opts: {
+    // The initial values for the form. This is the only required option.
+    initialValues: Data | (() => Data)
 
-## Required options
+    // A function invoked when the form is submitted. This can be omitted if you want to use native form submission
+    submit?: (data: Data) => SubmitResponse | Promise<SubmitResponse>
 
-### initialValues 
+    // A callback invoked when the form was successfully submitted
+    // `result`: the value returned from `submit`
+    // `data`: the form data that was submitted
+    // `form`: a reference to the Formula form instance
+    onSuccess?: (args: { result: NoInfer<SubmitResponse>, data: Data, form: Form<Data> }) => void
 
-Use to specify the initial values to the form. This can be either an object or a supplier function.
+    // A callback invoked when there is a form submission error.
+    // `error`: The error that was thrown. If a non-Error was thrown, then it will be wrapped in one, and Error.cause
+    //          will be set.
+    // `data`: the form data that was submitted
+    // `form`: a reference to the Formula form instance
+    onError?: (args: { error: Error, data: Data, form: Form<Data> }) => void
 
-### submit
+    // A Formula native validator
+    validate?: Validator<NoInfer<Data>, NoInfer<Data>>
 
-A function which should submit the form. It accepts the values of the form and returns some result.
+    // A list of Standard Schema validators (e.g. Zod)
+    validators?: ReadonlyArray<StandardSchemaV1<Partial<Data>>>
 
-## Optional options
+    // Whether to perform validation after a field is blurred. Default: false
+    validateOnBlur?: boolean
 
-### onSuccess
+    // Whether to perform validation after a field is changed. Default: false
+    validateOnChange?: boolean
+}): Form<Data>
 
-A callback which is invoked when the form submission is successful.
+type Form<Data> = (<K extends keyof Omit<Data, symbol>>(key: K) => FormField<Data[K]>) & {
+    // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`, but there may be cases
+    // where you call it programmatically.
+    submit: (e?: FormEvent) => void
 
-### onError
+    // Get a field, ignoring type-safety. Generally you should use 'get' instead.
+    getUnsafeField: (path: (string | number)[]) => FormField<unknown>
 
-A callback which is invoked when the form submission failed.
+    // Get the current form data
+    getData: () => Data
 
-### validate
+    // Set the current form data
+    setData: (data: Data) => void
 
-Native Formula validation
+    // Discards the current form state and sets the value using `initialValues`
+    reset: () => void
+}
 
-### validators
-
-An array of [standard-schema-compliant](https://github.com/standard-schema/standard-schema?tab=readme-ov-file#what-schema-libraries-implement-the-spec)
-validators, e.g. [Zod](https://zod.dev/), [Valibot](https://valibot.dev/), [ArkType](https://arktype.io/).
+type BaseForm = Record<string | number, any>
+```
