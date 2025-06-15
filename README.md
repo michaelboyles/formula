@@ -8,3 +8,41 @@
 </picture>
 
 Type-safe React forms
+
+[**📖 Read the docs**](https://michaelboyles.github.io/formula/)
+
+## Usage
+
+```text
+npm install @michaelboyles/formula
+```
+
+```tsx
+type BlogPost = {
+    title: string
+    content: string
+    isDraft: boolean
+}
+
+function NewBlogPostPage() {
+    const form = useForm({
+        initialValues: {
+            title: "",
+            content: "",
+            isDraft: false
+        } satisfies BlogPost,
+        submit: post => createNewPost(post)
+    });
+    return (
+        <form onSubmit={form.submit}>
+            <Input field={form("title")} />
+            <TextArea field={form("content")} />
+            <label>
+                Draft?
+                <Checkbox field={form("isDraft")} />
+            </label>
+            <button type="submit">Create post</button>
+        </form>
+    )
+}
+```
