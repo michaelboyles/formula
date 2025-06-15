@@ -8,23 +8,23 @@ Use the command corresponding to your tooling to install Formula.
 ## npm
 
 ```text
-npm i formula
+npm i @michaelboyles/formula
 ```
 
 ## pnpm
 
 ```text
-pnpm add formula
+pnpm add @michaelboyles/formula
 ```
 
 ## bun
 
 ```text
-bun add formula
+bun add @michaelboyles/formula
 ```
 
 ## yarn
 
 ```text
-yarn add formula
+yarn add @michaelboyles/formula
 ```

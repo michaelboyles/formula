@@ -1,6 +1,6 @@
 {
-  "name": "formula",
-  "version": "0.0.0",
+  "name": "@michaelboyles/formula",
+  "version": "0.0.1-local-dev",
   "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
@@ -28,5 +28,29 @@
     "vite": "6.3.4",
     "vitest": "^3.2.0",
     "zod": "^3.25.49"
-  }
+  },
+  "files": [
+    "dist"
+  ],
+
+  "description": "Type-safe forms in React",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelboyles/react-use-websocket-lite.git"
+  },
+  "keywords": [
+    "react",
+    "form",
+    "forms",
+    "typescript",
+    "validation"
+  ],
+  "contributors": [
+    "Michael Boyles <michael@boyl.es>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michaelboyles/formula/issues"
+  },
+  "homepage": "https://michaelboyles.github.io/formula/"
 }

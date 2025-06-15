@@ -1,5 +1,6 @@
 {
-  "name": "formula-docs",
+  "name": "@michaelboyles/formula-docs",
+  "private": true,
   "type": "module",
   "version": "0.0.1",
   "scripts": {
