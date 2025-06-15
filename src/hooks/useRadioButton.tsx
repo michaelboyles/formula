@@ -3,11 +3,15 @@ import { type DetailedHTMLProps, type InputHTMLAttributes, useCallback, type FC 
 import { createMapper, type Mapper } from "../controls/mapValue.ts";
 import { useFieldValue } from "../hooks/useFieldValue.ts";
 
-export type Opts<T> = [T] extends [string | number] ? {
+export type Opts<T> = {
+    // If you supply a name, the `name` attribute will be set on each `input`. This is a convenience to avoid having
+    // to explicitly declare the name on each `input`.
+    name?: string
+} & ([T] extends [string | number] ? {
     mapToValue?: Mapper<T>
 } : {
     mapToValue: Mapper<T>
-};
+});
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type InputProps<T> = {
@@ -19,8 +23,9 @@ export type InputProps<T> = {
 export function useRadioButton<T extends string | number>(field: FormField<T>, opts?: Opts<T>): FC<InputProps<T>>;
 export function useRadioButton<T>(field: FormField<T>, opts: Opts<T>): FC<InputProps<T>>;
 export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<InputProps<T>> {
-    return useCallback(({ value, onChange, onBlur, ...rest }) => {
-        const mapper = createMapper(opts?.mapToValue);
+    const { name: nameFromHook, mapToValue } = opts ?? {};
+    return useCallback(({ value, onChange, onBlur, name, ...rest }) => {
+        const mapper = createMapper(mapToValue);
         const selectedValue = useFieldValue(field);
         const mappedValue = mapper(value);
         const isChecked = mappedValue === mapper(selectedValue);
@@ -30,6 +35,7 @@ export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<Input
                 type="radio"
                 checked={isChecked}
                 value={mappedValue}
+                name={name ?? nameFromHook}
                 onChange={e => {
                     if (e.target.value === "on") {
                         field.setValue(value);
@@ -42,5 +48,5 @@ export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<Input
                 }}
             />
         )
-    }, [field, opts?.mapToValue]);
+    }, [field, nameFromHook, mapToValue]);
 }
