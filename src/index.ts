@@ -11,6 +11,7 @@ export { useFieldErrors } from "./hooks/useFieldErrors.ts"
 export { useFieldValue } from "./hooks/useFieldValue.ts"
 export { useForm } from "./hooks/useForm.ts"
 export { useIsSubmitting } from "./hooks/useIsSubmitting.ts"
+export { useRadioButton } from "./hooks/useRadioButton.tsx"
 export { useSubmissionError } from "./hooks/useSubmissionError.ts"
 
 // Components
@@ -19,7 +20,6 @@ export { Checkbox, type Props as CheckboxProps } from "./controls/Checkbox.tsx"
 export { FileInput, type Props as FileInputProps } from "./controls/FileInput.tsx"
 export { Input, type Props as InputProps } from "./controls/Input.tsx"
 export { IntegerInput, type Props as IntegerInputProps } from "./controls/IntegerInput.tsx"
-export { RadioButton, type Props as RadioInputProps } from "./controls/RadioButton.tsx"
 export { Select, type Props as SelectProps } from "./controls/Select.tsx"
 export { TextArea, type Props as TextAreaProps } from "./controls/TextArea.tsx"
 

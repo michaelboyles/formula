@@ -2,8 +2,8 @@ import '@testing-library/jest-dom/vitest';
 import { afterEach, expect, describe, it } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
-import { useForm } from "../../hooks/useForm.ts";
-import { RadioButton } from "../RadioButton.tsx";
+import { useForm } from "../useForm.ts";
+import { useRadioButton } from "../useRadioButton.tsx";
 
 const user = userEvent.setup();
 
@@ -21,12 +21,12 @@ describe("RadioButton", () => {
                 },
                 submit() {}
             })
-            const animalField = form("animal");
+            const RadioButton = useRadioButton(form("animal"));
             return (
                 <form onSubmit={form.submit}>
-                    <RadioButton field={animalField} value="cat" name="animal" data-testid="cat" />
-                    <RadioButton field={animalField} value="dog" name="animal" data-testid="dog" />
-                    <RadioButton field={animalField} value="mouse" name="animal" data-testid="mouse" />
+                    <RadioButton value="cat" name="animal" data-testid="cat" />
+                    <RadioButton value="dog" name="animal" data-testid="dog" />
+                    <RadioButton value="mouse" name="animal" data-testid="mouse" />
                 </form>
             )
         }
@@ -54,22 +54,20 @@ describe("RadioButton", () => {
                     vehicle: { type: "car" } as Vehicle
                 },
                 submit() {}
-            })
-            const mapToValue = (vehicle: Vehicle) => vehicle.type;
+            });
+            const RadioButton = useRadioButton(form("vehicle"), {
+                mapToValue: (vehicle: Vehicle) => vehicle.type
+            });
             return (
                 <form onSubmit={form.submit}>
                     <RadioButton
-                        field={form("vehicle")}
                         value={{ type: "bike" }}
                         name="bike"
-                        mapToValue={mapToValue}
                         data-testid="bike"
                     />
                     <RadioButton
-                        field={form("vehicle")}
                         value={{ type: "car" }}
                         name="car"
-                        mapToValue={mapToValue}
                         data-testid="car"
                     />
                 </form>
