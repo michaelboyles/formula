@@ -29,3 +29,7 @@ export { FieldValue, type Props as FieldValueProps } from "./components/FieldVal
 export { ForEachElement, type Props as ForEachElementProps } from "./components/ForEachElement.tsx"
 export { IsSubmitting, type Props as IsSubmittingProps } from "./components/IsSubmitting.tsx"
 export { SubmissionError, type Props as SubmissionErrorProps } from "./components/SubmissionError.tsx"
+
+// Validation
+
+export type { Validator, ValueValidator, ObjectValidator, ArrayValidator } from "./validate.ts"
