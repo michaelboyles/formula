@@ -24,7 +24,7 @@ export function useRadioButton<T extends string | number>(field: FormField<T>, o
 export function useRadioButton<T>(field: FormField<T>, opts: Opts<T>): FC<InputProps<T>>;
 export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<InputProps<T>> {
     const { name: nameFromHook, mapToValue } = opts ?? {};
-    return useCallback(({ value, onChange, onBlur, name, ...rest }) => {
+    const RadioButton: FC<InputProps<T>> = useCallback(({ value, onChange, onBlur, name, ...rest }) => {
         const mapper = createMapper(mapToValue);
         const selectedValue = useFieldValue(field);
         const mappedValue = mapper(value);
@@ -49,4 +49,6 @@ export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<Input
             />
         )
     }, [field, nameFromHook, mapToValue]);
+    RadioButton.displayName = "RadioButton";
+    return RadioButton;
 }
