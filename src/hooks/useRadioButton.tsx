@@ -16,6 +16,8 @@ export type InputProps<T> = {
 }
 & Omit<DefaultInputProps, "type" | "value">;
 
+export function useRadioButton<T extends string | number>(field: FormField<T>, opts?: Opts<T>): FC<InputProps<T>>;
+export function useRadioButton<T>(field: FormField<T>, opts: Opts<T>): FC<InputProps<T>>;
 export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<InputProps<T>> {
     return useCallback(({ value, onChange, onBlur, ...rest }) => {
         const mapper = createMapper(opts?.mapToValue);
