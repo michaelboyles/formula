@@ -2,7 +2,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { FieldPath } from "./FieldPath.ts";
 import type { Issue } from "./validate.ts";
 
-export async function getValidationIssues<T>(values: T, validators: StandardSchemaV1<T>[]) {
+export async function getValidationIssues<T>(values: T, validators: ReadonlyArray<StandardSchemaV1<T>>) {
     const results = await Promise.all(validators.map(async validator => await _getValidationIssues(values, validator)));
     return results.flatMap(issues => issues);
 }

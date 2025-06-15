@@ -16,11 +16,7 @@ describe("TextArea", () => {
         function Test() {
             formRenderCount++;
             const form = useForm({
-                initialValues: { title: "" },
-                submit: () => "done",
-                onSuccess: ({ result }) => {
-                    sink(result satisfies string);
-                }
+                initialValues: { title: "" }
             })
             return (
                 <TextArea field={form("title")} data-testid="textarea" />
@@ -36,8 +32,3 @@ describe("TextArea", () => {
         expect(formRenderCount).toBe(1);
     })
 });
-
-// do nothing, just a target for "satisfies" expression without warnings at the call site
-// @ts-ignore
-function sink<T>(_value: T) {
-}

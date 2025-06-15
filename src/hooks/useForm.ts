@@ -19,22 +19,34 @@ import { useLazyRef } from "./useLazyRef.ts";
 type BaseForm = Record<string | number, any>;
 
 type UseFormOpts<Data extends BaseForm, SubmitResponse> = {
+    // The initial values for the form. This is the only required option.
     initialValues: Data | (() => Data)
-    submit?: (values: Data) => SubmitResponse | Promise<SubmitResponse>
 
-    // Optional
-    onSuccess?: (args: { result: NoInfer<SubmitResponse>, values: Data }) => void
+    // A function invoked when the form is submitted. This can be omitted if you want to use native form submission
+    submit?: (data: Data) => SubmitResponse | Promise<SubmitResponse>
 
-    // A callback invoked when there is a form submission error. When the promise returned by 'submit' is rejected, this
-    // function will be invoked. If the promise wasn't rejected with an Error then it will be wrapped in one, and
-    // Error.cause will be set.
-    onError?: (error: Error, ctx: { form: Form<Data> }) => void
+    // A callback invoked when the form was successfully submitted
+    // `result`: the value returned from `submit`
+    // `data`: the form data that was submitted
+    // `form`: a reference to the Formula form instance
+    onSuccess?: (args: { result: NoInfer<SubmitResponse>, data: Data, form: Form<Data> }) => void
 
+    // A callback invoked when there is a form submission error.
+    // `error`: The error that was thrown. If a non-Error was thrown, then it will be wrapped in one, and Error.cause
+    //          will be set.
+    // `data`: the form data that was submitted
+    // `form`: a reference to the Formula form instance
+    onError?: (args: { error: Error, data: Data, form: Form<Data> }) => void
+
+    // A Formula native validator
     validate?: Validator<NoInfer<Data>, NoInfer<Data>>
-    validators?: StandardSchemaV1<Partial<Data>>[]
+
+    // A list of Standard Schema validators (e.g. Zod)
+    validators?: ReadonlyArray<StandardSchemaV1<Partial<Data>>>
 
     // Whether to perform validation after a field is blurred. Default: false
     validateOnBlur?: boolean
+
     // Whether to perform validation after a field is changed. Default: false
     validateOnChange?: boolean
 }
@@ -107,12 +119,12 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
             if (submitForm) {
                 try {
                     const result = await submitForm(values);
-                    onSuccess?.({ result, values });
+                    onSuccess?.({ result, data: values, form: self.current! });
                 }
                 catch (e) {
                     const error = convertSubmissionError(e);
                     stateManager.current.setValue("submissionError", error);
-                    onError?.(error, { form: self.current! });
+                    onError?.({ error, data: values, form: self.current! });
                 }
             }
             else if (e) {

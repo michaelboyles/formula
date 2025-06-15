@@ -15,11 +15,7 @@ describe("DebugField", () => {
     it("displays the state", async () => {
         function Test() {
             const form = useForm({
-                initialValues: { title: "" },
-                submit: () => "done",
-                onSuccess: ({ result }) => {
-                    sink(result satisfies string);
-                }
+                initialValues: { title: "" }
             })
             return (
                 <>
@@ -39,8 +35,3 @@ describe("DebugField", () => {
         expect(getByTestId("pre").textContent).toBe(JSON.stringify(expectedJson, null, 2));
     })
 });
-
-// do nothing, just a target for "satisfies" expression without warnings at the call site
-// @ts-ignore
-function sink<T>(_value: T) {
-}

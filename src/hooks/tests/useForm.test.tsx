@@ -21,6 +21,31 @@ const user = userEvent.setup();
 afterEach(() => cleanup());
 
 describe("useForm", () => {
+    it("supports an onSuccess callback", async () => {
+        let called = false;
+        function Test() {
+            const form = useForm({
+                initialValues: { name: "" },
+                submit: () => ({ result: "done" }),
+                onSuccess: ({ result, data, form }) => {
+                    sink(result satisfies { result: string });
+                    sink(data satisfies { name: string });
+                    sink(form satisfies Form<{ name: string }>);
+                    called = true;
+                }
+            })
+            return (
+                <form onSubmit={form.submit}>
+                    <button type="submit" data-testid="submit">Submit</button>
+                </form>
+            )
+        }
+
+        const { getByTestId } = render(<Test />);
+        await user.click(getByTestId("submit"));
+        expect(called).toBe(true);
+    })
+
     it("supports an onError callback", async () => {
         let called = false;
         function Test() {
@@ -31,8 +56,9 @@ describe("useForm", () => {
                 submit: () => {
                     throw new Error("Submission failed");
                 },
-                onError: (error, { form }) => {
+                onError: ({ error, data, form }) => {
                     sink(error satisfies Error);
+                    sink(data satisfies { name: string });
                     sink(form satisfies Form<{ name: string }>);
                     called = true;
                 }

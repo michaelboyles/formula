@@ -17,11 +17,7 @@ describe("Input", () => {
         function Test() {
             formRenderCount++;
             const form = useForm({
-                initialValues: { title: "" },
-                submit: () => "done",
-                onSuccess: ({ result }) => {
-                    sink(result satisfies string);
-                }
+                initialValues: { title: "" }
             })
             return (
                 <Input field={form("title")} data-testid="input" />
@@ -63,8 +59,3 @@ describe("Input", () => {
         expect(queryByTestId("blurred")).toBeInTheDocument();
     })
 });
-
-// do nothing, just a target for "satisfies" expression without warnings at the call site
-// @ts-ignore
-function sink<T>(_value: T) {
-}
