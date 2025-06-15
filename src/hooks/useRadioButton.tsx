@@ -20,12 +20,14 @@ export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<Input
     return useCallback(({ value, onChange, onBlur, ...rest }) => {
         const mapper = createMapper(opts?.mapToValue);
         const selectedValue = useFieldValue(field);
-        const isChecked = mapper(value) === mapper(selectedValue);
+        const mappedValue = mapper(value);
+        const isChecked = mappedValue === mapper(selectedValue);
         return (
             <input
                 {...rest}
                 type="radio"
                 checked={isChecked}
+                value={mappedValue}
                 onChange={e => {
                     if (e.target.value === "on") {
                         field.setValue(value);
