@@ -37,7 +37,7 @@ export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<Input
                 value={mappedValue}
                 name={name ?? nameFromHook}
                 onChange={e => {
-                    if (e.target.value === "on") {
+                    if (e.target.checked) {
                         field.setValue(value);
                     }
                     onChange?.(e);
