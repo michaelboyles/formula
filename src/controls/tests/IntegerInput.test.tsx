@@ -15,8 +15,7 @@ describe("IntegerInput", () => {
     it("NaN represents blank", async () => {
         function Test() {
             const form = useForm({
-                initialValues: { age: NaN },
-                submit: () => "done"
+                initialValues: { age: NaN }
             })
             const age = useFieldValue(form("age"));
             return (
@@ -43,8 +42,7 @@ describe("IntegerInput", () => {
     it("accepts intermediate values", async () => {
         function Test() {
             const form = useForm({
-                initialValues: { age: NaN },
-                submit: () => "done"
+                initialValues: { age: NaN }
             })
             const age = useFieldValue(form("age"));
             return (
@@ -76,8 +74,7 @@ describe("IntegerInput", () => {
     it("rounds decimals", async () => {
         function Test() {
             const form = useForm({
-                initialValues: { age: NaN },
-                submit: () => "done"
+                initialValues: { age: NaN }
             })
             return (
                 <IntegerInput field={form("age")} data-testid="input" />
