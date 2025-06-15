@@ -1,4 +1,4 @@
-export type Mapper<T> = (value: T) => string;
+export type Mapper<T> = (value: T) => string | number;
 
 // Wraps a possible Mapper in a function which checks that the result is string or number
 export function createMapper<T>(delegate: ((value: T) => unknown) | undefined): Mapper<T> {
@@ -10,10 +10,11 @@ export function createMapper<T>(delegate: ((value: T) => unknown) | undefined): 
 
 function safeMapper<T>(delegate: (value: T) => unknown): Mapper<T> {
     return value => {
-        const strValue = delegate(value);
-        if (typeof strValue !== "string") {
-            throw new Error("Value in Select must be a string: " + strValue);
+        const mappedValue = delegate(value);
+        const type = typeof mappedValue;
+        if (type !== "string" && type !== "number") {
+            throw new Error("Mapped value must be a string or number: " + mappedValue);
         }
-        return strValue;
+        return mappedValue as string | number;
     }
 }
