@@ -1,7 +1,7 @@
 import type { FormField } from "../FormField.ts";
 import { type DetailedHTMLProps, type InputHTMLAttributes, useCallback, type FC } from "react";
-import { createMapper, type Mapper } from "../controls/mapValue.ts";
-import { useFieldValue } from "../hooks/useFieldValue.ts";
+import { type Mapper } from "../controls/mapValue.ts";
+import { RadioButton } from "../controls/RadioButton.tsx";
 
 export type Opts<T> = {
     // If you supply a name, the `name` attribute will be set on each `input`. This is a convenience to avoid having
@@ -24,31 +24,16 @@ export function useRadioButton<T extends string | number>(field: FormField<T>, o
 export function useRadioButton<T>(field: FormField<T>, opts: Opts<T>): FC<InputProps<T>>;
 export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<InputProps<T>> {
     const { name: nameFromHook, mapToValue } = opts ?? {};
-    const RadioButton: FC<InputProps<T>> = useCallback(({ value, onChange, onBlur, name, ...rest }) => {
-        const mapper = createMapper(mapToValue);
-        const selectedValue = useFieldValue(field);
-        const mappedValue = mapper(value);
-        const isChecked = mappedValue === mapper(selectedValue);
+    const WrappedRadioButton: FC<InputProps<T>> = useCallback(({ name, ...rest }) => {
         return (
-            <input
+            <RadioButton
                 {...rest}
-                type="radio"
-                checked={isChecked}
-                value={mappedValue}
+                field={field}
+                mapToValue={mapToValue as Mapper<T>}
                 name={name ?? nameFromHook}
-                onChange={e => {
-                    if (e.target.checked) {
-                        field.setValue(value);
-                    }
-                    onChange?.(e);
-                }}
-                onBlur={e => {
-                    field.setBlurred(true);
-                    onBlur?.(e);
-                }}
             />
         )
     }, [field, nameFromHook, mapToValue]);
-    RadioButton.displayName = "RadioButton";
-    return RadioButton;
+    WrappedRadioButton.displayName = "RadioButton";
+    return WrappedRadioButton;
 }
