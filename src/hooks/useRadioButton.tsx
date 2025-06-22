@@ -18,13 +18,13 @@ export type InputProps<T> = {
     // The value that will be used if this radio button is selected
     value: T
 }
-& Omit<DefaultInputProps, "type" | "value">;
+& Omit<DefaultInputProps, "type" | "value" | "checked">;
 
 export function useRadioButton<T extends string | number>(field: FormField<T>, opts?: Opts<T>): FC<InputProps<T>>;
 export function useRadioButton<T>(field: FormField<T>, opts: Opts<T>): FC<InputProps<T>>;
 export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<InputProps<T>> {
     const { name: nameFromHook, mapToValue } = opts ?? {};
-    const WrappedRadioButton: FC<InputProps<T>> = useCallback(({ name, ...rest }) => {
+    const Radio: FC<InputProps<T>> = useCallback(({ name, ...rest }) => {
         return (
             <RadioButton
                 {...rest}
@@ -34,6 +34,6 @@ export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<Input
             />
         )
     }, [field, nameFromHook, mapToValue]);
-    WrappedRadioButton.displayName = "RadioButton";
-    return WrappedRadioButton;
+    Radio.displayName = "useRadioButton.Radio";
+    return Radio;
 }

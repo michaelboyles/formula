@@ -10,7 +10,7 @@ const user = userEvent.setup();
 // https://testing-library.com/docs/react-testing-library/api/#cleanup
 afterEach(() => cleanup());
 
-describe("RadioButton", () => {
+describe("useRadioButton", () => {
     it("can change option", async () => {
         function Test() {
             const form = useForm({
