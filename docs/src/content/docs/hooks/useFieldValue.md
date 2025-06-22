@@ -10,12 +10,10 @@ slug: hooks/useFieldValue
 
 ```tsx
 const form = useForm({
-    initialValues: {
-        username: "admin"
-    }
-    //...
+    initialValues: { username: "admin" }
 });
-const username: string = useFieldValue(form("username"));
+const username = useFieldValue(form("username"));
+//^? string
 return (
     <div>Username: { username }</div>
 )

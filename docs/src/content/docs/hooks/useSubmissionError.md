@@ -15,7 +15,7 @@ If a non-Error was thrown, then the value which was thrown will be wrapped in an
 
 ```tsx
 const form = useForm({
-   //... 
+    initialValues: { username: "" }
 });
 const submissionError = useSubmissionError(form);
 //^? Error | undefined

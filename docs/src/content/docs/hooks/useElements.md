@@ -4,9 +4,11 @@ description: A hook for mapping over the elements of an array in Formula
 slug: hooks/useElements
 ---
 
-`useElements` lets you map over the elements in an array in a typesafe way. It will only rerender when the number
-of elements changes. This means the value of a specific element can change without rerendering this hook, which
-would cause rerenders of every element.
+`useElements` lets you map over the elements in an array in a typesafe way. It effectively converts `FormField<T[]>`
+to `FormField<T>[]`.
+
+This hook will only trigger a rerender when the number of elements changes. Changes to the values in the array will not
+trigger a rerender.
 
 ## Sample usage
 

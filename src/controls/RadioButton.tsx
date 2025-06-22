@@ -15,7 +15,7 @@ export type Props<T> = {
 } : {
     mapToValue: Mapper<T>
 })
-& Omit<DefaultInputProps, "type" | "value">
+& Omit<DefaultInputProps, "type" | "value" | "checked">
 
 export function RadioButton<T>(props: Props<T>) {
     const { field, value, onChange, onBlur, mapToValue, ...rest } = props;

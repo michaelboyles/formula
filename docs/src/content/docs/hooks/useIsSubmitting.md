@@ -10,7 +10,7 @@ slug: hooks/useIsSubmitting
 
 ```tsx
 const form = useForm({
-   //... 
+    initialValues: { username: "" }
 });
 const isSubmitting: boolean = useIsSubmitting(form);
 return (
