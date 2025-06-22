@@ -5,9 +5,10 @@ slug: components/IntegerInput
 ---
 
 `<IntegerInput>` renders an `<input type="number">` element whose value field is bound and which includes
-all of Formula's required handlers.
+all of Formula's required handlers. It does not accept decimal values. If the user attempts to enter one, it will be
+rounded to the nearest integer.
 
-`NaN` is used to represent a blank field. It's also used for "intermediate values": strings which aren't themselves
+The value `NaN` is used when the field is blank. It's also used for "intermediate values": strings which aren't themselves
 a valid number but might become one after additional keystrokes. For example, `+`, `-`, or `-.`.
 
 ## Sample usage
