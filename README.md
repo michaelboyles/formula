@@ -18,19 +18,13 @@ npm install @michaelboyles/formula
 ```
 
 ```tsx
-type BlogPost = {
-    title: string
-    content: string
-    isDraft: boolean
-}
-
 function NewBlogPostPage() {
     const form = useForm({
         initialValues: {
             title: "",
             content: "",
             isDraft: false
-        } satisfies BlogPost,
+        },
         submit: post => createNewPost(post)
     });
     return (

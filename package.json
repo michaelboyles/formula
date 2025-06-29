@@ -32,6 +32,8 @@
   "files": [
     "dist"
   ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
 
   "description": "Type-safe forms in React",
   "repository": {
