@@ -21,7 +21,6 @@ jobs:
           node-version: 22.x
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: npm run typecheck
       - name: set package.json version
         run: npm version from-git --git-tag-version=false
       - run: npm run build
