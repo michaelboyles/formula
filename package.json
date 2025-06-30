@@ -37,7 +37,7 @@
   "description": "Type-safe forms in React",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michaelboyles/react-use-websocket-lite.git"
+    "url": "git+https://github.com/michaelboyles/formula.git"
   },
   "keywords": [
     "react",
