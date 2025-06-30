@@ -3,7 +3,7 @@
   "version": "0.0.1-local-dev",
   "type": "module",
   "scripts": {
-    "build": "tsc --project tsconfig.build.json",
+    "build": "tsup src/index.ts --dts --format esm",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "storybook": "storybook dev -p 6006"
@@ -24,6 +24,7 @@
     "@vitejs/plugin-react": "^4.5.1",
     "@vitest/coverage-v8": "^3.2.0",
     "jsdom": "^26.1.0",
+    "tsup": "^8.5.0",
     "typescript": "^5.8.3",
     "vite": "6.3.4",
     "vitest": "^3.2.0",

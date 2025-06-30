@@ -1,6 +1,6 @@
 import type { Form } from "./useForm.ts";
 import { isInternalForm } from "./useForm.ts";
-import { useSyncState } from "./useSyncState";
+import { useSyncState } from "./useSyncState.ts";
 
 export function useIsSubmitting(form: Form<any>): boolean {
     if (!isInternalForm(form)) {
