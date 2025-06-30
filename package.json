@@ -9,7 +9,7 @@
     "storybook": "storybook dev -p 6006"
   },
   "peerDependencies": {
-    "react": "^19.0.0"
+    "react": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
     "@standard-schema/spec": "^1.0.0"
@@ -34,7 +34,6 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-
   "description": "Type-safe forms in React",
   "repository": {
     "type": "git",
