@@ -139,34 +139,32 @@ export class FormStateTree {
         return node;
     }
 
-    notifyValueChanged(path: FieldPath) {
+    notifyValueChanged(path: FieldPath, newData: any) {
         let currentNode: TreeNode | undefined = this.root;
         // Descend the tree and notify just the leaves along the way, until the final leaf, then finally notify all
         // children
         if (path.isRoot()) {
             this.notifyAll(currentNode, n => n.valueSubscribers);
-            this.clearStateAndPrune(currentNode);
+            this.clearStateAndPrune(currentNode, newData);
             return;
         }
         for (let i = 0; i < path.nodes.length; i++) {
-            if (!currentNode) return;
-            currentNode.valueSubscribers?.forEach(notifySub => notifySub());
-            if (i === path.nodes.length - 1) {
-                this.notifyAll(currentNode, n => n.valueSubscribers);
-                this.clearStateAndPrune(currentNode);
+            const node = path.nodes[i];
+            if (node.type === "property") {
+                currentNode = currentNode.propertyToNode?.[node.value as string | number];
+                newData = newData?.[node.value];
             }
             else {
-                const node = path.nodes[i];
-                switch (node.type) {
-                    case "property": {
-                        currentNode = currentNode.propertyToNode?.[node.value as string | number];
-                        break;
-                    }
-                    case "index": {
-                        currentNode = currentNode.indexToNode?.[node.index];
-                        break;
-                    }
-                }
+                currentNode = currentNode.indexToNode?.[node.index];
+                newData = Array.isArray(newData) ? newData[node.index] : undefined;
+            }
+            if (!currentNode) return;
+            if (i === path.nodes.length - 1) {
+                this.notifyAll(currentNode, n => n.valueSubscribers);
+                this.clearStateAndPrune(currentNode, newData);
+            }
+            else {
+                currentNode.valueSubscribers?.forEach(notifySub => notifySub());
             }
         }
     }
@@ -187,14 +185,17 @@ export class FormStateTree {
         });
     }
 
-    private clearStateAndPrune(node: TreeNode) {
+    private clearStateAndPrune(node: TreeNode, data: any) {
         if (node.propertyToNode) {
             for (const [key, child] of Object.entries(node.propertyToNode)) {
-                child.errors = undefined;
-                child.blurred = undefined;
-                this.clearStateAndPrune(child);
-                if (this.isNodeEmpty(child)) {
-                    delete node.propertyToNode[key];
+                const nextData = data?.[key];
+                this.clearStateAndPrune(child, nextData);
+                if (nextData === undefined) {
+                    delete child.errors;
+                    delete child.blurred;
+                    if (this.isNodeEmpty(child)) {
+                        delete node.propertyToNode[key];
+                    }
                 }
             }
             if (Object.keys(node.propertyToNode).length === 0) {
@@ -203,11 +204,15 @@ export class FormStateTree {
         }
         if (node.indexToNode) {
             for (const [key, child] of Object.entries(node.indexToNode)) {
-                child.errors = undefined;
-                child.blurred = undefined;
-                this.clearStateAndPrune(child);
-                if (this.isNodeEmpty(child)) {
-                    delete node.indexToNode[Number(key)];
+                const index = Number(key);
+                const nextData = Array.isArray(data) ? data?.[index] : undefined;
+                this.clearStateAndPrune(child, nextData);
+                if (nextData === undefined) {
+                    delete child.errors;
+                    delete child.blurred;
+                    if (this.isNodeEmpty(child)) {
+                        delete node.indexToNode[index];
+                    }
                 }
             }
             if (Object.keys(node.indexToNode).length === 0) {

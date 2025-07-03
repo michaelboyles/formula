@@ -72,7 +72,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
 
     const setValue = useCallback((path: FieldPath, value: any) => {
         data.current = path.getDataWithValue(data.current, value);
-        stateTree.current.notifyValueChanged(path);
+        stateTree.current.notifyValueChanged(path, data.current);
         if (validateOnChange) {
             validateAll(data.current);
         }
