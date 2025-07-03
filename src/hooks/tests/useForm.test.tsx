@@ -770,10 +770,13 @@ describe("useForm", () => {
                 )
             }
             const { getByTestId, queryByText } = render(<Test />);
-            await user.type(getByTestId("input"), "to");
+            const input = getByTestId("input");
+            await user.type(input, "to");
             expect(queryByText("nope")).not.toBeInTheDocument();
-            await user.type(getByTestId("input"), "m");
+            await user.type(input, "m");
             expect(queryByText("nope")).toBeInTheDocument();
+            await user.type(input, "{backspace}".repeat(3));
+            expect(queryByText("nope")).not.toBeInTheDocument();
         })
     });
 })
