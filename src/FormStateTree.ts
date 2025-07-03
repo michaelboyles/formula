@@ -149,24 +149,20 @@ export class FormStateTree {
             return;
         }
         for (let i = 0; i < path.nodes.length; i++) {
+            const node = path.nodes[i];
+            if (node.type === "property") {
+                currentNode = currentNode.propertyToNode?.[node.value as string | number];
+            }
+            else {
+                currentNode = currentNode.indexToNode?.[node.index];
+            }
             if (!currentNode) return;
-            currentNode.valueSubscribers?.forEach(notifySub => notifySub());
             if (i === path.nodes.length - 1) {
                 this.notifyAll(currentNode, n => n.valueSubscribers);
                 this.clearStateAndPrune(currentNode);
             }
             else {
-                const node = path.nodes[i];
-                switch (node.type) {
-                    case "property": {
-                        currentNode = currentNode.propertyToNode?.[node.value as string | number];
-                        break;
-                    }
-                    case "index": {
-                        currentNode = currentNode.indexToNode?.[node.index];
-                        break;
-                    }
-                }
+                currentNode.valueSubscribers?.forEach(notifySub => notifySub());
             }
         }
     }

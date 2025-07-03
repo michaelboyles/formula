@@ -32,4 +32,12 @@ describe("FormStateTree", () => {
 
         expect(notified).toBe(1);
     })
+
+    test("Errors are retained after notifying value change", () => {
+        const tree = new FormStateTree();
+        const path = FieldPath.create().withProperty("user").withProperty("name");
+        tree.setErrors(path, ["Required"]);
+        tree.notifyValueChanged(path);
+        expect(tree.getErrors(path)).toEqual(["Required"]);
+    });
 })
