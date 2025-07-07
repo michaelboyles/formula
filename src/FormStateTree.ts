@@ -56,19 +56,35 @@ export class FormStateTree {
     }
 
     clearAllErrors() {
-        this.visitAllChildren(this.root, node => {
-            if (!node.errors) return;
-            const isChange = node.errors.length > 0;
-            delete node.errors;
-            if (isChange) {
-                node.errorSubscribers?.forEach(notify => notify());
-            }
-        });
+        this.clearErrorsForNode(this.root);
+    }
 
-        this.visitAllChildren(this.root, node => {
+    private clearErrorsForNode(node: TreeNode): boolean {
+        let changed = false;
+        if (node.errors?.length) {
+            changed = true;
+            node.errorSubscribers?.forEach(notify => notify());
+        }
+        delete node.errors;
+
+        let childChanged = false;
+        for (const child of Object.values(node.propertyToNode ?? {})) {
+            if (this.clearErrorsForNode(child)) {
+                childChanged = true;
+            }
+        }
+        for (const child of Object.values(node.indexToNode ?? {})) {
+            if (this.clearErrorsForNode(child)) {
+                childChanged = true;
+            }
+        }
+
+        if (changed || childChanged) {
             node.deepErrors?.markStale();
             node.deepErrorSubscribers?.forEach(notify => notify());
-        })
+            return true;
+        }
+        return false;
     }
 
     getDeepErrors(path: FieldPath): ReadonlyArray<string> {
