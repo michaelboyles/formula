@@ -14,12 +14,18 @@ export function newFormField<T>(path: FieldPath, formAccess: FormAccess): BaseFi
         throw new Error("Unsupported path key " + pathKey);
     }
     field.toString = () => path.toString();
+    // Value
     field.getValue = () => formAccess.getValue(path);
     field.setValue = (value: T) => formAccess.setValue(path, value);
     field.subscribeToValue = (subscriber: Subscriber) => formAccess.subscribeToValue(path, subscriber);
+    // Errors
     field.getErrors = () => formAccess.getErrors(path);
     field.setErrors = (errors: string | string[] | undefined) => formAccess.setErrors(path, errors);
     field.subscribeToErrors = (subscriber: Subscriber) => formAccess.subscribeToErrors(path, subscriber);
+    // Deep errors
+    field.getDeepErrors = () => formAccess.getDeepErrors(path);
+    field.subscribeToDeepErrors = (subscriber: Subscriber) => formAccess.subscribeToDeepErrors(path, subscriber);
+    // Blurred
     field.blurred = () => formAccess.blurred(path);
     field.setBlurred = (blurred: boolean) => formAccess.setBlurred(path, blurred);
     field.subscribeToBlurred = (subscriber: Subscriber) => formAccess.subscribeToBlurred(path, subscriber);
@@ -53,6 +59,9 @@ type BaseField<Value, SetValue = Value> = {
     getErrors: () => ReadonlyArray<string>
     setErrors: (errors: string | string[] | undefined) => void
     subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
+
+    getDeepErrors: () => ReadonlyArray<string>
+    subscribeToDeepErrors: (subscriber: Subscriber) => Unsubscribe
 
     blurred: () => boolean
     setBlurred: (blurred: boolean) => void

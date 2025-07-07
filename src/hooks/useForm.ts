@@ -159,12 +159,20 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
             const unsubscribe = stateTree.current.subscribeToValue(path, subscriber);
             return () => unsubscribe();
         },
+
         getErrors: path => stateTree.current.getErrors(path),
         setErrors: (path, errors) => stateTree.current.setErrors(path, errors),
         subscribeToErrors: (path, subscriber) => {
             const unsubscribe = stateTree.current.subscribeToErrors(path, subscriber);
             return () => unsubscribe();
         },
+
+        getDeepErrors: path => stateTree.current.getDeepErrors(path),
+        subscribeToDeepErrors: (path, subscriber) => {
+            const unsubscribe = stateTree.current.subscribeToDeepErrors(path, subscriber);
+            return () => unsubscribe();
+        },
+
         blurred: path => stateTree.current.blurred(path),
         setBlurred: (path, blurred) => {
             stateTree.current.setBlurred(path, blurred);
@@ -251,6 +259,9 @@ export type FormAccess = {
     getErrors: (path: FieldPath) => ReadonlyArray<string>
     setErrors: (path: FieldPath, errors: string | string[] | undefined) => void
     subscribeToErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+
+    getDeepErrors: (path: FieldPath) => ReadonlyArray<string>
+    subscribeToDeepErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     blurred: (path: FieldPath) => boolean
     setBlurred: (path: FieldPath, blurred: boolean) => void

@@ -18,30 +18,76 @@ export class FormStateTree {
     }
 
     appendErrors(path: FieldPath, errors: string[]) {
-        const node = this.getOrCreateNode(path);
-        if (!node.errors) {
-            node.errors = [];
+        if (!errors || errors.length < 1) return;
+        const nodes = this.getOrCreateNodes(path);
+        const leaf = nodes[nodes.length - 1];
+        if (!leaf.errors) {
+            leaf.errors = [];
         }
-        node.errors.push(...errors);
-        node.errorSubscribers?.forEach(notify => notify());
+        leaf.errors.push(...errors);
+        leaf.errorSubscribers?.forEach(notify => notify());
+        nodes.forEach(n => {
+            n.deepErrors?.markStale();
+            n.deepErrorSubscribers?.forEach(notify => notify());
+        })
     }
 
     setErrors(path: FieldPath, errors: string | string[] | undefined) {
-        const node = this.getOrCreateNode(path);
-        if (errors == null) {
-            delete node.errors;
+        const nodes = this.getOrCreateNodes(path);
+        const leaf = nodes[nodes.length - 1];
+        let changed: boolean;
+        if (!errors || errors.length < 1) {
+            changed = !!leaf.errors && leaf.errors.length > 0;
+            delete leaf.errors;
         }
         else {
-            node.errors = typeof errors === "string" ? [errors] : [...errors];
+            const prev = leaf.errors;
+            leaf.errors = typeof errors === "string" ? [errors] : [...errors];
+            changed = !isEqual(prev, leaf.errors);
         }
-        node.errorSubscribers?.forEach(notify => notify());
+
+        if (changed) {
+            leaf.errorSubscribers?.forEach(notify => notify());
+            nodes.forEach(n => {
+                n.deepErrors?.markStale();
+                n.deepErrorSubscribers?.forEach(notify => notify());
+            });
+        }
     }
 
     clearAllErrors() {
         this.visitAllChildren(this.root, node => {
+            if (!node.errors) return;
+            const isChange = node.errors.length > 0;
             delete node.errors;
-            node.errorSubscribers?.forEach(notify => notify());
+            if (isChange) {
+                node.errorSubscribers?.forEach(notify => notify());
+            }
         });
+
+        this.visitAllChildren(this.root, node => {
+            node.deepErrors?.markStale();
+            node.deepErrorSubscribers?.forEach(notify => notify());
+        })
+    }
+
+    getDeepErrors(path: FieldPath): ReadonlyArray<string> {
+        const node = this.getNode(path);
+        if (!node) return NO_ERRORS;
+
+        const computeErrors = () => {
+            const errors: string[] = [];
+            this.visitAllChildren(node, n => {
+                if (n.errors && n.errors.length) {
+                    errors.push(...n.errors);
+                }
+            });
+            return errors;
+        }
+        if (!node.deepErrors) {
+            node.deepErrors = new CachedValue(computeErrors);
+        }
+        return node.deepErrors.get(computeErrors);
     }
 
     blurred(path: FieldPath): boolean {
@@ -67,6 +113,10 @@ export class FormStateTree {
         return this.subscribe(path, "errorSubscribers", subscriber);
     }
 
+    subscribeToDeepErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe {
+        return this.subscribe(path, "deepErrorSubscribers", subscriber);
+    }
+
     subscribeToBlurred(path: FieldPath, subscriber: Subscriber): Unsubscribe {
         return this.subscribe(path, "blurredSubscribers", subscriber);
     }
@@ -80,44 +130,46 @@ export class FormStateTree {
     }
 
     private getOrCreateNode(path: FieldPath): TreeNode {
-        let node = this.root;
+        const nodes = this.getOrCreateNodes(path);
+        return nodes[nodes.length - 1];
+    }
+
+    private getOrCreateNodes(path: FieldPath): TreeNode[] {
+        const nodes: TreeNode[] = [this.root];
         for (const pathPart of path.nodes) {
-            switch (pathPart.type) {
-                case "property": {
-                    let propertyToNode = node.propertyToNode;
-                    if (!propertyToNode) {
-                        propertyToNode = {};
-                        node.propertyToNode = propertyToNode;
-                    }
-
-                    const name = pathPart.value as string | number;
-                    let next = propertyToNode[name];
-                    if (!next) {
-                        next = {};
-                        propertyToNode[name] = next;
-                    }
-                    node = next;
-                    break;
+            const current = nodes[nodes.length - 1];
+            if (pathPart.type === "property") {
+                let propertyToNode = current.propertyToNode;
+                if (!propertyToNode) {
+                    propertyToNode = {};
+                    current.propertyToNode = propertyToNode;
                 }
-                case "index": {
-                    let indexToNode = node.indexToNode;
-                    if (!indexToNode) {
-                        indexToNode = {};
-                        node.indexToNode = indexToNode;
-                    }
 
-                    const index = pathPart.index;
-                    let next = indexToNode[index];
-                    if (!next) {
-                        next = {};
-                        indexToNode[index] = next;
-                    }
-                    node = next;
-                    break;
+                const name = pathPart.value as string | number;
+                let next = propertyToNode[name];
+                if (!next) {
+                    next = {};
+                    propertyToNode[name] = next;
                 }
+                nodes.push(next);
+            }
+            else if (pathPart.type === "index") {
+                let indexToNode = current.indexToNode;
+                if (!indexToNode) {
+                    indexToNode = {};
+                    current.indexToNode = indexToNode;
+                }
+
+                const index = pathPart.index;
+                let next = indexToNode[index];
+                if (!next) {
+                    next = {};
+                    indexToNode[index] = next;
+                }
+                nodes.push(next);
             }
         }
-        return node;
+        return nodes;
     }
 
     private getNode(path: FieldPath): TreeNode | undefined {
@@ -238,12 +290,14 @@ export class FormStateTree {
 type TreeNode = {
     propertyToNode?: Record<string, TreeNode>
     indexToNode?: Record<number, TreeNode>
-    errors?: string[],
+    errors?: string[]
+    deepErrors?: CachedValue<string[]>
     blurred?: boolean
 } & Subscribers;
 type Subscribers = {
     valueSubscribers?: Subscriber[]
     errorSubscribers?: Subscriber[]
+    deepErrorSubscribers?: Subscriber[]
     blurredSubscribers?: Subscriber[]
 }
 
@@ -280,4 +334,74 @@ function pushOrCreateArray<T>(items: T[] | undefined, item: T): T[] {
         return items;
     }
     return [item];
+}
+
+class CachedValue<T> {
+    private value: T
+    private fresh: boolean
+
+    constructor(calc: () => T) {
+        this.value = calc();
+        this.fresh = true;
+    }
+
+    markStale() {
+        this.fresh = false;
+    }
+
+    get(calc: () => T) {
+        if (this.fresh) {
+            return this.value;
+        }
+        this.value = calc();
+        this.fresh = true;
+        return this.value;
+    }
+}
+
+function isEqual(first: unknown, second: unknown): boolean {
+    if (first === second) return true;
+    const firstType = typeof first;
+    if (firstType !== typeof second) return false;
+    if (Array.isArray(first)) {
+        if (Array.isArray(second)) {
+            return isArrayEquals(first, second);
+        }
+        return false;
+    }
+    if (firstType === 'object') {
+        if (first === null || second === null) return false;
+        const firstEntries = Object.entries(first as object);
+        const secondKeys = Object.keys(second as object);
+        if (firstEntries.length === secondKeys.length) {
+            for (let i = 0; i < firstEntries.length; i++) {
+                const [firstKey, firstValue] = firstEntries[i];
+                if (firstValue === undefined) {
+                    if (!secondKeys.includes(firstKey) || (second as any)[firstKey] !== undefined) {
+                        return false;
+                    }
+                }
+                else {
+                    const secondValue = (second as any)[firstKey];
+                    if (!isEqual(firstValue, secondValue)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    if (firstType === 'number') {
+        return Number.isNaN(first) && Number.isNaN(second);
+    }
+    return false;
+}
+
+function isArrayEquals(first: unknown[], second: unknown[]): boolean {
+    if (first.length !== second.length) return false;
+    for (let i = 0; i < first.length; i++) {
+        if (!isEqual(first[i], second[i])) return false;
+    }
+    return true;
 }
