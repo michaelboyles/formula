@@ -60,12 +60,11 @@ export class FormStateTree {
     }
 
     private clearErrorsForNode(node: TreeNode): boolean {
-        let changed = false;
-        if (node.errors?.length) {
-            changed = true;
+        const changed = (node.errors?.length ?? 0) > 0;
+        delete node.errors;
+        if (changed) {
             node.errorSubscribers?.forEach(notify => notify());
         }
-        delete node.errors;
 
         let childChanged = false;
         for (const child of Object.values(node.propertyToNode ?? {})) {

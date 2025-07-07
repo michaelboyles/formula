@@ -6,6 +6,7 @@ export type { FormField } from "./FormField.ts"
 // Hooks
 
 export { useBlurred } from "./hooks/useBlurred.ts"
+export { useDeepFieldErrors } from "./hooks/useDeepFieldErrors.ts"
 export { useElements } from "./hooks/useElements.ts"
 export { useFieldErrors } from "./hooks/useFieldErrors.ts"
 export { useFieldValue } from "./hooks/useFieldValue.ts"
