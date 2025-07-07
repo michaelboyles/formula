@@ -52,8 +52,10 @@ export class FormStateTree {
     setBlurred(path: FieldPath, blurred: boolean) {
         for (let i = 0; i < path.nodes.length; ++i) {
             const node = this.getOrCreateNode(path.sliceTo(i + 1));
-            node.blurred = blurred;
-            node.blurredSubscribers?.forEach(notify => notify());
+            if (node.blurred !== blurred) {
+                node.blurred = blurred;
+                node.blurredSubscribers?.forEach(notify => notify());
+            }
         }
     }
 
