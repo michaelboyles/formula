@@ -175,19 +175,15 @@ export class FormStateTree {
     private getNode(path: FieldPath): TreeNode | undefined {
         let node = this.root;
         for (const pathPart of path.nodes) {
-            switch (pathPart.type) {
-                case "property": {
-                    const next = node.propertyToNode?.[pathPart.value as string | number];
-                    if (!next) return;
-                    node = next;
-                    break;
-                }
-                case "index": {
-                    const next = node.indexToNode?.[pathPart.index];
-                    if (!next) return;
-                    node = next;
-                    break;
-                }
+            if (pathPart.type === "property") {
+                const next = node.propertyToNode?.[pathPart.value as string | number];
+                if (!next) return;
+                node = next;
+            }
+            else if (pathPart.type === "index") {
+                const next = node.indexToNode?.[pathPart.index];
+                if (!next) return;
+                node = next;
             }
         }
         return node;
