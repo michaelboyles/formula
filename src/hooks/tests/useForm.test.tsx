@@ -10,7 +10,7 @@ import { useElements } from "../useElements.ts";
 import { useFieldValue } from "../useFieldValue.ts";
 import * as z from "zod";
 import type { FormField } from "../../FormField.ts";
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import { ForEachElement } from "../../components/ForEachElement.tsx";
 import { FieldErrors } from "../../components/FieldErrors.tsx";
 import { lazy, type ObjectValidator } from "../../validate.ts";
@@ -318,6 +318,39 @@ describe("useForm", () => {
         expect(initialValuesCalled).toBe(1);
         rerender();
         expect(initialValuesCalled).toBe(1);
+    })
+
+    it("validates on change, after the option is changed", async () => {
+        // This tests a memoization bug where option changes were ignored in certain cases
+
+        const { result, rerender } = renderHook(({ validateOnChange }) => {
+            // Keep options referentially stable, just to ensure we are not invalidating a memo
+            const opts = useMemo(() => ({
+                initialValues: {
+                    name: "michel"
+                },
+                validate: {
+                    name(name: string) {
+                        if (!name.length) return "Required";
+                    }
+                },
+                validateOnChange
+            }), [validateOnChange]);
+
+            return useForm(opts);
+        }, {
+            initialProps: {
+                validateOnChange: false
+            }
+        });
+
+        // Enable onChange validation
+        rerender({ validateOnChange: true });
+        // Blank out the name
+        result.current.setData({ name: "" });
+        // Just a hack. Validation is async, and this ensures it's done
+        await sleep(5);
+        expect(result.current("name").getErrors()).toEqual(["Required"]);
     })
 
     describe("Native validation", () => {
@@ -784,4 +817,10 @@ describe("useForm", () => {
 // do nothing, just a target for "satisfies" expression without warnings at the call site
 // @ts-ignore
 function sink<T>(_value: T) {
+}
+
+function sleep(millis: number): Promise<void> {
+    return new Promise(resolve => {
+        setTimeout(resolve, millis);
+    });
 }

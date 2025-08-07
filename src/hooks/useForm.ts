@@ -1,4 +1,4 @@
-import { type FormEvent, useCallback, useMemo, useRef } from "react";
+import { type FormEvent, useEffect, useMemo, useRef } from "react";
 import { type FormField, newFormField } from "../FormField.ts";
 import { FieldPath } from "../FieldPath.ts";
 import { FormStateTree, type Subscriber, type Unsubscribe } from "../FormStateTree.ts";
@@ -54,37 +54,33 @@ type UseFormOpts<Data extends BaseForm, SubmitResponse> = {
 const ROOT_PATH = FieldPath.create();
 
 export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts<Data, SubmitResponse>): Form<Data> {
-    const {
-        initialValues,
-        submit: submitForm,
-        onSuccess,
-        onError,
-        validate,
-        validators,
-        validateOnBlur = false,
-        validateOnChange = false,
-    } = opts;
+    const activeOpts = useRef(opts);
+    useEffect(() => {
+        activeOpts.current = opts;
+    });
 
     const self = useRef<_Form<Data> | null>(null);
-    const data = useLazyRef(initialValues);
+    const data = useLazyRef(opts.initialValues);
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
 
-    const setValue = useCallback((path: FieldPath, value: any) => {
+    function setValue(path: FieldPath, value: any) {
         data.current = path.getDataWithValue(data.current, value);
         stateTree.current.notifyValueChanged(path, data.current);
-        if (validateOnChange) {
+        if (activeOpts.current.validateOnChange) {
             validateAll(data.current);
         }
-    }, [validateOnChange]);
+    }
 
     const validateAll = async (values: Data) => {
         stateTree.current.clearAllErrors();
 
         const pendingValidations: Array<Promise<Issue[]>> = [];
+        const validators = activeOpts.current.validators;
         if (validators) {
             pendingValidations.push(getValidationIssues(values, validators));
         }
+        const validate = activeOpts.current.validate;
         if (validate) {
             pendingValidations.push(validateRecursive(values, values, validate, ROOT_PATH));
         }
@@ -98,7 +94,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
         return [];
     }
 
-    const submit = useCallback(async (e?: FormEvent) => {
+    async function submit(e?: FormEvent) {
         e?.preventDefault();
 
         if (stateManager.current.getValue("isSubmitting")) {
@@ -116,15 +112,16 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
                 return;
             }
 
+            const submitForm = activeOpts.current.submit;
             if (submitForm) {
                 try {
                     const result = await submitForm(values);
-                    onSuccess?.({ result, data: values, form: self.current! });
+                    activeOpts.current.onSuccess?.({ result, data: values, form: self.current! });
                 }
                 catch (e) {
                     const error = convertSubmissionError(e);
                     stateManager.current.setValue("submissionError", error);
-                    onError?.({ error, data: values, form: self.current! });
+                    activeOpts.current.onError?.({ error, data: values, form: self.current! });
                 }
             }
             else if (e) {
@@ -145,9 +142,9 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
         finally {
             stateManager.current.setValue("isSubmitting", false);
         }
-    }, [onError, onSuccess, submitForm, validators]);
+    }
 
-    const formAccess: FormAccess = useMemo(() => ({
+    const formAccess: FormAccess = {
         getValue: path => path.getValue(data.current),
         setValue,
         updateValue: (path, update) => {
@@ -176,7 +173,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
         blurred: path => stateTree.current.blurred(path),
         setBlurred: (path, blurred) => {
             stateTree.current.setBlurred(path, blurred);
-            if (validateOnBlur) {
+            if (activeOpts.current.validateOnBlur) {
                 validateAll(data.current);
             }
         },
@@ -184,7 +181,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
             const unsubscribe = stateTree.current.subscribeToBlurred(path, subscriber);
             return () => unsubscribe();
         }
-    }), [setValue, validateOnBlur]);
+    };
 
     return useMemo(() => {
         const form = (key: keyof Data) => newFormField(ROOT_PATH.withProperty(key), formAccess) as any;
@@ -204,6 +201,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
         form.getData = () => data.current;
         form.setData = (data: Data) => setValue(ROOT_PATH, data);
         form.reset = () => {
+            const initialValues = activeOpts.current.initialValues;
             const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
             setValue(ROOT_PATH, newValues);
         };
@@ -215,7 +213,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
         }
         self.current = form satisfies _Form<Data>;
         return form;
-    }, [initialValues, submit]);
+    }, []);
 }
 
 export type Form<Data> = (<K extends keyof Omit<Data, symbol>>(key: K) => FormField<Data[K]>) & {
