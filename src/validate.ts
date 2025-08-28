@@ -1,8 +1,8 @@
 import { FieldPath } from "./FieldPath.ts";
 
 export type Issue = {
-    path: FieldPath
-    message: string
+    readonly path: FieldPath
+    readonly message: string
 }
 
 export type Validator<T, AllValues = unknown> =

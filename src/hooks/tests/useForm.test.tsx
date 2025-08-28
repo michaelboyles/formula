@@ -14,6 +14,7 @@ import { Fragment, useMemo } from "react";
 import { ForEachElement } from "../../components/ForEachElement.tsx";
 import { FieldErrors } from "../../components/FieldErrors.tsx";
 import { lazy, type ObjectValidator } from "../../validate.ts";
+import { ValidationError } from "../../ValidationError.ts";
 
 const user = userEvent.setup();
 
@@ -21,13 +22,13 @@ const user = userEvent.setup();
 afterEach(() => cleanup());
 
 describe("useForm", () => {
-    it("supports an onSuccess callback", async () => {
+    it("supports an onSubmitSuccess callback", async () => {
         let called = false;
         function Test() {
             const form = useForm({
                 initialValues: { name: "" },
                 submit: () => ({ result: "done" }),
-                onSuccess: ({ result, data, form }) => {
+                onSubmitSuccess: ({ result, data, form }) => {
                     sink(result satisfies { result: string });
                     sink(data satisfies { name: string });
                     sink(form satisfies Form<{ name: string }>);
@@ -46,38 +47,67 @@ describe("useForm", () => {
         expect(called).toBe(true);
     })
 
-    it("supports an onError callback", async () => {
-        let called = false;
-        function Test() {
-            const form = useForm({
-                initialValues: {
-                    name: ""
-                },
-                submit: () => {
-                    throw new Error("Submission failed");
-                },
-                onError: ({ error, data, form }) => {
-                    sink(error satisfies Error);
-                    sink(data satisfies { name: string });
-                    sink(form satisfies Form<{ name: string }>);
-                    called = true;
-                }
-            })
-            const submissionError = useSubmissionError(form);
-            return (
-                <form onSubmit={form.submit}>
-                    {
-                        submissionError ? <div data-testid="error">{ submissionError.message }</div> : null
+    describe("onSubmitFailure", () => {
+        it("handles error inside submit", async () => {
+            let providedError: Error | null = (null as any);
+            function Test() {
+                const form = useForm({
+                    initialValues: { name: "" },
+                    submit: () => {
+                        throw new Error("Submission failed");
+                    },
+                    onSubmitFailure: ({ error, data, form }) => {
+                        sink(error satisfies Error);
+                        sink(data satisfies { name: string });
+                        sink(form satisfies Form<{ name: string }>);
+                        providedError = error;
                     }
-                    <button type="submit" data-testid="submit">Submit</button>
-                </form>
-            )
-        }
+                })
+                const submissionError = useSubmissionError(form);
+                return (
+                    <form onSubmit={form.submit}>
+                        {
+                            submissionError ? <div data-testid="error">{ submissionError.message }</div> : null
+                        }
+                        <button type="submit" data-testid="submit">Submit</button>
+                    </form>
+                )
+            }
 
-        const { getByTestId, queryByTestId } = render(<Test />);
-        await user.click(getByTestId("submit"));
-        expect(queryByTestId("error")).toBeInTheDocument();
-        expect(called).toBe(true);
+            const { getByTestId, queryByTestId } = render(<Test />);
+            await user.click(getByTestId("submit"));
+            expect(queryByTestId("error")).toBeInTheDocument();
+            expect(providedError?.message).toBe("Submission failed");
+        })
+
+        it("handles validation errors", async () => {
+            let providedError: Error | null = (null as any);
+            function Test() {
+                const form = useForm({
+                    initialValues: { name: "" },
+                    onSubmitFailure: ({ error }) => {
+                        providedError = error;
+                    },
+                    validate() {
+                        return "invalid";
+                    }
+                })
+                const submissionError = useSubmissionError(form);
+                return (
+                    <form onSubmit={form.submit}>
+                        {
+                            submissionError ? <div data-testid="error">{ submissionError.message }</div> : null
+                        }
+                        <button type="submit" data-testid="submit">Submit</button>
+                    </form>
+                )
+            }
+
+            const { getByTestId, queryByTestId } = render(<Test />);
+            await user.click(getByTestId("submit"));
+            expect(queryByTestId("error")).toBeInTheDocument();
+            expect(providedError).toBeInstanceOf(ValidationError);
+        })
     })
 
     it("supports nested objects", async () => {

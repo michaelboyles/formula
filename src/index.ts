@@ -34,3 +34,4 @@ export { SubmissionError, type Props as SubmissionErrorProps } from "./component
 // Validation
 
 export type { Validator, ValueValidator, ObjectValidator, ArrayValidator } from "./validate.ts"
+export { ValidationError } from "./ValidationError.ts"

@@ -12,10 +12,10 @@ slug: hooks/useForm
 const form = useForm({
     initialValue: { username: "", password: "" },
     submit: data => login(data.username, data.password),
-    onSuccess: ({ data }) => {
+    onSubmitSuccess: ({ data }) => {
         toast("Logged in");
     },
-    onError: ({ error }) => {
+    onSubmitFailure: ({ error }) => {
         console.error("Failed to login", error);
     }
 });
@@ -42,14 +42,14 @@ function useForm<Data extends BaseForm, SubmitResponse>(opts: {
     // `result`: the value returned from `submit`
     // `data`: the form data that was submitted
     // `form`: a reference to the Formula form instance
-    onSuccess?: (args: { result: NoInfer<SubmitResponse>, data: Data, form: Form<Data> }) => void
+    onSubmitSuccess?: (args: { result: NoInfer<SubmitResponse>, data: Data, form: Form<Data> }) => void
 
-    // A callback invoked when there is a form submission error.
-    // `error`: The error that was thrown. If a non-Error was thrown, then it will be wrapped in one, and Error.cause
-    //          will be set.
+    // A callback invoked when submitting the form fails.
+    // `error`: The error that was thrown. If submission failed because of validation issues, this will be a
+    //          ValidationError. If a non-Error was thrown, then it will be wrapped in one, and Error.cause will be set.
     // `data`: the form data that was submitted
     // `form`: a reference to the Formula form instance
-    onError?: (args: { error: Error, data: Data, form: Form<Data> }) => void
+    onSubmitFailure?: (args: { error: Error, data: Data, form: Form<Data> }) => void
 
     // A Formula native validator
     validate?: Validator<NoInfer<Data>, NoInfer<Data>>

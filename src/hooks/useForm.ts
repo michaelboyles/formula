@@ -14,6 +14,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { validateRecursive } from "../validate-native.ts";
 import type { Issue, Validator } from "../validate.ts";
 import { useLazyRef } from "./useLazyRef.ts";
+import { ValidationError } from "../ValidationError.ts";
 
 // TODO 2
 type BaseForm = Record<string | number, any>;
@@ -29,14 +30,14 @@ type UseFormOpts<Data extends BaseForm, SubmitResponse> = {
     // `result`: the value returned from `submit`
     // `data`: the form data that was submitted
     // `form`: a reference to the Formula form instance
-    onSuccess?: (args: { result: NoInfer<SubmitResponse>, data: Data, form: Form<Data> }) => void
+    onSubmitSuccess?: (args: { result: NoInfer<SubmitResponse>, data: Data, form: Form<Data> }) => void
 
-    // A callback invoked when there is a form submission error.
-    // `error`: The error that was thrown. If a non-Error was thrown, then it will be wrapped in one, and Error.cause
-    //          will be set.
+    // A callback invoked when submitting the form fails.
+    // `error`: The error that was thrown. If submission failed because of validation issues, this will be a
+    //          ValidationError. If a non-Error was thrown, then it will be wrapped in one, and Error.cause will be set.
     // `data`: the form data that was submitted
     // `form`: a reference to the Formula form instance
-    onError?: (args: { error: Error, data: Data, form: Form<Data> }) => void
+    onSubmitFailure?: (args: { error: Error, data: Data, form: Form<Data> }) => void
 
     // A Formula native validator
     validate?: Validator<NoInfer<Data>, NoInfer<Data>>
@@ -105,23 +106,25 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
         stateManager.current.setValue("submissionError", undefined);
 
         try {
-            const values = data.current;
-            const issues = await validateAll(values);
+            const submitData = data.current;
+            const issues = await validateAll(submitData);
             if (issues.length) {
-                console.log("Failed to submit because of validation errors", JSON.stringify(issues));
+                const error = new ValidationError(issues);
+                stateManager.current.setValue("submissionError", error);
+                activeOpts.current.onSubmitFailure?.({ error, data: submitData, form: self.current! });
                 return;
             }
 
             const submitForm = activeOpts.current.submit;
             if (submitForm) {
                 try {
-                    const result = await submitForm(values);
-                    activeOpts.current.onSuccess?.({ result, data: values, form: self.current! });
+                    const result = await submitForm(submitData);
+                    activeOpts.current.onSubmitSuccess?.({ result, data: submitData, form: self.current! });
                 }
                 catch (e) {
                     const error = convertSubmissionError(e);
                     stateManager.current.setValue("submissionError", error);
-                    activeOpts.current.onError?.({ error, data: values, form: self.current! });
+                    activeOpts.current.onSubmitFailure?.({ error, data: submitData, form: self.current! });
                 }
             }
             else if (e) {
