@@ -31,7 +31,7 @@ describe("useElements", () => {
             return elements.length;
         });
         expect(result.current).toBe(0);
-        expect(errorLogs).toContainEqual(["Expected an array but got string", "the name"]);
+        expect(errorLogs).toContainEqual(["Expected 'name' to be an array. Found: string"]);
     })
 
     it("throws when given non-field", () => {
