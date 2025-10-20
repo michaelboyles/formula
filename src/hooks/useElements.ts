@@ -1,5 +1,5 @@
 import type { FormField } from "../FormField.ts";
-import { useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T>> {
     if (!field) throw new Error("Field is " + field);
@@ -14,12 +14,12 @@ export function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T
 function useSyncNumElements(field: FormField<any[]>) {
     return useSyncExternalStore(
         // Subscribe
-        (onStoreChange) => {
+        useCallback((onStoreChange) => {
             const unsubscribe = field.subscribeToValue(onStoreChange);
             return () => {
                 unsubscribe();
             }
-        },
+        }, [field]),
         // Get snapshot
         () => getSafeLength(field.getValue()),
         // Get server snapshot

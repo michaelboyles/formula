@@ -1,14 +1,14 @@
 import type { FormState, FormStateType } from "../FormStateManager.ts";
-import { useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import type { _Form } from "./useForm.ts";
 
 export function useSyncState<T extends FormStateType>(form: _Form, state: T): FormState[T] {
     return useSyncExternalStore(
         // Subscribe
-        (onStoreChange) => {
+        useCallback((onStoreChange) => {
             const unsubscribe = form.subscribeToState(state, onStoreChange);
             return () => unsubscribe();
-        },
+        }, [form, state]),
         // Get snapshot
         () => form.getState(state),
         // Get server snapshot

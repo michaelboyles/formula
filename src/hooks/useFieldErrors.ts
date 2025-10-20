@@ -1,16 +1,16 @@
-import { useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import type { FormField } from "../FormField.ts";
 
 export function useFieldErrors(field: FormField<any>): ReadonlyArray<string> {
     if (!field) throw new Error("Field is " + field);
     return useSyncExternalStore(
         // Subscribe
-        (onStoreChange) => {
+        useCallback((onStoreChange) => {
             const unsubscribe = field.subscribeToErrors(onStoreChange);
             return () => {
                 unsubscribe();
             }
-        },
+        }, [field]),
         // Get snapshot
         () => field.getErrors(),
         // Get server snapshot
