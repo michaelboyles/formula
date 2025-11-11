@@ -18,6 +18,8 @@ npm install @michaelboyles/formula
 ```
 
 ```tsx
+import { Checkbox, Input, TextArea, useForm } from "@michaelboyles/formula";
+
 function NewBlogPostPage() {
     const form = useForm({
         initialValues: {
