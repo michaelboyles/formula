@@ -187,39 +187,40 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
     };
 
     return useMemo(() => {
-        const form = (key: keyof Data) => newFormField(ROOT_PATH.withProperty(key), formAccess) as any;
-        form[FORM_SYM] = 0 as const;
-        form.getUnsafeField = (path: any[]) => {
-            let fieldPath = ROOT_PATH;
-            for (const part of path) {
-                if (typeof part === "string") {
-                    fieldPath = fieldPath.withProperty(part);
+        const form = Object.assign(newFormField<Data>(ROOT_PATH, formAccess), {
+            [FORM_SYM]: 0 as const,
+            getUnsafeField: (path: any[]) => {
+                let fieldPath = ROOT_PATH;
+                for (const part of path) {
+                    if (typeof part === "string") {
+                        fieldPath = fieldPath.withProperty(part);
+                    }
+                    else {
+                        fieldPath = fieldPath.withArrayIndex(part);
+                    }
                 }
-                else {
-                    fieldPath = fieldPath.withArrayIndex(part);
-                }
-            }
-            return newFormField(fieldPath, formAccess);
-        };
-        form.getData = () => data.current;
-        form.setData = (data: Data) => setValue(ROOT_PATH, data);
-        form.reset = () => {
-            const initialValues = activeOpts.current.initialValues;
-            const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
-            setValue(ROOT_PATH, newValues);
-        };
-        form.submit = submit;
-        form.getState = <T extends FormStateType>(state: T) => stateManager.current.getValue(state);
-        form.subscribeToState = (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
-            stateManager.current.subscribe(state, subscriber);
-            return () => stateManager.current.unsubscribe(state, subscriber);
-        }
+                return newFormField(fieldPath, formAccess);
+            },
+            getData: () => data.current,
+            setData: (data: Data) => setValue(ROOT_PATH, data),
+            reset: () => {
+                const initialValues = activeOpts.current.initialValues;
+                const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
+                setValue(ROOT_PATH, newValues);
+            },
+            submit,
+            getState: <T extends FormStateType>(state: T) => stateManager.current.getValue(state),
+            subscribeToState: (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
+                stateManager.current.subscribe(state, subscriber);
+                return () => stateManager.current.unsubscribe(state, subscriber);
+            },
+        });
         self.current = form satisfies _Form<Data>;
         return form;
     }, []);
 }
 
-export type Form<Data> = (<K extends keyof Omit<Data, symbol>>(key: K) => FormField<Data[K]>) & {
+export type Form<Data> = FormField<Data> & {
     // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`, but there may be cases
     // where you call it programmatically.
     submit: (e?: FormEvent) => void
