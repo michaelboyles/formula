@@ -60,7 +60,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
         activeOpts.current = opts;
     });
 
-    const self = useRef<_Form<Data> | null>(null);
+    const self = useRef<FormWithInternals<Data> | null>(null);
     const data = useLazyRef(opts.initialValues);
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
@@ -188,7 +188,6 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
 
     return useMemo(() => {
         const form = Object.assign(newFormField<Data>(ROOT_PATH, formAccess), {
-            [FORM_SYM]: 0 as const,
             getUnsafeField: (path: any[]) => {
                 let fieldPath = ROOT_PATH;
                 for (const part of path) {
@@ -204,13 +203,16 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
                 setValue(ROOT_PATH, newValues);
             },
             submit,
-            getState: <T extends FormStateType>(state: T) => stateManager.current.getValue(state),
-            subscribeToState: (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
-                stateManager.current.subscribe(state, subscriber);
-                return () => stateManager.current.unsubscribe(state, subscriber);
-            },
+            __internal: {
+                [FORM_SYM]: 0 as const,
+                getState: <T extends FormStateType>(state: T) => stateManager.current.getValue(state),
+                subscribeToState: (state: FormStateType, subscriber: StateSubscriber): UnsubscribeFromState => {
+                    stateManager.current.subscribe(state, subscriber);
+                    return () => stateManager.current.unsubscribe(state, subscriber);
+                },
+            }
         });
-        self.current = form satisfies _Form<Data>;
+        self.current = form satisfies FormWithInternals<Data>;
         return form;
     }, []);
 }
@@ -233,19 +235,24 @@ export type Form<Data> = FormField<Data> & {
     reset: () => void
 }
 
-export type _Form<Data = unknown> = {
-    [FORM_SYM]: 0,
+export type FormWithInternals<Data = unknown> = Form<Data> & {
+    __internal: {
+        [FORM_SYM]: 0
 
-    getState: <T extends FormStateType>(state: T) => FormState[T]
+        getState: <T extends FormStateType>(state: T) => FormState[T]
 
-    subscribeToState: (state: FormStateType, subscriber: StateSubscriber) => UnsubscribeFromState;
-} & Form<Data>;
-
-export function isInternalForm(form: Form<any>): form is _Form {
-    return Object.hasOwn(form, FORM_SYM);
+        subscribeToState: (state: FormStateType, subscriber: StateSubscriber) => UnsubscribeFromState
+    }
 }
 
-const FORM_SYM = Symbol.for("FORM");
+export function isInternalForm(form: any): form is FormWithInternals {
+    return typeof form === "function"
+        && Object.hasOwn(form, "__internal")
+        && typeof form.__internal === "object"
+        && Object.hasOwn(form.__internal, FORM_SYM);
+}
+
+const FORM_SYM = Symbol("FORMULA_FORM");
 
 export type FormAccess = {
     getValue: (path: FieldPath) => any
