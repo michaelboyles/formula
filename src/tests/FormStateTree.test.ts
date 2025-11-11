@@ -56,4 +56,18 @@ describe("FormStateTree", () => {
         tree.notifyValueChanged(userPath, { user: {} });
         expect(tree.getErrors(userPath.withProperty("name"))).toEqual([]);
     })
+
+    test("Root subscribers are notified when a nested leaf changes", () => {
+        const tree = new FormStateTree();
+        const rootPath = FieldPath.create();
+        const leafPath = rootPath.withProperty("name");
+
+        // GIVEN a subscriber at the root node
+        let rootNotified = 0;
+        tree.subscribeToValue(rootPath, () => rootNotified++);
+        // WHEN a leaf node is changed and subscribers are notified
+        tree.notifyValueChanged(leafPath, { name: "Alice" });
+        // THEN the count as incremented
+        expect(rootNotified).toBe(1);
+    });
 })

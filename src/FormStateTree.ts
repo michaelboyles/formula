@@ -184,6 +184,7 @@ export class FormStateTree {
             this.clearStateAndPrune(currentNode, newData);
             return;
         }
+        currentNode.valueSubscribers?.forEach(notifySub => notifySub());
         for (let i = 0; i < path.keys.length; i++) {
             const key = path.keys[i];
             currentNode = currentNode.propertyToNode?.[key as string | number];
