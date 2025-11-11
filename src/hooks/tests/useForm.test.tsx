@@ -661,7 +661,6 @@ describe("useForm", () => {
             expect(queryByText("Required")).toBeInTheDocument();
         })
 
-        // TODO 3 revisit this, because for nested it might be weird
         it("validates numeric object key", async () => {
             function Test() {
                 type FormValues = {

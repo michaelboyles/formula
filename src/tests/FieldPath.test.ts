@@ -13,13 +13,8 @@ describe("getValue", () => {
     })
 
     test("Single array index", () => {
-        const path = FieldPath.create().withArrayIndex(1);
+        const path = FieldPath.create().withProperty(1);
         expect(path.getValue(["a", "B", "c"])).toBe("B");
-    })
-
-    test("Try to access array element when root is object", () => {
-        const path = FieldPath.create().withArrayIndex(2);
-        expect(() => path.getValue({})).toThrow("<form-root> is not an array");
     })
 
     test("Try to access property when root is array", () => {
@@ -29,13 +24,18 @@ describe("getValue", () => {
 })
 
 describe("getValue for invalid path", () => {
+    test("Try to access unknown property", () => {
+        const path = FieldPath.create().withProperty("a");
+        expect(path.getValue({})).toBeUndefined();
+    })
+
     test("Object property for number", () => {
         const path = FieldPath.create().withProperty("foo");
         expect(() => path.getValue(3)).toThrow();
     })
 
     test("Array index for number", () => {
-        const path = FieldPath.create().withArrayIndex(1);
+        const path = FieldPath.create().withProperty(1);
         expect(() => path.getValue(3)).toThrow();
     })
 })
@@ -51,7 +51,7 @@ describe("getDataWithValue", () => {
     })
 
     test("Set array index", () => {
-        const path = FieldPath.create().withArrayIndex(1);
+        const path = FieldPath.create().withProperty(1);
 
         const initial = ["a", "X", "c"];
         const result = path.getDataWithValue(initial, "B");
@@ -60,7 +60,7 @@ describe("getDataWithValue", () => {
     })
 
     test("Set nested array index", () => {
-        const path = FieldPath.create().withArrayIndex(1).withArrayIndex(0);
+        const path = FieldPath.create().withProperty(1).withProperty(0);
 
         const initial = [["a"], ["b", "c"], ["d"]];
         const result = path.getDataWithValue(initial, "X");
@@ -77,13 +77,13 @@ describe("toString", () => {
     })
 
     test("property > array", () => {
-        const path = FieldPath.create().withProperty("foo").withArrayIndex(1);
-        expect(path.toString()).toStrictEqual("foo[1]")
+        const path = FieldPath.create().withProperty("foo").withProperty(1);
+        expect(path.toString()).toStrictEqual("foo.1")
     })
 
     test("property > array > property", () => {
-        const path = FieldPath.create().withProperty("foo").withArrayIndex(2).withProperty("bar")
-        expect(path.toString()).toStrictEqual("foo[2].bar")
+        const path = FieldPath.create().withProperty("foo").withProperty(2).withProperty("bar")
+        expect(path.toString()).toStrictEqual("foo.2.bar")
     })
 })
 

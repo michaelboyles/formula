@@ -1,47 +1,38 @@
-export class FieldPath {
-    readonly nodes: ReadonlyArray<FieldNode>;
+type Key = string | number | symbol;
 
-    constructor(nodes: FieldNode[]) {
-        this.nodes = nodes;
+export class FieldPath {
+    readonly keys: ReadonlyArray<Key>;
+
+    constructor(keys: Key[]) {
+        this.keys = keys;
     }
 
     static create() {
         return new FieldPath([]);
     }
 
-    withProperty(value: string | number | symbol): FieldPath {
-        const node: FieldNode = Object.freeze({ type: "property", value });
-        return new FieldPath([...this.nodes, node]);
-    }
-
-    withArrayIndex(index: number): FieldPath {
-        const node: FieldNode = Object.freeze({ type: "index", index });
-        return new FieldPath([...this.nodes, node]);
+    withProperty(key: string | number | symbol): FieldPath {
+        return new FieldPath([...this.keys, key]);
     }
 
     toString(): string {
-        if (this.nodes.length === 0) {
+        if (this.keys.length === 0) {
             return "<form-root>";
         }
         let str = "";
-        for (const node of this.nodes) {
-            if (node.type === "property") {
-                if (str.length) str += ".";
-                str += String(node.value);
-            }
-            else if (node.type === "index") {
-                str += `[${node.index}]`;
-            }
+        for (const key of this.keys) {
+            if (str.length) str += ".";
+            str += String(key);
         }
         return str;
     }
 
     getValue(root: any): any {
         let data = root;
-        for (let i = 0; i < this.nodes.length; i++) {
-            const node = this.nodes[i];
+        for (let i = 0; i < this.keys.length; i++) {
+            const key = this.keys[i];
             try {
-                data = getPropertyOrIndex(data, node)
+                data = getPropertyOrIndex(data, key)
             }
             catch (e) {
                 throw new Error(`${this.sliceTo(i).toString()} ${e}`)
@@ -57,62 +48,41 @@ export class FieldPath {
         return this._getDataWithValue(data, newValue, 0);
     }
 
-    private _getDataWithValue(data: any, newValue: any, nodeIdx: number): any {
-        if (nodeIdx === this.nodes.length) return newValue;
-        const node = this.nodes[nodeIdx];
-        const newPart = this._getDataWithValue(getPropertyOrIndex(data, node), newValue, nodeIdx + 1);
+    private _getDataWithValue(data: any, newValue: any, keyIdx: number): any {
+        if (keyIdx === this.keys.length) return newValue;
+        const key = this.keys[keyIdx];
+        const newPart = this._getDataWithValue(getPropertyOrIndex(data, key), newValue, keyIdx + 1);
 
-        if (node.type === "property") {
-            return {...data, [node.value]: newPart};
+        if (Array.isArray(data)) {
+            if (typeof key !== "number") {
+                throw new Error("Cannot modify array with non-numeric key: " + key.toString());
+            }
+            return [...data.slice(0, key), newPart, ...data.slice(key + 1, data.length)];
         }
-        else if (node.type === "index") {
-            const arr: any[] = data;
-            return [...data.slice(0, node.index), newPart, ...data.slice(node.index + 1, arr.length)];
+        else {
+            return {...data, [key]: newPart};
         }
-        throw new Error(`Unknown node type ${node satisfies never}`);
     }
 
     isRoot(): boolean {
-        return this.nodes.length === 0;
+        return this.keys.length === 0;
     }
 
     sliceTo(parts: number): FieldPath {
-        if (parts > this.nodes.length) {
+        if (parts > this.keys.length) {
             throw new Error(`Can't slice ${this.toString()} into ${parts} part(s)`)
         }
-        return new FieldPath([...this.nodes.slice(0, parts)]);
+        return new FieldPath([...this.keys.slice(0, parts)]);
     }
 }
 
-export type FieldNode = {
-    readonly type: "property",
-    readonly value: string | number | symbol
-} | {
-    readonly type: "index"
-    readonly index: number
-}
-
-function getPropertyOrIndex(data: any, node: FieldNode): any {
-    switch (node.type) {
-        case "property": {
-            if (data == null) return undefined;
-            if (typeof data !== "object") {
-                throw "is not an object";
-            }
-            if (Array.isArray(data)) {
-                throw "is an array, not an object";
-            }
-            return data[node.value];
-        }
-        case "index": {
-            if (data == null) return undefined;
-            if (!Array.isArray(data)) {
-                throw "is not an array";
-            }
-            return data[node.index];
-        }
-        default: {
-            throw new Error(`Unknown node type ${node satisfies never}`);
-        }
+function getPropertyOrIndex(data: any, key: Key): any {
+    if (data == null) return undefined;
+    if (typeof data !== "object") {
+        throw "is not an object";
     }
+    if (Array.isArray(data) && typeof key !== "number") {
+        throw "is an array, not an object";
+    }
+    return data[key];
 }

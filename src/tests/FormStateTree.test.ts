@@ -22,7 +22,7 @@ describe("FormStateTree", () => {
 
     test("Subscribe with complex path", () => {
         const tree = new FormStateTree();
-        const path = FieldPath.create().withProperty("foo").withArrayIndex(5).withProperty("bar")
+        const path = FieldPath.create().withProperty("foo").withProperty(5).withProperty("bar")
         let notified = 0;
         const unsubscribe = tree.subscribeToValue(path, () => {
             notified++;

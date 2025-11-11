@@ -192,12 +192,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
             getUnsafeField: (path: any[]) => {
                 let fieldPath = ROOT_PATH;
                 for (const part of path) {
-                    if (typeof part === "string") {
-                        fieldPath = fieldPath.withProperty(part);
-                    }
-                    else {
-                        fieldPath = fieldPath.withArrayIndex(part);
-                    }
+                    fieldPath = fieldPath.withProperty(part);
                 }
                 return newFormField(fieldPath, formAccess);
             },

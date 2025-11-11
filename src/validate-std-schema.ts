@@ -27,14 +27,11 @@ async function _getValidationIssues<T>(values: T, validator: StandardSchemaV1<T>
 function convertPath(path: StdPath) {
     let fieldPath = FieldPath.create();
     path.map(part => unwrapPathPart(part)).forEach(part => {
-        if (typeof part === "string") {
+        if (typeof part === "string" || typeof part === "number") {
             fieldPath = fieldPath.withProperty(part);
         }
-        else if (typeof part === "number") {
-            fieldPath = fieldPath.withArrayIndex(part);
-        }
         else {
-            throw new Error("Symbols not supported");
+            throw new Error("Symbols are not supported");
         }
     });
     return fieldPath;

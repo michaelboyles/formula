@@ -72,11 +72,6 @@ export class FormStateTree {
                 childChanged = true;
             }
         }
-        for (const child of Object.values(node.indexToNode ?? {})) {
-            if (this.clearErrorsForNode(child)) {
-                childChanged = true;
-            }
-        }
 
         if (changed || childChanged) {
             node.deepErrors?.markStale();
@@ -111,7 +106,7 @@ export class FormStateTree {
     }
 
     setBlurred(path: FieldPath, blurred: boolean) {
-        for (let i = 0; i < path.nodes.length; ++i) {
+        for (let i = 0; i < path.keys.length; ++i) {
             const node = this.getOrCreateNode(path.sliceTo(i + 1));
             if (node.blurred !== blurred) {
                 node.blurred = blurred;
@@ -151,55 +146,31 @@ export class FormStateTree {
 
     private getOrCreateNodes(path: FieldPath): TreeNode[] {
         const nodes: TreeNode[] = [this.root];
-        for (const pathPart of path.nodes) {
+        for (const key of path.keys) {
             const current = nodes[nodes.length - 1];
-            if (pathPart.type === "property") {
-                let propertyToNode = current.propertyToNode;
-                if (!propertyToNode) {
-                    propertyToNode = {};
-                    current.propertyToNode = propertyToNode;
-                }
-
-                const name = pathPart.value as string | number;
-                let next = propertyToNode[name];
-                if (!next) {
-                    next = {};
-                    propertyToNode[name] = next;
-                }
-                nodes.push(next);
+            let propertyToNode = current.propertyToNode;
+            if (!propertyToNode) {
+                propertyToNode = {};
+                current.propertyToNode = propertyToNode;
             }
-            else if (pathPart.type === "index") {
-                let indexToNode = current.indexToNode;
-                if (!indexToNode) {
-                    indexToNode = {};
-                    current.indexToNode = indexToNode;
-                }
 
-                const index = pathPart.index;
-                let next = indexToNode[index];
-                if (!next) {
-                    next = {};
-                    indexToNode[index] = next;
-                }
-                nodes.push(next);
+            const name = key as string | number;
+            let next = propertyToNode[name];
+            if (!next) {
+                next = {};
+                propertyToNode[name] = next;
             }
+            nodes.push(next);
         }
         return nodes;
     }
 
     private getNode(path: FieldPath): TreeNode | undefined {
         let node = this.root;
-        for (const pathPart of path.nodes) {
-            if (pathPart.type === "property") {
-                const next = node.propertyToNode?.[pathPart.value as string | number];
-                if (!next) return;
-                node = next;
-            }
-            else if (pathPart.type === "index") {
-                const next = node.indexToNode?.[pathPart.index];
-                if (!next) return;
-                node = next;
-            }
+        for (const key of path.keys) {
+            const next = node.propertyToNode?.[key as string | number];
+            if (!next) return;
+            node = next;
         }
         return node;
     }
@@ -213,18 +184,13 @@ export class FormStateTree {
             this.clearStateAndPrune(currentNode, newData);
             return;
         }
-        for (let i = 0; i < path.nodes.length; i++) {
-            const node = path.nodes[i];
-            if (node.type === "property") {
-                currentNode = currentNode.propertyToNode?.[node.value as string | number];
-                newData = newData?.[node.value];
-            }
-            else {
-                currentNode = currentNode.indexToNode?.[node.index];
-                newData = Array.isArray(newData) ? newData[node.index] : undefined;
-            }
+        for (let i = 0; i < path.keys.length; i++) {
+            const key = path.keys[i];
+            currentNode = currentNode.propertyToNode?.[key as string | number];
+            newData = newData?.[key];
+
             if (!currentNode) return;
-            if (i === path.nodes.length - 1) {
+            if (i === path.keys.length - 1) {
                 this.notifyAll(currentNode, n => n.valueSubscribers);
                 this.clearStateAndPrune(currentNode, newData);
             }
@@ -237,9 +203,6 @@ export class FormStateTree {
     private visitAllChildren(node: TreeNode, visit: (n: TreeNode) => void) {
         visit(node);
         node.propertyToNode && Object.values(node.propertyToNode).forEach(child => {
-            this.visitAllChildren(child, visit);
-        });
-        node.indexToNode && Object.values(node.indexToNode).forEach(child => {
             this.visitAllChildren(child, visit);
         });
     }
@@ -267,30 +230,12 @@ export class FormStateTree {
                 delete node.propertyToNode;
             }
         }
-        if (node.indexToNode) {
-            for (const [key, child] of Object.entries(node.indexToNode)) {
-                const index = Number(key);
-                const nextData = Array.isArray(data) ? data?.[index] : undefined;
-                this.clearStateAndPrune(child, nextData);
-                if (nextData === undefined) {
-                    delete child.errors;
-                    delete child.blurred;
-                    if (this.isNodeEmpty(child)) {
-                        delete node.indexToNode[index];
-                    }
-                }
-            }
-            if (Object.keys(node.indexToNode).length === 0) {
-                delete node.indexToNode;
-            }
-        }
     }
 
     private isNodeEmpty(node: TreeNode): boolean {
         const hasState = node.blurred === true
             || (node.errors && node.errors.length > 0)
             || (node.propertyToNode && Object.keys(node.propertyToNode).length > 0)
-            || (node.indexToNode && Object.keys(node.indexToNode).length > 0)
             || (node.valueSubscribers && node.valueSubscribers.length > 0)
             || (node.errorSubscribers && node.errorSubscribers.length > 0)
             || (node.blurredSubscribers && node.blurredSubscribers.length > 0);
@@ -300,7 +245,6 @@ export class FormStateTree {
 
 type TreeNode = {
     propertyToNode?: Record<string, TreeNode>
-    indexToNode?: Record<number, TreeNode>
     errors?: string[]
     deepErrors?: CachedValue<string[]>
     blurred?: boolean
@@ -319,11 +263,6 @@ function hasError(start: TreeNode) {
     if (start.errors?.length) return true;
     if (start.propertyToNode) {
         for (const node of Object.values(start.propertyToNode)) {
-            if (hasError(node)) return true;
-        }
-    }
-    if (start.indexToNode) {
-        for (const node of Object.values(start.indexToNode)) {
             if (hasError(node)) return true;
         }
     }

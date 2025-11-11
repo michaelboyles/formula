@@ -34,7 +34,7 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
         if (eachValidator) {
             for (let i = 0; i < value.length; i++) {
                 const item = value[i];
-                issues.push(validateRecursive(rootData, item, eachValidator, path.withArrayIndex(i)));
+                issues.push(validateRecursive(rootData, item, eachValidator, path.withProperty(i)));
             }
         }
     }

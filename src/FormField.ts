@@ -5,11 +5,8 @@ import type { Subscriber, Unsubscribe } from "./FormStateTree.ts";
 export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormField<T> {
     return Object.assign(
         (<K extends keyof T>(pathKey: K): FormField<T[K]> => {
-            if (typeof pathKey === "string") {
+            if (typeof pathKey === "string" || typeof pathKey === "number") {
                 return newFormField(path.withProperty(pathKey), formAccess);
-            }
-            else if (typeof pathKey === "number") {
-                return newFormField(path.withArrayIndex(pathKey), formAccess);
             }
             throw new Error("Unsupported path key " + pathKey.toString());
         }),
