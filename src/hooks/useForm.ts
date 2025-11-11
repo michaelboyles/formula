@@ -16,10 +16,7 @@ import type { Issue, Validator } from "../validate.ts";
 import { useLazyRef } from "./useLazyRef.ts";
 import { ValidationError } from "../ValidationError.ts";
 
-// TODO 2
-type BaseForm = Record<string | number, any>;
-
-type UseFormOpts<Data extends BaseForm, SubmitResponse> = {
+type UseFormOpts<Data, SubmitResponse> = {
     // The initial values for the form. This is the only required option.
     initialValues: Data | (() => Data)
 
@@ -54,7 +51,7 @@ type UseFormOpts<Data extends BaseForm, SubmitResponse> = {
 
 const ROOT_PATH = FieldPath.create();
 
-export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts<Data, SubmitResponse>): Form<Data> {
+export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResponse>): Form<Data> {
     const activeOpts = useRef(opts);
     useEffect(() => {
         activeOpts.current = opts;
@@ -199,7 +196,7 @@ export function useForm<Data extends BaseForm, SubmitResponse>(opts: UseFormOpts
             setData: (data: Data) => setValue(ROOT_PATH, data),
             reset: () => {
                 const initialValues = activeOpts.current.initialValues;
-                const newValues = typeof initialValues === "function" ? initialValues() : initialValues;
+                const newValues = typeof initialValues === "function" ? (initialValues as () => Data)() : initialValues;
                 setValue(ROOT_PATH, newValues);
             },
             submit,
