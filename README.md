@@ -7,7 +7,8 @@
   <img height="100" alt="Formula" src="https://github.com/michaelboyles/formula/raw/develop/docs/src/assets/logo-light.svg">
 </picture>
 
-Type-safe React forms
+Formula is a form management library for React (think Formik, RHF, TanStack Form). It's fully type-safe, performant and
+has a small footprint.
 
 [**📖 Read the docs**](https://michaelboyles.github.io/formula/)
 
