@@ -5,7 +5,7 @@ slug: hooks/useRadioButton
 ---
 
 `useRadioButton` returns a new component for the given `FormField`. It's used to remove the need for duplicate props
-across [`<RadioButton>`s](/components/controls/RadioButton), which is does by binding props dynamically.
+across [`<RadioButton>`s](/formula/components/controls/RadioButton), which is does by binding props dynamically.
 
 ## Sample usage
 

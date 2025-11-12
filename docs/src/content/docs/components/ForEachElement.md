@@ -7,7 +7,7 @@ slug: components/ForEachElement
 `<ForEachElement>` safely iterates array elements. It accepts an array field and a render prop as its child, which
 is called once for each element.
 
-The counterpart hook is [`useElements`](/hooks/useElements).
+The counterpart hook is [`useElements`](/formula/hooks/useElements).
 
 ## Sample usage 
 

@@ -30,7 +30,7 @@ rerenders. This isn't always an issue, but it can affect performance. You should
 optimize it once you know there's an issue.
 
 Suppose we need the `name` value elsewhere in our form, so we modify our code to use the
-[`useFieldValue` hook](/hooks/useFieldValue):
+[`useFieldValue` hook](/formula/hooks/useFieldValue):
 
 ```tsx
 const renderCount = useRef(0);
@@ -82,7 +82,7 @@ component and to structure your code in a specific way.
 
 For this reason, every hook in Formula ships with an equivalent component. You can use these components instead of
 defining an otherwise-unnecessary component of your own. The equivalent component for `useFieldValue` is 
-[`FieldValue`](/components/FieldValue). The components aren't special. They're simply implemented using their
+[`FieldValue`](/formula/components/FieldValue). The components aren't special. They're simply implemented using their
 respective hooks.
 
 ```tsx
@@ -109,8 +109,8 @@ it more readable.
 
 | Hook                                            | Component                                      |
 |-------------------------------------------------|------------------------------------------------|
-| [useElements](/hooks/useElements)               | [ForEachElement](/components/ForEachElement)   |
-| [useFieldErrors](/hooks/useFieldErrors)         | [FieldErrors](/components/FieldErrors)         |
-| [useFieldValue](/hooks/useFieldValue)           | [FieldValue](/components/FieldValue)           |
-| [useIsSubmitting](/hooks/useIsSubmitting)       | [IsSubmitting](/components/IsSubmitting)       |
-| [useSubmissionError](/hooks/useSubmissionError) | [SubmissionError](/components/SubmissionError) |
+| [useElements](/formula/hooks/useElements)               | [ForEachElement](/formula/components/ForEachElement)   |
+| [useFieldErrors](/formula/hooks/useFieldErrors)         | [FieldErrors](/formula/components/FieldErrors)         |
+| [useFieldValue](/formula/hooks/useFieldValue)           | [FieldValue](/formula/components/FieldValue)           |
+| [useIsSubmitting](/formula/hooks/useIsSubmitting)       | [IsSubmitting](/formula/components/IsSubmitting)       |
+| [useSubmissionError](/formula/hooks/useSubmissionError) | [SubmissionError](/formula/components/SubmissionError) |

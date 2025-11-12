@@ -7,7 +7,7 @@ slug: components/FieldValue
 `<FieldValue>` lets you watch the value of a field. It accepts a field and a render prop as its child, which
 is called every time the value changes.
 
-The counterpart hook is [`useFieldValue`](/hooks/useFieldValue).
+The counterpart hook is [`useFieldValue`](/formula/hooks/useFieldValue).
 
 ## Sample usage 
 

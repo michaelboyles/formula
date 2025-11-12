@@ -46,7 +46,7 @@ for that type has meaningful string value for `event.target.value`. Specifically
 
 - `button`, `image`, `reset`, `submit`: these are buttons rather than true inputs
 - `checkbox`: An `<input type="checkbox">`'s `value` only represents the "on" value, rather than the current value, which
-   is represented by `checked`. Use [Checkbox](/components/Checkbox)
+   is represented by `checked`. Use [Checkbox](/formula/components/Checkbox)
 - `radio`: An `<input type="radio">`'s `value` represents the associated value if the radio button is selected, rather
-   than the current value for that field. Use [RadioButton](/components/RadioButton)
+   than the current value for that field. Use [RadioButton](/formula/components/RadioButton)
 - `file`: It's not possible to convert it to a meaningful string

@@ -8,7 +8,7 @@ slug: components/RadioButton
 all of Formula's required handlers.
 
 By their nature, the relationship of radio buttons to form state is many-to-one, and that results in some duplication
-which you might not like stylistically. You may prefer [`useRadioButton`](/hooks/useRadioButton) which removes
+which you might not like stylistically. You may prefer [`useRadioButton`](/formula/hooks/useRadioButton) which removes
 that duplication.
 
 ## Sample usage

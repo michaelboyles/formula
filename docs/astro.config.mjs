@@ -4,6 +4,8 @@ import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
+    site: "https://michaelboyles.github.io/",
+    base: "/formula/",
 	integrations: [
 		starlight({
 			title: "Formula",

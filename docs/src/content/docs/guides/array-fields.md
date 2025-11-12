@@ -12,8 +12,8 @@ component won't rerender when the elements change.
 
 For that reason, there are two special ways of iterating over an array's elements:
 
-- the [`useElements` hook](/hooks/useElements)
-- the [`<ForEachElement>` component](/components/ForEachElement) (implemented using `useElements`)
+- the [`useElements` hook](/formula/hooks/useElements)
+- the [`<ForEachElement>` component](/formula/components/ForEachElement) (implemented using `useElements`)
 
 The idea is the same in both cases: to take a `FormField<T[]>` and safely convert it to `FormField<T>[]`, and to have
 that be recomputed if the array length changes.

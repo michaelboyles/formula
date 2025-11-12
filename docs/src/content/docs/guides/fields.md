@@ -17,7 +17,7 @@ type Post = {
 
 ## Accessing a field
 
-The form instance returned by [`useForm`](/hooks/useForm) is a function you can call to access individual fields in
+The form instance returned by [`useForm`](/formula/hooks/useForm) is a function you can call to access individual fields in
 a type-safe way.
 
 ```typescript
@@ -54,7 +54,7 @@ form.submit();
 
 ## Nested fields
 
-Fields work in exactly the same way as `form` above: they're callable function which also have methods.
+Fields work in exactly the same way as `form` above: they're callable functions which also have methods.
 
 ```tsx
 const form = useForm({
@@ -72,8 +72,8 @@ form("address").setValue({ number: "123", street: "Fake St", city: "" });
 As we covered, a field is a reference to a slice of form data, rather than the form data itself. It can provide a
 snapshot, but how can we subscribe to the value?
 
-For a lot of simple forms, often you don't need to. The built-in controls like [`<Input>`](/components/Input) accept a
+For a lot of simple forms, often you don't need to. The built-in controls like [`<Input>`](/formula/components/Input) accept a
 `FormField` and will create a subscription and bind that value to the control.
 
 If you need to implement your own controls, or you need to use a value somewhere besides a controlled input, then you
-can subscribe to the field's value using the [`useFieldValue` hook](/hooks/useFieldValue).
+can subscribe to the field's value using the [`useFieldValue` hook](/formula/hooks/useFieldValue).

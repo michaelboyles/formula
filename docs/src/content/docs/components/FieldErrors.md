@@ -7,7 +7,7 @@ slug: components/FieldErrors
 `<FieldErrors>` lets you watch the validation errors for a field. It accepts a field and a render prop as its child,
 which is called every time the errors for the field change.
 
-The counterpart hook is [`useFieldErrors`](/hooks/useFieldErrors).
+The counterpart hook is [`useFieldErrors`](/formula/hooks/useFieldErrors).
 
 ## Sample usage 
 

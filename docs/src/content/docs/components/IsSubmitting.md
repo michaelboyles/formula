@@ -7,7 +7,7 @@ slug: components/IsSubmitting
 `<IsSubmitting>` subscribes to the `isSubmitting` state of the given form and exposes it to a render prop. You can
 use it to watch the submission state without introducing unnecessary rerenders.
 
-The counterpart hook is [`useIsSubmitting`](/hooks/useIsSubmitting).
+The counterpart hook is [`useIsSubmitting`](/formula/hooks/useIsSubmitting).
 
 ## Sample usage
 

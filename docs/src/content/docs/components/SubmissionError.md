@@ -7,7 +7,7 @@ slug: components/SubmissionError
 `<SubmissionError>` subscribes to the latest submission error of the given form (if any) and exposes it to a
 render prop. You can use it to watch for submission errors without introducing unnecessary rerenders.
 
-The counterpart hook is [`useSubmissionError`](/hooks/useSubmissionError).
+The counterpart hook is [`useSubmissionError`](/formula/hooks/useSubmissionError).
 
 ## Sample usage
 
