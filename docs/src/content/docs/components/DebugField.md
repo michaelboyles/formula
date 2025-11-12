@@ -18,6 +18,17 @@ return (
 )
 ```
 
+### Sample output
+
+```json
+{
+  "path": "name",
+  "value": "",
+  "blurred": false,
+  "errors": []
+}
+```
+
 ## Type
 
 ```typescript

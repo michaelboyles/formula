@@ -4,8 +4,8 @@ description: Using arrays as form data in Formula
 ---
 
 To ensure type-safety while preventing unnecessary rerenders, array fields in Formula require a little extra
-ceremony. Since `form("myArray")` is a reference to a slice of form state, it's not in itself an array that can be
-mapped over.
+ceremony. Since `form("myArray")` is a reference to a slice of form state, it isn't an array that can be
+mapped over itself.
 
 `form("myArray").getValue()` would give you a snapshot that could be mapped over, but it has no reactivity. Your
 component won't rerender when the elements change.
