@@ -96,7 +96,6 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         e?.preventDefault();
 
         if (stateManager.current.getValue("isSubmitting")) {
-            console.log("Skipping dupe submission");
             return;
         }
         stateManager.current.setValue("isSubmitting", true);

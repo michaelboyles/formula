@@ -14,7 +14,7 @@ async function _getValidationIssues<T>(values: T, validator: StandardSchemaV1<T>
     const nativeIssues: Issue[] = [];
     for (const issue of result.issues) {
         if (!issue.path) {
-            console.log("issue has no path", JSON.stringify(issue));
+            console.warn("Ignoring validation issue with no path:", JSON.stringify(issue));
             continue;
         }
         const path = convertPath(issue.path);
