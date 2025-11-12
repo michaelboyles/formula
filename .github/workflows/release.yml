@@ -6,6 +6,10 @@ on:
   pull_request:
     tags: [ 'v*.*.*' ]
 
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,11 +24,11 @@ jobs:
         with:
           node-version: 22.x
           registry-url: https://registry.npmjs.org/
+      - name: Update npm
+        run: npm install -g npm@latest
       - run: npm ci
       - name: set package.json version
         run: npm version from-git --git-tag-version=false
       - run: npm run build
       - run: npm run test
       - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
