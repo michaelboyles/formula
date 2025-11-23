@@ -6,10 +6,8 @@ export function useDeepFieldErrors(field: FormField<any>): ReadonlyArray<string>
     return useSyncExternalStore(
         // Subscribe
         useCallback((onStoreChange) => {
-            const unsubscribe = field.subscribeToDeepErrors(onStoreChange);
-            return () => {
-                unsubscribe();
-            }
+            const unsubscribe = field._internal.subscribeToDeepErrors(onStoreChange);
+            return () => unsubscribe();
         }, [field]),
         // Get snapshot
         () => field.getDeepErrors(),

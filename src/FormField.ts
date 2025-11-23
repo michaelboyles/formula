@@ -12,21 +12,19 @@ export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormFi
         }),
         {
             toString: () => path.toString(),
-            // Value
             getValue: () => formAccess.getValue(path),
             setValue: (value: T) => formAccess.setValue(path, value),
-            subscribeToValue: (subscriber: Subscriber) => formAccess.subscribeToValue(path, subscriber),
-            // Errors
             getErrors: () => formAccess.getErrors(path),
             setErrors: (errors: string | string[] | undefined) => formAccess.setErrors(path, errors),
-            subscribeToErrors: (subscriber: Subscriber) => formAccess.subscribeToErrors(path, subscriber),
-            // Deep errors
             getDeepErrors: () => formAccess.getDeepErrors(path),
-            subscribeToDeepErrors: (subscriber: Subscriber) => formAccess.subscribeToDeepErrors(path, subscriber),
-            // Blurred
             blurred: () => formAccess.blurred(path),
             setBlurred: (blurred: boolean) => formAccess.setBlurred(path, blurred),
-            subscribeToBlurred: (subscriber: Subscriber) => formAccess.subscribeToBlurred(path, subscriber),
+            _internal: {
+                subscribeToValue: (subscriber: Subscriber) => formAccess.subscribeToValue(path, subscriber),
+                subscribeToErrors: (subscriber: Subscriber) => formAccess.subscribeToErrors(path, subscriber),
+                subscribeToDeepErrors: (subscriber: Subscriber) => formAccess.subscribeToDeepErrors(path, subscriber),
+                subscribeToBlurred: (subscriber: Subscriber) => formAccess.subscribeToBlurred(path, subscriber),
+            }
         } satisfies BaseField<T>, {
             push: (...element: any) => {
                 formAccess.updateValue<unknown[]>(path, value => {
@@ -50,27 +48,36 @@ export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormFi
 }
 
 type BaseField<Value, SetValue = Value> = {
+    // Get the path of the field, joined with periods, e.g. "users.0.username"
     toString: () => string
 
+    // Get the current value of the field
     getValue: () => Readonly<Value>
+    // Set the current value of the field
     setValue: (value: SetValue) => void
-    subscribeToValue: (subscriber: Subscriber) => Unsubscribe
-
+    // Get the current validation errors for this field
     getErrors: () => ReadonlyArray<string>
+    // Set the current validation errors for this field
     setErrors: (errors: string | string[] | undefined) => void
-    subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
-
+    // Get ALL validation errors for this field, including any sub-fields. For example if the field is
+    // "users.0.username" and "users" has 1 error, "users.0" has 2 error", this will return an array containing 3
+    // errors.
     getDeepErrors: () => ReadonlyArray<string>
-    subscribeToDeepErrors: (subscriber: Subscriber) => Unsubscribe
-
+    // Get the current blur status for this field, i.e. whether the field has lost focus.
     blurred: () => boolean
+    // Set the current blur status for this field
     setBlurred: (blurred: boolean) => void
-    subscribeToBlurred: (subscriber: Subscriber) => Unsubscribe
+    _internal: {
+        subscribeToValue: (subscriber: Subscriber) => Unsubscribe
+        subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
+        subscribeToDeepErrors: (subscriber: Subscriber) => Unsubscribe
+        subscribeToBlurred: (subscriber: Subscriber) => Unsubscribe
+    }
 }
 
-type ObjectMethods<T extends object> = <K extends keyof T>(key: K) => FormField<T[K]>;
+type GetObjectKey<T extends object> = <K extends keyof T>(key: K) => FormField<T[K]>;
 
-type ArrayIndex<E> = (idx: number) => FormField<E | undefined, E>;
+type GetArrayIndex<E> = (idx: number) => FormField<E | undefined, E>;
 type ArrayMethods<E> = {
     push: (...items: E[]) => void
     remove: (index: number) => void
@@ -78,5 +85,5 @@ type ArrayMethods<E> = {
 
 export type FormField<T, SetValue = T> =
     BaseField<T, SetValue> &
-    (T extends ReadonlyArray<infer E> ? (ArrayIndex<E> & ArrayMethods<E>)
-        : T extends object ? ObjectMethods<T> : {});
+    (T extends ReadonlyArray<infer E> ? (GetArrayIndex<E> & ArrayMethods<E>)
+        : T extends object ? GetObjectKey<T> : {});

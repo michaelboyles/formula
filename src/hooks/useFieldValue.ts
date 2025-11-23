@@ -6,10 +6,8 @@ export function useFieldValue<T>(field: FormField<T>): T {
     return useSyncExternalStore(
         // Subscribe
         useCallback((onStoreChange) => {
-            const unsubscribe = field.subscribeToValue(onStoreChange);
-            return () => {
-                unsubscribe();
-            }
+            const unsubscribe = field._internal.subscribeToValue(onStoreChange);
+            return () => unsubscribe();
         }, [field]),
         // Get snapshot
         () => field.getValue(),

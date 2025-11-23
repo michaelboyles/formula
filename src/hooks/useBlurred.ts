@@ -5,10 +5,8 @@ export function useBlurred(field: FormField<any>): boolean {
     return useSyncExternalStore(
         // Subscribe
         useCallback((onStoreChange) => {
-            const unsubscribe = field.subscribeToBlurred(onStoreChange);
-            return () => {
-                unsubscribe();
-            }
+            const unsubscribe = field._internal.subscribeToBlurred(onStoreChange);
+            return () => unsubscribe();
         }, [field]),
         // Get snapshot
         () => field.blurred(),

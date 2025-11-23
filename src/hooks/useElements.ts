@@ -15,10 +15,8 @@ function useSyncNumElements(field: FormField<any[]>) {
     return useSyncExternalStore(
         // Subscribe
         useCallback((onStoreChange) => {
-            const unsubscribe = field.subscribeToValue(onStoreChange);
-            return () => {
-                unsubscribe();
-            }
+            const unsubscribe = field._internal.subscribeToValue(onStoreChange);
+            return () => unsubscribe();
         }, [field]),
         // Get snapshot
         () => getSafeLength(field.getValue()),

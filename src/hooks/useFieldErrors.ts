@@ -6,10 +6,8 @@ export function useFieldErrors(field: FormField<any>): ReadonlyArray<string> {
     return useSyncExternalStore(
         // Subscribe
         useCallback((onStoreChange) => {
-            const unsubscribe = field.subscribeToErrors(onStoreChange);
-            return () => {
-                unsubscribe();
-            }
+            const unsubscribe = field._internal.subscribeToErrors(onStoreChange);
+            return () => unsubscribe();
         }, [field]),
         // Get snapshot
         () => field.getErrors(),
