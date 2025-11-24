@@ -3,7 +3,7 @@ import type { FieldPath } from "./FieldPath.ts";
 import type { Subscriber, Unsubscribe } from "./FormStateTree.ts";
 
 export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormField<T> {
-    return Object.assign(
+    const field: FormField<T> = Object.assign(
         (<K extends keyof T>(pathKey: K): FormField<T[K]> => {
             if (typeof pathKey === "string" || typeof pathKey === "number") {
                 return newFormField(path.withProperty(pathKey), formAccess);
@@ -19,6 +19,7 @@ export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormFi
             getDeepErrors: () => formAccess.getDeepErrors(path),
             blurred: () => formAccess.blurred(path),
             setBlurred: (blurred: boolean) => formAccess.setBlurred(path, blurred),
+            narrow: () => field as any,
             _internal: {
                 subscribeToValue: (subscriber: Subscriber) => formAccess.subscribeToValue(path, subscriber),
                 subscribeToErrors: (subscriber: Subscriber) => formAccess.subscribeToErrors(path, subscriber),
@@ -45,6 +46,7 @@ export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormFi
             }
         } satisfies ArrayMethods<any>
     ) as any as FormField<T>;
+    return field;
 }
 
 type BaseField<Value, SetValue = Value> = {
@@ -67,6 +69,10 @@ type BaseField<Value, SetValue = Value> = {
     blurred: () => boolean
     // Set the current blur status for this field
     setBlurred: (blurred: boolean) => void
+    // Narrow the form field's type to a subtype. This is useful when your form data is polymorphic.
+    // You can optionally provide a "witness", which is unused except for type inference. The witness is likely the
+    // result of observing the field value with useFieldValue and narrowing its type based on some condition.
+    narrow: <SubType extends Value>(witness?: SubType) => FormField<SubType>
     _internal: {
         subscribeToValue: (subscriber: Subscriber) => Unsubscribe
         subscribeToErrors: (subscriber: Subscriber) => Unsubscribe

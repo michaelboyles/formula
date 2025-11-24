@@ -1,6 +1,10 @@
 Formula uses [semantic versioning](https://semver.org/).
 
-Formula is currently pre-v1. It's relatively stable, but I expect some breaking changes before v1.
+Formula is currently pre-v1. It's relatively stable, but I expect there will be some breaking changes before v1.
+
+# Unreleased
+
+- feat: FormField::narrow
 
 # 0.0.5
 
