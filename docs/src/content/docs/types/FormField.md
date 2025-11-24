@@ -4,7 +4,11 @@ description: A type representing a field in Formula
 slug: types/FormField
 ---
 
-`FormField` is one of the core concepts in Formula.
+A `FormField` is a reference to a slice of your form's state. Many of Formula's hooks accept a `FormField` as a
+parameter, and the in-built form control components all accept a `FormField` as a prop.
+
+The return value of [`useForm`](/formula/hooks/useForm) is a `FormField`, just with a few additional capabilities
+compared to other `FormField`s.
 
 ## Type
 
