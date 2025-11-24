@@ -1,0 +1,65 @@
+---
+title: FormField
+description: A type representing a field in Formula
+slug: types/FormField
+---
+
+`FormField` is one of the core concepts in Formula.
+
+## Type
+
+```typescript
+type FormField<Data, SetData = Data> = {
+    // Get the path of the field, joined with periods, e.g. "users.0.username"
+    toString: () => string
+    // Get the current data for the field
+    getData: () => Readonly<Data>
+    // Set the data for the field
+    setData: (value: SetData) => void
+    // Get the current validation errors for this field
+    getErrors: () => ReadonlyArray<string>
+    // Set the current validation errors for this field
+    setErrors: (errors: string | string[] | undefined) => void
+    // Get ALL validation errors for this field, including any sub-fields. For example
+    // if the field is "users.0.username" and "users" has 1 error, "users.0" has
+    // 2 errors, this will return an array containing 3 errors.
+    getDeepErrors: () => ReadonlyArray<string>
+    // Get the current blur status for this field, i.e. whether the field has lost focus.
+    blurred: () => boolean
+    // Set the current blur status for this field
+    setBlurred: (blurred: boolean) => void
+    // Narrow the form field's type to a subtype. This is useful when your form data is
+    // polymorphic. 
+    // You can optionally provide a "witness", which is unused except for type inference.
+    // The witness is likely the result of observing the field value with useFieldData
+    // and narrowing its type based on some condition.
+    narrow: <SubType extends Data>(witness?: SubType) => FormField<SubType>
+}
+
+```
+
+## Object fields
+
+If `Data` is an object, the type of `FormField` is additionally a function which can be called with keys of the object
+to obtain a `FormField` for the sub-field.
+
+```typescript
+type GetObjectKey<Data extends object> = <K extends keyof Data>(key: K) => FormField<Data[K]>
+```
+
+## Array fields
+
+If `Data` is an array, the type of `FormField` is additionally a function which can be called with an array index
+to obtain a `FormField` for that element.
+
+There are also convenience methods for common operations.
+
+```typescript
+type GetArrayIndex<E> = (idx: number) => FormField<E | undefined, E>;
+type ArrayMethods<E> = {
+    // Push one or more elements onto the end of the array
+    push: (...items: E[]) => void
+    // Remove the element at the specified index
+    remove: (index: number) => void
+}
+```

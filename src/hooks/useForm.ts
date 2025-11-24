@@ -20,18 +20,23 @@ type UseFormOpts<Data, SubmitResponse> = {
     // The initial values for the form. This is the only required option.
     initialValues: Data | (() => Data)
 
-    // A function invoked when the form is submitted. This can be omitted if you want to use native form submission
+    // A function invoked when the form is submitted. This can be omitted if you want to
+    // use native form submission
     submit?: (data: Data) => SubmitResponse | Promise<SubmitResponse>
 
     // A callback invoked when the form was successfully submitted
     // `result`: the value returned from `submit`
     // `data`: the form data that was submitted
     // `form`: a reference to the Formula form instance
-    onSubmitSuccess?: (args: { result: NoInfer<SubmitResponse>, data: Data, form: Form<Data> }) => void
+    onSubmitSuccess?: (args: {
+        result: NoInfer<SubmitResponse>
+        data: Data, form: Form<Data>
+    }) => void
 
     // A callback invoked when submitting the form fails.
-    // `error`: The error that was thrown. If submission failed because of validation issues, this will be a
-    //          ValidationError. If a non-Error was thrown, then it will be wrapped in one, and Error.cause will be set.
+    // `error`: The error that was thrown. If submission failed because of validation
+    //          issues, this will be a ValidationError. If a non-Error was thrown,
+    //          then it will be wrapped in one, and Error.cause will be set.
     // `data`: the form data that was submitted
     // `form`: a reference to the Formula form instance
     onSubmitFailure?: (args: { error: Error, data: Data, form: Form<Data> }) => void
@@ -212,8 +217,9 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
 }
 
 export type Form<Data> = FormField<Data> & {
-    // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`, but there may be cases
-    // where you call it programmatically.
+    // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`,
+    // but there may be cases where you call it programmatically.
+    // If an event is passed
     submit: (e?: FormEvent) => void
 
     // Get a field, ignoring type-safety. Generally you should use 'get' instead.

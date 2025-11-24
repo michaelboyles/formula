@@ -32,6 +32,10 @@ export default defineConfig({
 						"guides/optimizing-rerenders",
 					]
 				},
+                {
+                    label: "Types",
+                    autogenerate: { directory: "types" },
+                },
 				{
 					label: "Hooks",
 					autogenerate: { directory: "hooks" },

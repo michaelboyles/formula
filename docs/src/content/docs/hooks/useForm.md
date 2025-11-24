@@ -10,10 +10,10 @@ slug: hooks/useForm
 
 ```tsx
 const form = useForm({
-    initialValue: { username: "", password: "" },
+    initialValues: { username: "", password: "" },
     submit: data => login(data.username, data.password),
     onSubmitSuccess: ({ data }) => {
-        toast("Logged in");
+        toast(`Logged in as ${data.username}`);
     },
     onSubmitFailure: ({ error }) => {
         console.error("Failed to login", error);
@@ -35,18 +35,23 @@ function useForm<Data extends BaseForm, SubmitResponse>(opts: {
     // The initial values for the form. This is the only required option.
     initialValues: Data | (() => Data)
 
-    // A function invoked when the form is submitted. This can be omitted if you want to use native form submission
+    // A function invoked when the form is submitted. This can be omitted if you want to
+    // use native form submission
     submit?: (data: Data) => SubmitResponse | Promise<SubmitResponse>
 
     // A callback invoked when the form was successfully submitted
     // `result`: the value returned from `submit`
     // `data`: the form data that was submitted
     // `form`: a reference to the Formula form instance
-    onSubmitSuccess?: (args: { result: NoInfer<SubmitResponse>, data: Data, form: Form<Data> }) => void
+    onSubmitSuccess?: (args: {
+        result: NoInfer<SubmitResponse>
+        data: Data, form: Form<Data>
+    }) => void
 
     // A callback invoked when submitting the form fails.
-    // `error`: The error that was thrown. If submission failed because of validation issues, this will be a
-    //          ValidationError. If a non-Error was thrown, then it will be wrapped in one, and Error.cause will be set.
+    // `error`: The error that was thrown. If submission failed because of validation
+    //          issues, this will be a ValidationError. If a non-Error was thrown,
+    //          then it will be wrapped in one, and Error.cause will be set.
     // `data`: the form data that was submitted
     // `form`: a reference to the Formula form instance
     onSubmitFailure?: (args: { error: Error, data: Data, form: Form<Data> }) => void
@@ -64,23 +69,19 @@ function useForm<Data extends BaseForm, SubmitResponse>(opts: {
     validateOnChange?: boolean
 }): Form<Data>
 
-type Form<Data> = (<K extends keyof Omit<Data, symbol>>(key: K) => FormField<Data[K]>) & {
-    // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`, but there may be cases
-    // where you call it programmatically.
+type Form<Data> = FormField<Data> & {
+    // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`,
+    // but there may be cases where you call it programmatically.
+    // If an event is passed
     submit: (e?: FormEvent) => void
 
     // Get a field, ignoring type-safety. Generally you should use 'get' instead.
     getUnsafeField: (path: (string | number)[]) => FormField<unknown>
 
-    // Get the current form data
-    getData: () => Data
-
-    // Set the current form data
-    setData: (data: Data) => void
-
     // Discards the current form state and sets the value using `initialValues`
     reset: () => void
 }
-
-type BaseForm = Record<string | number, any>
 ```
+
+As shown above, the `Form` is also [`FormField`](/formula/types/FormField) itself, so all the methods of `FormField`
+are available on the form.
