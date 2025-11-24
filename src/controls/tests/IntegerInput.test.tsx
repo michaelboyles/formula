@@ -4,7 +4,7 @@ import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../hooks/useForm.ts";
 import { IntegerInput } from "../../controls/IntegerInput.tsx";
-import { useFieldValue } from "../../hooks/useFieldValue.ts";
+import { useFieldData } from "../../hooks/useFieldData.ts";
 
 const user = userEvent.setup();
 
@@ -17,7 +17,7 @@ describe("IntegerInput", () => {
             const form = useForm({
                 initialValues: { age: NaN }
             })
-            const age = useFieldValue(form("age"));
+            const age = useFieldData(form("age"));
             return (
                 <>
                     <IntegerInput field={form("age")} data-testid="input" />
@@ -44,7 +44,7 @@ describe("IntegerInput", () => {
             const form = useForm({
                 initialValues: { age: NaN }
             })
-            const age = useFieldValue(form("age"));
+            const age = useFieldData(form("age"));
             return (
                 <>
                     <IntegerInput field={form("age")} data-testid="input" />

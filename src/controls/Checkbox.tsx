@@ -1,6 +1,6 @@
 import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { useFieldValue } from "../hooks/useFieldValue.ts";
+import { useFieldData } from "../hooks/useFieldData.ts";
 
 type DefaultCheckboxProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
@@ -9,13 +9,13 @@ export type Props = {
 } & Omit<DefaultCheckboxProps, "type" | "checked">;
 export function Checkbox(props: Props) {
     const { field, onChange, onBlur, ...rest } = props;
-    const checked = useFieldValue(field);
+    const checked = useFieldData(field);
     return (
         <input
             {...rest}
             type="checkbox"
             onChange={e => {
-                field.setValue(e.target.checked);
+                field.setData(e.target.checked);
                 onChange?.(e);
             }}
             checked={checked}

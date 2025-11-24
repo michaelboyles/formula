@@ -4,7 +4,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../useForm.ts";
 import { Input } from "../../controls/Input.tsx";
-import { useFieldValue } from "../useFieldValue.ts";
+import { useFieldData } from "../../hooks/useFieldData.ts";
 import type { FormField } from "../../FormField.ts";
 
 const user = userEvent.setup();
@@ -43,7 +43,7 @@ describe("Polymorphism", () => {
             const form = useForm<FormData, unknown>({
                 initialValues: { favorite: { type: "food", food: "" } },
             });
-            const favorite = useFieldValue(form("favorite"));
+            const favorite = useFieldData(form("favorite"));
             if (favorite.type === "food") {
                 return (
                     <>

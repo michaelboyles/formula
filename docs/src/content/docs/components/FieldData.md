@@ -1,13 +1,13 @@
 ---
-title: FieldValue
+title: FieldData
 description: A component for watching a value in a Formula form
-slug: components/FieldValue
+slug: components/FieldData
 ---
 
-`<FieldValue>` lets you watch the value of a field. It accepts a field and a render prop as its child, which
-is called every time the value changes.
+`<FieldData>` lets you watch the value of a field's data. It accepts a field and a render prop as its child, which
+is called every time the data changes.
 
-The counterpart hook is [`useFieldValue`](/formula/hooks/useFieldValue).
+The counterpart hook is [`useFieldData`](/formula/hooks/useFieldData).
 
 ## Sample usage 
 
@@ -16,16 +16,16 @@ const form = useForm({
    initialValues: { name: "" }
 });
 return (
-    <FieldValue field={form("name")}>
+    <FieldData field={form("name")}>
         { name => <div>Your name is: {name} </div> }
-    </FieldValue>
+    </FieldData>
 )
 ```
 
 ## Type
 
 ```typescript
-function FieldValue<T>(props: {
+function FieldData<T>(props: {
     // The field to watch the value for
     field: FormField<T>
     // A render function which will be passed the value

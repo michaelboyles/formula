@@ -4,14 +4,14 @@ import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../hooks/useForm.ts";
 import { Input } from "../../controls/Input.tsx";
-import { FieldValue } from "../FieldValue.tsx";
+import { FieldData } from "../FieldData.tsx";
 
 const user = userEvent.setup();
 
 // https://testing-library.com/docs/react-testing-library/api/#cleanup
 afterEach(() => cleanup());
 
-describe("FieldValue", () => {
+describe("FieldData", () => {
     it("updates without rerendering the parent", async () => {
         let formRenderCount = 0;
         function Test() {
@@ -23,9 +23,9 @@ describe("FieldValue", () => {
             return (
                 <form onSubmit={form.submit}>
                     <Input field={form("name")} data-testid="input" />
-                    <FieldValue field={form("name")}>
+                    <FieldData field={form("name")}>
                         { name => <div>Your name is { name satisfies string }</div>}
-                    </FieldValue>
+                    </FieldData>
                 </form>
             )
         }

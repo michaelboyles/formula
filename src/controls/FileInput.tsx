@@ -1,7 +1,7 @@
 import type { FormField } from "../FormField.ts";
 import { type DetailedHTMLProps, forwardRef, type InputHTMLAttributes, useEffect, useRef } from "react";
 import { useForkRef } from "../hooks/useForkRef.ts";
-import { useFieldValue } from "../hooks/useFieldValue.ts";
+import { useFieldData } from "../hooks/useFieldData.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props = {
@@ -14,7 +14,7 @@ export const FileInput = forwardRef<HTMLInputElement, Props>((props, forwardedRe
     const ref = useRef<HTMLInputElement>(null);
     const forkedRef = useForkRef(forwardedRef, ref);
 
-    const value = useFieldValue(field);
+    const value = useFieldData(field);
     useEffect(() => {
         if (!ref.current) return;
         if (value) {
@@ -31,7 +31,7 @@ export const FileInput = forwardRef<HTMLInputElement, Props>((props, forwardedRe
             ref={forkedRef}
             type="file"
             onChange={e => {
-                field.setValue(e.target.files ?? null);
+                field.setData(e.target.files ?? null);
                 onChange?.(e);
             }}
             onBlur={e => {

@@ -37,8 +37,8 @@ const unknownField = form("title");
 ```
 
 A field is basically a type-safe reference to a slice of the form data. It doesn't contain any data, but it knows
-how to get a snapshot and how to subscribe to updates. For that reason, Fields have a `getValue()` function, but they
-don't (and couldn't) have a `.value` property.
+how to get a snapshot and how to subscribe to updates. For that reason, Fields have a `getData()` function, but they
+don't (and couldn't) have a `.data` property.
 
 The reason the name `form` is used above, rather than say `getField`, is because `form` is also an object with
 methods like `submit` and `reset`. It might be a surprise to some beginners that
@@ -64,10 +64,10 @@ const form = useForm({
 });
 // ✅ type is FormField<string>
 const streetField = form("address")("street");
-form("address").setValue({ number: "123", street: "Fake St", city: "" });
+form("address").setData({ number: "123", street: "Fake St", city: "" });
 ```
 
-## Subscribing to a field's value
+## Subscribing to a field's data
 
 As we covered, a field is a reference to a slice of form data, rather than the form data itself. It can provide a
 snapshot, but how can we subscribe to the value?
@@ -76,4 +76,4 @@ For a lot of simple forms, often you don't need to. The built-in controls like [
 `FormField` and will create a subscription and bind that value to the control.
 
 If you need to implement your own controls, or you need to use a value somewhere besides a controlled input, then you
-can subscribe to the field's value using the [`useFieldValue` hook](/formula/hooks/useFieldValue).
+can subscribe to the field's data using the [`useFieldData` hook](/formula/hooks/useFieldData).

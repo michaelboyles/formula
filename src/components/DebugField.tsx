@@ -1,5 +1,5 @@
 import type { FormField } from "../FormField.ts";
-import { useFieldValue } from "../hooks/useFieldValue.ts";
+import { useFieldData } from "../hooks/useFieldData.ts";
 import { useBlurred } from "../hooks/useBlurred.ts";
 import { useFieldErrors } from "../hooks/useFieldErrors.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
@@ -10,12 +10,12 @@ export type Props = {
     field: FormField<any>
 } & DefaultPreProps;
 export function DebugField({ field, ...rest }: Props) {
-    const value = useFieldValue(field);
+    const data = useFieldData(field);
     const blurred = useBlurred(field);
     const errors = useFieldErrors(field);
     const json = {
         path: field.toString(),
-        value,
+        data,
         blurred,
         errors,
     }

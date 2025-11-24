@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from "react";
 import type { FormField } from "../FormField.ts";
 
-export function useFieldValue<T>(field: FormField<T>): T {
+export function useFieldData<T>(field: FormField<T>): T {
     if (!field) throw new Error("Field is " + field);
     return useSyncExternalStore(
         // Subscribe
@@ -10,8 +10,8 @@ export function useFieldValue<T>(field: FormField<T>): T {
             return () => unsubscribe();
         }, [field]),
         // Get snapshot
-        () => field.getValue(),
+        () => field.getData(),
         // Get server snapshot
-        () => field.getValue()
+        () => field.getData()
     );
 }

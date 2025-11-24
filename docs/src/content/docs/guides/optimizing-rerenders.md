@@ -30,13 +30,13 @@ rerenders. This isn't always an issue, but it can affect performance. You should
 optimize it once you know there's an issue.
 
 Suppose we need the `name` value elsewhere in our form, so we modify our code to use the
-[`useFieldValue` hook](/formula/hooks/useFieldValue):
+[`useFieldData` hook](/formula/hooks/useFieldData):
 
 ```tsx
 const renderCount = useRef(0);
 renderCount.current++;
 const form = useForm({/*...*/});
-const name = useFieldValue(form("name"));
+const name = useFieldData(form("name"));
 return (
     <form onSubmit={form.submit}>
         <div>MyForm renders: { renderCount.current }</div>
@@ -51,7 +51,7 @@ needs to rerender.
 
 As is usually the case for React, optimizing rerenders is about putting things as far down in the tree as possible.
 We can pass Formula fields as props, which is shown below. In fact, you could pass the whole form instance if you
-wanted to. Accessing a field doesn't create a dependency. Only when you use hooks like `useFieldValue` do you
+wanted to. Accessing a field doesn't create a dependency. Only when you use hooks like `useFieldData` do you
 create a dependency on the field's value.
 
 ```tsx
@@ -69,7 +69,7 @@ function MyForm() {
 }
 
 function NameSection(props: { nameField: FormField<string> }) {
-    const name = useFieldValue(props.nameField);
+    const name = useFieldData(props.nameField);
     return (
         <div>Your name is { name }</div>
     )
@@ -81,8 +81,8 @@ it doesn't depend on the name. Some people might like this code, but it's unfort
 component and to structure your code in a specific way.
 
 For this reason, every hook in Formula ships with an equivalent component. You can use these components instead of
-defining an otherwise-unnecessary component of your own. The equivalent component for `useFieldValue` is 
-[`FieldValue`](/formula/components/FieldValue). The components aren't special. They're simply implemented using their
+defining an otherwise-unnecessary component of your own. The equivalent component for `useFieldData` is 
+[`FieldData`](/formula/components/FieldData). The components aren't special. They're simply implemented using their
 respective hooks.
 
 ```tsx
@@ -94,9 +94,9 @@ function MyForm() {
         <form onSubmit={form.submit}>
             <div>MyForm renders: { renderCount.current }</div>
             Name: <Input field={form("name")} />
-            <FieldValue field={form("name")}>
+            <FieldData field={form("name")}>
                 { (name: string) => <div>Your name is { name }</div> }
-            </FieldValue>
+            </FieldData>
         </form>
     )
 }
@@ -107,10 +107,10 @@ it more readable.
 
 ## Hooks and their equivalent components
 
-| Hook                                            | Component                                      |
-|-------------------------------------------------|------------------------------------------------|
+| Hook                                                    | Component                                              |
+|---------------------------------------------------------|--------------------------------------------------------|
 | [useElements](/formula/hooks/useElements)               | [ForEachElement](/formula/components/ForEachElement)   |
+| [useFieldData](/formula/hooks/useFieldData)             | [FieldData](/formula/components/FieldData)             |
 | [useFieldErrors](/formula/hooks/useFieldErrors)         | [FieldErrors](/formula/components/FieldErrors)         |
-| [useFieldValue](/formula/hooks/useFieldValue)           | [FieldValue](/formula/components/FieldValue)           |
 | [useIsSubmitting](/formula/hooks/useIsSubmitting)       | [IsSubmitting](/formula/components/IsSubmitting)       |
 | [useSubmissionError](/formula/hooks/useSubmissionError) | [SubmissionError](/formula/components/SubmissionError) |

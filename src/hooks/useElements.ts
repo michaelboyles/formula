@@ -19,9 +19,9 @@ function useSyncNumElements(field: FormField<any[]>) {
             return () => unsubscribe();
         }, [field]),
         // Get snapshot
-        () => getSafeLength(field.getValue()),
+        () => getSafeLength(field.getData()),
         // Get server snapshot
-        () => getSafeLength(field.getValue())
+        () => getSafeLength(field.getData())
     );
 }
 

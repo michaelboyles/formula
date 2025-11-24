@@ -23,7 +23,7 @@ return (
 ```json
 {
   "path": "name",
-  "value": "",
+  "data": "",
   "blurred": false,
   "errors": []
 }

@@ -1,6 +1,6 @@
 import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, OptionHTMLAttributes, SelectHTMLAttributes } from "react";
-import { useFieldValue } from "../hooks/useFieldValue.ts";
+import { useFieldData } from "../hooks/useFieldData.ts";
 import { createMapper, type Mapper } from "./mapValue.ts";
 
 type DefaultSelectProps = DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
@@ -31,13 +31,13 @@ export function Select<T>(props: Props<T>) {
     const { field, mapToValue, options, onChange, onBlur, ...rest } = props;
     const mapper = createMapper(mapToValue);
 
-    const value = useFieldValue(field);
+    const data = useFieldData(field);
     return (
         <select
             {...rest}
-            value={mapper(value)}
+            value={mapper(data)}
             onChange={e => {
-                field.setValue(findOption(e.target.value, mapper, options));
+                field.setData(findOption(e.target.value, mapper, options));
                 onChange?.(e);
             }}
             onBlur={e => {

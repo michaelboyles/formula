@@ -1,6 +1,6 @@
 import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { useFieldValue } from "../hooks/useFieldValue.ts";
+import { useFieldData } from "../hooks/useFieldData.ts";
 import { createMapper, type Mapper } from "./mapValue.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
@@ -20,7 +20,7 @@ export type Props<T> = {
 export function RadioButton<T>(props: Props<T>) {
     const { field, value, onChange, onBlur, mapToValue, ...rest } = props;
     const mapper = createMapper(mapToValue);
-    const selectedValue = useFieldValue(field);
+    const selectedValue = useFieldData(field);
     const mappedValue = mapper(value);
     const isChecked = mappedValue === mapper(selectedValue);
     return (
@@ -31,7 +31,7 @@ export function RadioButton<T>(props: Props<T>) {
             value={mappedValue}
             onChange={e => {
                 if (e.target.checked) {
-                    field.setValue(value);
+                    field.setData(value);
                 }
                 onChange?.(e);
             }}

@@ -4,39 +4,39 @@ import { FieldPath } from "../FieldPath.ts";
 describe("getValue", () => {
     test('Single object property', () => {
         const path = FieldPath.create().withProperty("foo");
-        expect(path.getValue({ foo: "bar" })).toBe("bar");
+        expect(path.getData({ foo: "bar" })).toBe("bar");
     })
 
     test("Multiple object properties", () => {
         const path = FieldPath.create().withProperty("foo").withProperty("bar");
-        expect(path.getValue({ foo: { bar: "baz" } })).toBe("baz");
+        expect(path.getData({ foo: { bar: "baz" } })).toBe("baz");
     })
 
     test("Single array index", () => {
         const path = FieldPath.create().withProperty(1);
-        expect(path.getValue(["a", "B", "c"])).toBe("B");
+        expect(path.getData(["a", "B", "c"])).toBe("B");
     })
 
     test("Try to access property when root is array", () => {
         const path = FieldPath.create().withProperty("foo");
-        expect(() => path.getValue([])).toThrow("<form-root> is an array, not an object");
+        expect(() => path.getData([])).toThrow("<form-root> is an array, not an object");
     })
 })
 
 describe("getValue for invalid path", () => {
     test("Try to access unknown property", () => {
         const path = FieldPath.create().withProperty("a");
-        expect(path.getValue({})).toBeUndefined();
+        expect(path.getData({})).toBeUndefined();
     })
 
     test("Object property for number", () => {
         const path = FieldPath.create().withProperty("foo");
-        expect(() => path.getValue(3)).toThrow();
+        expect(() => path.getData(3)).toThrow();
     })
 
     test("Array index for number", () => {
         const path = FieldPath.create().withProperty(1);
-        expect(() => path.getValue(3)).toThrow();
+        expect(() => path.getData(3)).toThrow();
     })
 })
 

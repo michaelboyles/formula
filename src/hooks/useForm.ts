@@ -62,7 +62,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
     const stateTree = useRef(new FormStateTree());
     const stateManager = useRef(new FormStateManager());
 
-    function setValue(path: FieldPath, value: any) {
+    function setData(path: FieldPath, value: any) {
         data.current = path.getDataWithValue(data.current, value);
         stateTree.current.notifyValueChanged(path, data.current);
         if (activeOpts.current.validateOnChange) {
@@ -144,14 +144,14 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
     }
 
     const formAccess: FormAccess = {
-        getValue: path => path.getValue(data.current),
-        setValue,
-        updateValue: (path, update) => {
-            const value = path.getValue(data.current);
+        getData: path => path.getData(data.current),
+        setData,
+        updateData: (path, update) => {
+            const value = path.getData(data.current);
             const newValue = update(value);
-            setValue(path, newValue);
+            setData(path, newValue);
         },
-        subscribeToValue: (path, subscriber) => {
+        subscribeToData: (path, subscriber) => {
             const unsubscribe = stateTree.current.subscribeToValue(path, subscriber);
             return () => unsubscribe();
         },
@@ -191,12 +191,10 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
                 }
                 return newFormField(fieldPath, formAccess);
             },
-            getData: () => data.current,
-            setData: (data: Data) => setValue(ROOT_PATH, data),
             reset: () => {
                 const initialValues = activeOpts.current.initialValues;
                 const newValues = typeof initialValues === "function" ? (initialValues as () => Data)() : initialValues;
-                setValue(ROOT_PATH, newValues);
+                setData(ROOT_PATH, newValues);
             },
             submit,
             __internal: {
@@ -220,12 +218,6 @@ export type Form<Data> = FormField<Data> & {
 
     // Get a field, ignoring type-safety. Generally you should use 'get' instead.
     getUnsafeField: (path: (string | number)[]) => FormField<unknown>
-
-    // Get the current form data
-    getData: () => Data
-
-    // Set the current form data
-    setData: (data: Data) => void
 
     // Discards the current form state and sets the value using `initialValues`
     reset: () => void
@@ -251,10 +243,10 @@ export function isInternalForm(form: any): form is FormWithInternals {
 const FORM_SYM = Symbol("FORMULA_FORM");
 
 export type FormAccess = {
-    getValue: (path: FieldPath) => any
-    setValue: (path: FieldPath, value: any) => void
-    updateValue: <T>(path: FieldPath, update: (value: T) => T) => void
-    subscribeToValue: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+    getData: (path: FieldPath) => any
+    setData: (path: FieldPath, value: any) => void
+    updateData: <T>(path: FieldPath, update: (value: T) => T) => void
+    subscribeToData: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     getErrors: (path: FieldPath) => ReadonlyArray<string>
     setErrors: (path: FieldPath, errors: string | string[] | undefined) => void

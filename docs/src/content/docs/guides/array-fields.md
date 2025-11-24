@@ -7,7 +7,7 @@ To ensure type-safety while preventing unnecessary rerenders, array fields in Fo
 ceremony. Since `form("myArray")` is a reference to a slice of form state, it isn't an array that can be
 mapped over itself.
 
-`form("myArray").getValue()` would give you a snapshot that could be mapped over, but it has no reactivity. Your
+`form("myArray").getData()` would give you a snapshot that could be mapped over, but it has no reactivity. Your
 component won't rerender when the elements change.
 
 For that reason, there are two special ways of iterating over an array's elements:

@@ -2,9 +2,9 @@ import type { FormAccess } from "./hooks/useForm.ts";
 import type { FieldPath } from "./FieldPath.ts";
 import type { Subscriber, Unsubscribe } from "./FormStateTree.ts";
 
-export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormField<T> {
-    const field: FormField<T> = Object.assign(
-        (<K extends keyof T>(pathKey: K): FormField<T[K]> => {
+export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): FormField<Data> {
+    const field: FormField<Data> = Object.assign(
+        (<K extends keyof Data>(pathKey: K): FormField<Data[K]> => {
             if (typeof pathKey === "string" || typeof pathKey === "number") {
                 return newFormField(path.withProperty(pathKey), formAccess);
             }
@@ -12,8 +12,8 @@ export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormFi
         }),
         {
             toString: () => path.toString(),
-            getValue: () => formAccess.getValue(path),
-            setValue: (value: T) => formAccess.setValue(path, value),
+            getData: () => formAccess.getData(path),
+            setData: (value: Data) => formAccess.setData(path, value),
             getErrors: () => formAccess.getErrors(path),
             setErrors: (errors: string | string[] | undefined) => formAccess.setErrors(path, errors),
             getDeepErrors: () => formAccess.getDeepErrors(path),
@@ -21,21 +21,21 @@ export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormFi
             setBlurred: (blurred: boolean) => formAccess.setBlurred(path, blurred),
             narrow: () => field as any,
             _internal: {
-                subscribeToValue: (subscriber: Subscriber) => formAccess.subscribeToValue(path, subscriber),
+                subscribeToValue: (subscriber: Subscriber) => formAccess.subscribeToData(path, subscriber),
                 subscribeToErrors: (subscriber: Subscriber) => formAccess.subscribeToErrors(path, subscriber),
                 subscribeToDeepErrors: (subscriber: Subscriber) => formAccess.subscribeToDeepErrors(path, subscriber),
                 subscribeToBlurred: (subscriber: Subscriber) => formAccess.subscribeToBlurred(path, subscriber),
             }
-        } satisfies BaseField<T>, {
+        } satisfies BaseField<Data>, {
             push: (...element: any) => {
-                formAccess.updateValue<unknown[]>(path, value => {
+                formAccess.updateData<unknown[]>(path, value => {
                     const copy = [...value];
                     copy.push(...element);
                     return copy;
                 });
             },
             remove: (index: number) => {
-                formAccess.updateValue<unknown[]>(path, value => {
+                formAccess.updateData<unknown[]>(path, value => {
                     if (index < value.length) {
                         return [...value.slice(0, index), ...value.slice(index + 1)]
                     }
@@ -45,18 +45,18 @@ export function newFormField<T>(path: FieldPath, formAccess: FormAccess): FormFi
                 })
             }
         } satisfies ArrayMethods<any>
-    ) as any as FormField<T>;
+    ) as any as FormField<Data>;
     return field;
 }
 
-type BaseField<Value, SetValue = Value> = {
+type BaseField<Data, SetData = Data> = {
     // Get the path of the field, joined with periods, e.g. "users.0.username"
     toString: () => string
 
-    // Get the current value of the field
-    getValue: () => Readonly<Value>
-    // Set the current value of the field
-    setValue: (value: SetValue) => void
+    // Get the current data for the field
+    getData: () => Readonly<Data>
+    // Set the data for the field
+    setData: (value: SetData) => void
     // Get the current validation errors for this field
     getErrors: () => ReadonlyArray<string>
     // Set the current validation errors for this field
@@ -71,8 +71,8 @@ type BaseField<Value, SetValue = Value> = {
     setBlurred: (blurred: boolean) => void
     // Narrow the form field's type to a subtype. This is useful when your form data is polymorphic.
     // You can optionally provide a "witness", which is unused except for type inference. The witness is likely the
-    // result of observing the field value with useFieldValue and narrowing its type based on some condition.
-    narrow: <SubType extends Value>(witness?: SubType) => FormField<SubType>
+    // result of observing the field value with useFieldData and narrowing its type based on some condition.
+    narrow: <SubType extends Data>(witness?: SubType) => FormField<SubType>
     _internal: {
         subscribeToValue: (subscriber: Subscriber) => Unsubscribe
         subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
@@ -81,7 +81,7 @@ type BaseField<Value, SetValue = Value> = {
     }
 }
 
-type GetObjectKey<T extends object> = <K extends keyof T>(key: K) => FormField<T[K]>;
+type GetObjectKey<Data extends object> = <K extends keyof Data>(key: K) => FormField<Data[K]>;
 
 type GetArrayIndex<E> = (idx: number) => FormField<E | undefined, E>;
 type ArrayMethods<E> = {
@@ -89,7 +89,7 @@ type ArrayMethods<E> = {
     remove: (index: number) => void
 }
 
-export type FormField<T, SetValue = T> =
-    BaseField<T, SetValue> &
-    (T extends ReadonlyArray<infer E> ? (GetArrayIndex<E> & ArrayMethods<E>)
-        : T extends object ? GetObjectKey<T> : {});
+export type FormField<Data, SetData = Data> =
+    BaseField<Data, SetData> &
+    (Data extends ReadonlyArray<infer E> ? (GetArrayIndex<E> & ArrayMethods<E>)
+        : Data extends object ? GetObjectKey<Data> : {});

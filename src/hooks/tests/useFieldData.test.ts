@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { useFieldValue } from "../useFieldValue.ts";
+import { useFieldData } from "../../hooks/useFieldData.ts";
 import { renderHook } from "@testing-library/react";
 import { useForm } from "../useForm.ts";
 
-describe("useFieldValue", () => {
+describe("useFieldData", () => {
     it("throws when given non-field", () => {
         expect(() => renderHook(() => {
-            useFieldValue(null as any);
+            useFieldData(null as any);
         })).toThrow("Field is null");
     })
 
@@ -15,7 +15,7 @@ describe("useFieldValue", () => {
             const form = useForm({
                 initialValues: { name: "" }
             });
-            return useFieldValue(form);
+            return useFieldData(form);
         });
         expect(result.current).toEqual({ name: "" })
     })

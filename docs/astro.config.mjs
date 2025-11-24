@@ -40,8 +40,8 @@ export default defineConfig({
 					label: "Components",
 					items: [
 						"components/DebugField",
-						"components/FieldErrors",
-						"components/FieldValue",
+                        "components/FieldData",
+                        "components/FieldErrors",
 						"components/ForEachElement",
 						"components/IsSubmitting",
 						"components/SubmissionError",

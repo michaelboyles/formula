@@ -7,7 +7,7 @@ import { Input } from "../../controls/Input.tsx";
 import { useFieldErrors } from "../useFieldErrors.ts";
 import { useSubmissionError } from "../useSubmissionError.ts";
 import { useElements } from "../useElements.ts";
-import { useFieldValue } from "../useFieldValue.ts";
+import { useFieldData } from "../useFieldData.ts";
 import * as z from "zod";
 import type { FormField } from "../../FormField.ts";
 import { Fragment, useMemo } from "react";
@@ -175,7 +175,7 @@ describe("useForm", () => {
             });
 
             // This is just here to force the re-render. This isn't the recommended way to use it
-            useFieldValue(form("title"));
+            useFieldData(form("title"));
             return (
                 <form onReset={() => form.reset()}>
                     <div>{ form.getData().title }</div>
@@ -228,15 +228,15 @@ describe("useForm", () => {
                     }
                 });
                 const tagsField = form("tags");
-                expectTypeOf(tagsField.getValue).toEqualTypeOf<() => Readonly<string[]>>();
+                expectTypeOf(tagsField.getData).toEqualTypeOf<() => Readonly<string[]>>();
                 const firstTag = form("tags")(1);
-                expectTypeOf(firstTag.getValue).toEqualTypeOf<() => string | undefined>();
-                expectTypeOf(firstTag.setValue).toEqualTypeOf<(value: string) => void>();
+                expectTypeOf(firstTag.getData).toEqualTypeOf<() => string | undefined>();
+                expectTypeOf(firstTag.setData).toEqualTypeOf<(value: string) => void>();
 
                 const elements = useElements(tagsField);
                 for (let element of elements) {
-                    expectTypeOf(element.getValue).toEqualTypeOf<() => string>();
-                    expectTypeOf(element.setValue).toEqualTypeOf<(value: string) => void>();
+                    expectTypeOf(element.getData).toEqualTypeOf<() => string>();
+                    expectTypeOf(element.setData).toEqualTypeOf<(value: string) => void>();
                 }
             })
         })
@@ -249,7 +249,7 @@ describe("useForm", () => {
                     },
                 });
 
-                const tags = useFieldValue(form("tags"));
+                const tags = useFieldData(form("tags"));
                 return (
                     <form onReset={() => form.reset()}>
                         {
@@ -704,7 +704,7 @@ describe("useForm", () => {
             }
 
             function TreeNodeDisplay({ nodeField }: { nodeField: FormField<TreeNode> }) {
-                const nodeId = useFieldValue(nodeField("id"));
+                const nodeId = useFieldData(nodeField("id"));
                 const nodeIdErrors = useFieldErrors(nodeField("id"));
                 return (
                     <div>
