@@ -4,7 +4,7 @@ description: A component for creating radio buttons within Formula
 slug: components/RadioButton
 ---
 
-`<RadioButton>` renders an `<input type="radio">` element whose `checked` state is bound and which includes
+`<RadioButton>` renders an `<input type="radio">` element where the `checked` pop is bound and which includes
 all of Formula's required handlers.
 
 By their nature, the relationship of radio buttons to form state is many-to-one, and that results in some duplication

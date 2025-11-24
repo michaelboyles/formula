@@ -4,7 +4,7 @@ description: A component for creating numeric inputs within Formula
 slug: components/NumberInput
 ---
 
-`<NumberInput>` renders an `<input type="number">` element whose value field is bound and which includes
+`<NumberInput>` renders an `<input type="number">` element where the `value` prop is bound and which includes
 all of Formula's required handlers.
 
 The value `NaN` is used when the field is blank. It's also used for "intermediate values": strings which aren't

@@ -4,8 +4,8 @@ import { type Mapper } from "../controls/mapValue.ts";
 import { RadioButton } from "../controls/RadioButton.tsx";
 
 export type Opts<T> = {
-    // If you supply a name, the `name` attribute will be set on each `input`. This is a convenience to avoid having
-    // to explicitly declare the name on each `input`.
+    // If you supply a name, the `name` attribute will be set on each `input`. This is
+    // a convenience to avoid having to explicitly declare the name on each `input`.
     name?: string
 } & ([T] extends [string | number] ? {
     mapToValue?: Mapper<T>

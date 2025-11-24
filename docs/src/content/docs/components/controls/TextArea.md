@@ -4,7 +4,7 @@ description: A component for creating textarea controls in Formula
 slug: components/TextArea
 ---
 
-The `<TextArea>` component renders a `<textarea>` element whose value field is bound and which includes
+The `<TextArea>` component renders a `<textarea>` element where the `value` prop is bound and which includes
 all of Formula's required handlers.
 
 ## Sample usage

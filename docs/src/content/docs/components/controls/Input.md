@@ -4,7 +4,7 @@ description: A component for creating input controls in Formula
 slug: components/Input
 ---
 
-`<Input>` renders a native `<input>` element whose value is bound as a `string` and which includes all of Formula's
+`<Input>` renders an `<input>` element where the `value` prop is bound as a `string` and which includes all of Formula's
 required handlers.
 
 ## Sample usage

@@ -4,7 +4,7 @@ description: A component for creating integer inputs within Formula
 slug: components/IntegerInput
 ---
 
-`<IntegerInput>` renders an `<input type="number">` element whose value field is bound and which includes
+`<IntegerInput>` renders an `<input type="number">` element where the `value` prop is bound and which includes
 all of Formula's required handlers. It does not accept decimal values. If the user attempts to enter one, it will be
 rounded to the nearest integer.
 

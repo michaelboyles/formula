@@ -5,7 +5,7 @@ slug: hooks/useRadioButton
 ---
 
 `useRadioButton` returns a new component for the given `FormField`. It's used to remove the need for duplicate props
-across [`<RadioButton>`s](/formula/components/controls/RadioButton), which is does by binding props dynamically.
+across [`<RadioButton>`s](/formula/components/controls/RadioButton), which it does by binding props dynamically.
 
 ## Sample usage
 
@@ -53,8 +53,8 @@ function useRadioButton<T extends string | number>(field: FormField<T>, opts?: O
 function useRadioButton<T>(field: FormField<T>, opts: Opts<T>): FC<InputProps<T>>;
 
 type Opts<T> = {
-    // If you supply a name, the `name` attribute will be set on each `input`. This is a convenience to avoid having
-    // to explicitly declare the name on each `input`.
+    // If you supply a name, the `name` attribute will be set on each `input`. This is
+    // a convenience to avoid having to explicitly declare the name on each `input`.
     name?: string
 } & ([T] extends [string | number] ? {
     mapToValue?: Mapper<T>

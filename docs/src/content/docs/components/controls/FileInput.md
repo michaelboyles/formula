@@ -4,7 +4,7 @@ description: A component for creating file input controls in Formula
 slug: components/FileInput
 ---
 
-`<FileInput>` renders a native `<input type="file">` element which includes all of Formula's required handlers.
+`<FileInput>` renders an `<input type="file">` element which includes all of Formula's required handlers.
 
 Unlike the other built-in controls, it doesn't bind a value because that's not possible with file inputs in JavaScript.
 Instead, it uses `useEffect` to keep the value in-sync.

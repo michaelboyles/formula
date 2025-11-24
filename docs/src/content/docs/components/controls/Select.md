@@ -7,7 +7,7 @@ slug: components/Select
 The `<Select>` component renders a `<select>` element containing a number of `<option>`s, which includes
 all of Formula's required handlers.
 
-Unlike the native select element, the value isn't required to be a number or string. It can be anything, provided you
+Unlike the native select element, the value isn't required to be a number or string. It can be any type, provided you
 provide a mapper with the `mapToValue` property.
 
 ## Sample usage
