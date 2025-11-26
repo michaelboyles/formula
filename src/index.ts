@@ -21,6 +21,7 @@ export { Checkbox, type Props as CheckboxProps } from "./controls/Checkbox.tsx"
 export { FileInput, type Props as FileInputProps } from "./controls/FileInput.tsx"
 export { Input, type Props as InputProps } from "./controls/Input.tsx"
 export { IntegerInput, type Props as IntegerInputProps } from "./controls/IntegerInput.tsx"
+export { NumberInput, type Props as NumberInputProps } from "./controls/NumberInput.tsx"
 export { Select, type Props as SelectProps } from "./controls/Select.tsx"
 export { TextArea, type Props as TextAreaProps } from "./controls/TextArea.tsx"
 
