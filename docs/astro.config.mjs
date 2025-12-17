@@ -47,6 +47,7 @@ export default defineConfig({
                         "components/FieldData",
                         "components/FieldErrors",
 						"components/ForEachElement",
+						"components/IsBlurred",
 						"components/IsSubmitting",
 						"components/SubmissionError",
 						{
