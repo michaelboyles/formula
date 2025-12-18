@@ -15,6 +15,7 @@ import { validateRecursive } from "../validate-native.ts";
 import type { Issue, Validator } from "../validate.ts";
 import { useLazyRef } from "./useLazyRef.ts";
 import { ValidationError } from "../ValidationError.ts";
+import type { Setter } from "../types.ts";
 
 type UseFormOpts<Data, SubmitResponse> = {
     // The initial values for the form. This is the only required option.
@@ -67,9 +68,17 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
     const fieldState = useRef(new FieldStateTree());
     const stateManager = useRef(new FormStateManager());
 
-    function setData(path: FieldPath, newData: any) {
-        data.current = path.getDataWithValue(data.current, newData);
+    function setData(path: FieldPath, setter: Setter<unknown>) {
+        if (typeof setter === "function") {
+            const prevData = path.getData(data.current);
+            const newData = setter(prevData);
+            data.current = path.getDataWithValue(data.current, newData);
+        }
+        else {
+            data.current = path.getDataWithValue(data.current, setter);
+        }
         fieldState.current.notifyDataChanged(path, data.current);
+        fieldState.current.setIsChanged(path, true);
         if (activeOpts.current.validateOnChange) {
             validateAll(data.current);
         }
@@ -151,11 +160,6 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
     const formAccess: FormAccess = {
         getData: path => path.getData(data.current),
         setData,
-        updateData: (path, update) => {
-            const prevData = path.getData(data.current);
-            const newData = update(prevData);
-            setData(path, newData);
-        },
         subscribeToData: (path, subscriber) => fieldState.current.subscribeToData(path, subscriber),
 
         getErrors: path => fieldState.current.getErrors(path),
@@ -244,9 +248,8 @@ export function isInternalForm(form: any): form is FormWithInternals {
 const FORM_SYM = Symbol("FORMULA_FORM");
 
 export type FormAccess = {
-    getData: (path: FieldPath) => any
-    setData: (path: FieldPath, value: any) => void
-    updateData: <T>(path: FieldPath, update: (value: T) => T) => void
+    getData: (path: FieldPath) => unknown
+    setData: (path: FieldPath, setter: Setter<unknown>) => void
     subscribeToData: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     getErrors: (path: FieldPath) => ReadonlyArray<string>

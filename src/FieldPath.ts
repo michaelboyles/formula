@@ -27,7 +27,7 @@ export class FieldPath {
         return str;
     }
 
-    getData(root: any): any {
+    getData(root: any): unknown {
         let data = root;
         for (let i = 0; i < this.keys.length; i++) {
             const key = this.keys[i];

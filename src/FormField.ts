@@ -1,6 +1,7 @@
 import type { FormAccess } from "./hooks/useForm.ts";
 import type { FieldPath } from "./FieldPath.ts";
 import type { Subscriber, Unsubscribe } from "./FieldStateTree.ts";
+import type { Setter } from "./types.ts";
 
 export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): FormField<Data> {
     const field: FormField<Data> = Object.assign(
@@ -12,11 +13,8 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
         }),
         {
             toString: () => path.toString(),
-            getData: () => formAccess.getData(path),
-            setData: (data: Data) => {
-                formAccess.setData(path, data);
-                formAccess.setIsChanged(path, true);
-            },
+            getData: () => formAccess.getData(path) as Data,
+            setData: setter => formAccess.setData(path, setter),
             getErrors: () => formAccess.getErrors(path),
             setErrors: (errors: string | string[] | undefined) => formAccess.setErrors(path, errors),
             getDeepErrors: () => formAccess.getDeepErrors(path),
@@ -34,14 +32,14 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
             }
         } satisfies BaseField<Data>, {
             push: (...element: any) => {
-                formAccess.updateData<unknown[]>(path, data => {
+                formAccess.setData(path, (data: unknown[]) => {
                     const copy = [...data];
                     copy.push(...element);
                     return copy;
                 });
             },
             remove: (index: number) => {
-                formAccess.updateData<unknown[]>(path, data => {
+                formAccess.setData(path, (data: any[]) => {
                     if (index < data.length) {
                         return [...data.slice(0, index), ...data.slice(index + 1)]
                     }
@@ -61,7 +59,7 @@ type BaseField<Data, SetData = Data> = {
     // Get the current data for the field
     getData: () => Readonly<Data>
     // Set the data for the field
-    setData: (data: SetData) => void
+    setData: (setter: Setter<SetData>) => void
     // Get the current validation errors for this field
     getErrors: () => ReadonlyArray<string>
     // Set the current validation errors for this field

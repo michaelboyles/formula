@@ -65,6 +65,20 @@ describe("FieldStateTree", () => {
         expect(rootNotified).toBe(1);
     });
 
+    test("Change status is discarded if data shape changes", () => {
+        // GIVEN a tree with a leaf called foo that is changed
+        const tree = new FieldStateTree();
+        const rootPath = FieldPath.create();
+        const fooPath = rootPath.withProperty("foo");
+        tree.setIsChanged(fooPath, true);
+
+        // WHEN we set the root data to something without "foo"
+        tree.notifyDataChanged(rootPath, { bar: "bar" })
+
+        // THEN foo is no longer changed, since the node has been dropped
+        expect(tree.isChanged(fooPath)).toBe(false);
+    });
+
     describe("isChanged", () => {
         test("setIsChanged(true)", () => {
             const tree = new FieldStateTree();
