@@ -26,9 +26,9 @@ return (
 
 ```typescript
 function FieldData<T>(props: {
-    // The field to watch the value for
+    // The field to watch the data for
     field: FormField<T>
-    // A render function which will be passed the value
-    children: (value: T) => ReactNode
+    // A render function which will be passed the data
+    children: (data: T) => ReactNode
 }): ReactNode
 ```

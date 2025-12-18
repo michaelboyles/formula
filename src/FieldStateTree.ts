@@ -145,8 +145,8 @@ export class FieldStateTree {
         }
     }
 
-    subscribeToValue(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        return this.subscribe(path, "valueSubscribers", subscriber);
+    subscribeToData(path: FieldPath, subscriber: Subscriber): Unsubscribe {
+        return this.subscribe(path, "dataSubscribers", subscriber);
     }
 
     subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe {
@@ -209,16 +209,16 @@ export class FieldStateTree {
         return node;
     }
 
-    notifyValueChanged(path: FieldPath, newData: any) {
+    notifyDataChanged(path: FieldPath, newData: any) {
         let currentNode: TreeNode | undefined = this.root;
         // Descend the tree and notify just the leaves along the way, until the final leaf, then finally notify all
         // children
         if (path.isRoot()) {
-            this.notifyAll(currentNode, n => n.valueSubscribers);
+            this.notifyAll(currentNode, n => n.dataSubscribers);
             this.clearStateAndPrune(currentNode, newData);
             return;
         }
-        currentNode.valueSubscribers?.forEach(notifySub => notifySub());
+        currentNode.dataSubscribers?.forEach(notifySub => notifySub());
         for (let i = 0; i < path.keys.length; i++) {
             const key = path.keys[i];
             currentNode = currentNode.propertyToNode?.[key as string | number];
@@ -226,11 +226,11 @@ export class FieldStateTree {
 
             if (!currentNode) return;
             if (i === path.keys.length - 1) {
-                this.notifyAll(currentNode, n => n.valueSubscribers);
+                this.notifyAll(currentNode, n => n.dataSubscribers);
                 this.clearStateAndPrune(currentNode, newData);
             }
             else {
-                currentNode.valueSubscribers?.forEach(notifySub => notifySub());
+                currentNode.dataSubscribers?.forEach(notifySub => notifySub());
             }
         }
     }
@@ -273,7 +273,7 @@ export class FieldStateTree {
             || node.isChanged === true
             || (node.errors && node.errors.length > 0)
             || (node.propertyToNode && Object.keys(node.propertyToNode).length > 0)
-            || (node.valueSubscribers && node.valueSubscribers.length > 0)
+            || (node.dataSubscribers && node.dataSubscribers.length > 0)
             || (node.errorSubscribers && node.errorSubscribers.length > 0)
             || (node.blurredSubscribers && node.blurredSubscribers.length > 0);
         return !hasState;
@@ -288,7 +288,7 @@ type TreeNode = {
     isChanged?: boolean
 } & Subscribers;
 type Subscribers = {
-    valueSubscribers?: Subscriber[]
+    dataSubscribers?: Subscriber[]
     errorSubscribers?: Subscriber[]
     deepErrorSubscribers?: Subscriber[]
     blurredSubscribers?: Subscriber[]

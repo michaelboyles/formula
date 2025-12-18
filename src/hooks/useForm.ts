@@ -67,25 +67,25 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
     const fieldState = useRef(new FieldStateTree());
     const stateManager = useRef(new FormStateManager());
 
-    function setData(path: FieldPath, value: any) {
-        data.current = path.getDataWithValue(data.current, value);
-        fieldState.current.notifyValueChanged(path, data.current);
+    function setData(path: FieldPath, newData: any) {
+        data.current = path.getDataWithValue(data.current, newData);
+        fieldState.current.notifyDataChanged(path, data.current);
         if (activeOpts.current.validateOnChange) {
             validateAll(data.current);
         }
     }
 
-    const validateAll = async (values: Data) => {
+    const validateAll = async (data: Data) => {
         fieldState.current.clearAllErrors();
 
         const pendingValidations: Array<Promise<Issue[]>> = [];
         const validators = activeOpts.current.validators;
         if (validators) {
-            pendingValidations.push(getValidationIssues(values, validators));
+            pendingValidations.push(getValidationIssues(data, validators));
         }
         const validate = activeOpts.current.validate;
         if (validate) {
-            pendingValidations.push(validateRecursive(values, values, validate, ROOT_PATH));
+            pendingValidations.push(validateRecursive(data, data, validate, ROOT_PATH));
         }
         if (pendingValidations.length) {
             const issues = (await Promise.all(pendingValidations)).flatMap(a => a);
@@ -152,11 +152,11 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         getData: path => path.getData(data.current),
         setData,
         updateData: (path, update) => {
-            const value = path.getData(data.current);
-            const newValue = update(value);
-            setData(path, newValue);
+            const prevData = path.getData(data.current);
+            const newData = update(prevData);
+            setData(path, newData);
         },
-        subscribeToData: (path, subscriber) => fieldState.current.subscribeToValue(path, subscriber),
+        subscribeToData: (path, subscriber) => fieldState.current.subscribeToData(path, subscriber),
 
         getErrors: path => fieldState.current.getErrors(path),
         setErrors: (path, errors) => fieldState.current.setErrors(path, errors),

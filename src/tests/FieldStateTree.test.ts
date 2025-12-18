@@ -3,17 +3,13 @@ import { FieldStateTree } from "../FieldStateTree.ts";
 import { FieldPath } from "../FieldPath.ts";
 
 describe("FieldStateTree", () => {
-    test("Subscribe and notify of value", () => {
+    test("Subscribe and notify of data", () => {
         const tree = new FieldStateTree();
         const rootPath = FieldPath.create();
         let notified = 0;
-        const unsubscribe = tree.subscribeToValue(rootPath, () => {
-            notified++;
-        });
-        const unsubscribe2 = tree.subscribeToValue(rootPath, () => {
-            notified++;
-        });
-        tree.notifyValueChanged(rootPath, {});
+        const unsubscribe = tree.subscribeToData(rootPath, () => notified++);
+        const unsubscribe2 = tree.subscribeToData(rootPath, () => notified++);
+        tree.notifyDataChanged(rootPath, {});
         unsubscribe();
         unsubscribe2();
 
@@ -24,20 +20,18 @@ describe("FieldStateTree", () => {
         const tree = new FieldStateTree();
         const path = FieldPath.create().withProperty("foo").withProperty(5).withProperty("bar")
         let notified = 0;
-        const unsubscribe = tree.subscribeToValue(path, () => {
-            notified++;
-        });
-        tree.notifyValueChanged(path, {});
+        const unsubscribe = tree.subscribeToData(path, () => notified++);
+        tree.notifyDataChanged(path, {});
         unsubscribe();
 
         expect(notified).toBe(1);
     })
 
-    test("Errors are retained after notifying value change", () => {
+    test("Errors are retained after notifying data change", () => {
         const tree = new FieldStateTree();
         const path = FieldPath.create().withProperty("user").withProperty("name");
         tree.setErrors(path, ["Required"]);
-        tree.notifyValueChanged(path, {});
+        tree.notifyDataChanged(path, {});
         expect(tree.getErrors(path)).toEqual(["Required"]);
     })
 
@@ -45,7 +39,7 @@ describe("FieldStateTree", () => {
         const tree = new FieldStateTree();
         const userPath = FieldPath.create().withProperty("user");
         tree.setErrors(userPath.withProperty("name"), "Foo");
-        tree.notifyValueChanged(userPath, { user: { name: "Michael" } });
+        tree.notifyDataChanged(userPath, { user: { name: "Michael" } });
         expect(tree.getErrors(userPath.withProperty("name"))).toEqual(["Foo"]);
     })
 
@@ -53,7 +47,7 @@ describe("FieldStateTree", () => {
         const tree = new FieldStateTree();
         const userPath = FieldPath.create().withProperty("user");
         tree.setErrors(userPath.withProperty("name"), "Foo");
-        tree.notifyValueChanged(userPath, { user: {} });
+        tree.notifyDataChanged(userPath, { user: {} });
         expect(tree.getErrors(userPath.withProperty("name"))).toEqual([]);
     })
 
@@ -64,9 +58,9 @@ describe("FieldStateTree", () => {
 
         // GIVEN a subscriber at the root node
         let rootNotified = 0;
-        tree.subscribeToValue(rootPath, () => rootNotified++);
+        tree.subscribeToData(rootPath, () => rootNotified++);
         // WHEN a leaf node is changed and subscribers are notified
-        tree.notifyValueChanged(leafPath, { name: "Alice" });
+        tree.notifyDataChanged(leafPath, { name: "Alice" });
         // THEN the count as incremented
         expect(rootNotified).toBe(1);
     });

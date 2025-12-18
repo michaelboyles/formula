@@ -9,7 +9,7 @@ import {
     type ValueValidator
 } from "./validate.ts";
 
-export async function validateRecursive<T, R>(rootData: R, value: T, validator: Validator<T, R>, path: FieldPath): Promise<Issue[]> {
+export async function validateRecursive<T, R>(rootData: R, data: T, validator: Validator<T, R>, path: FieldPath): Promise<Issue[]> {
     if (!validator) return [];
 
     const issues: Promise<Issue[]>[] = [];
@@ -17,42 +17,42 @@ export async function validateRecursive<T, R>(rootData: R, value: T, validator: 
     if (typeof validator === "function" && !isLazy(validator)) {
         const primitiveValidator = validator as ValueValidator<any, any>;
         issues.push(
-            runValidator(path, async () => await primitiveValidator(value, rootData))
+            runValidator(path, async () => await primitiveValidator(data, rootData))
         );
     }
-    else if (Array.isArray(value) && typeof validator === "object") {
+    else if (Array.isArray(data) && typeof validator === "object") {
         const arrValidator = resolve(validator as ArrayValidator<any, any>);
 
         const selfValidator = arrValidator._self;
         if (selfValidator) {
             issues.push(
-                runValidator(path, async () => await selfValidator(value, rootData))
+                runValidator(path, async () => await selfValidator(data, rootData))
             )
         }
 
         const eachValidator = arrValidator._each;
         if (eachValidator) {
-            for (let i = 0; i < value.length; i++) {
-                const item = value[i];
+            for (let i = 0; i < data.length; i++) {
+                const item = data[i];
                 issues.push(validateRecursive(rootData, item, eachValidator, path.withProperty(i)));
             }
         }
     }
-    else if (typeof value === "object" && value !== null) {
+    else if (typeof data === "object" && data !== null) {
         const objValidator = resolve(validator as Supplier<ObjectValidator<T, R>>);
 
         const selfValidator = objValidator._self;
         if (selfValidator && typeof selfValidator === "function") {
             issues.push(
-                runValidator(path, async () => await selfValidator(value, rootData))
+                runValidator(path, async () => await selfValidator(data, rootData))
             );
         }
 
         for (const [key, keyValidator] of Object.entries(objValidator)) {
             if (key === "_self") continue;
-            const fieldValue = (value as any)[key];
+            const fieldData = (data as any)[key];
             issues.push(
-                validateRecursive(rootData, fieldValue, keyValidator, path.withProperty(key))
+                validateRecursive(rootData, fieldData, keyValidator, path.withProperty(key))
             );
         }
     }

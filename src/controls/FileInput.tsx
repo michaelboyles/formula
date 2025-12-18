@@ -14,16 +14,16 @@ export const FileInput = forwardRef<HTMLInputElement, Props>((props, forwardedRe
     const ref = useRef<HTMLInputElement>(null);
     const forkedRef = useForkRef(forwardedRef, ref);
 
-    const value = useFieldData(field);
+    const data = useFieldData(field);
     useEffect(() => {
         if (!ref.current) return;
-        if (value) {
-            ref.current.files = value;
+        if (data) {
+            ref.current.files = data;
         }
         else {
             ref.current.value = "";
         }
-    }, [value]);
+    }, [data]);
 
     return (
         <input

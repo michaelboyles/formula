@@ -2,13 +2,13 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { FieldPath } from "./FieldPath.ts";
 import type { Issue } from "./validate.ts";
 
-export async function getValidationIssues<T>(values: T, validators: ReadonlyArray<StandardSchemaV1<T>>) {
-    const results = await Promise.all(validators.map(async validator => await _getValidationIssues(values, validator)));
+export async function getValidationIssues<T>(data: T, validators: ReadonlyArray<StandardSchemaV1<T>>) {
+    const results = await Promise.all(validators.map(async validator => await _getValidationIssues(data, validator)));
     return results.flatMap(issues => issues);
 }
 
-async function _getValidationIssues<T>(values: T, validator: StandardSchemaV1<T>) {
-    const result = await validator["~standard"].validate(values);
+async function _getValidationIssues<T>(data: T, validator: StandardSchemaV1<T>) {
+    const result = await validator["~standard"].validate(data);
     if (!result.issues) return [];
 
     const nativeIssues: Issue[] = [];

@@ -1,7 +1,7 @@
 import { test, expect, describe } from 'vitest';
 import { FieldPath } from "../FieldPath.ts";
 
-describe("getValue", () => {
+describe("getData", () => {
     test('Single object property', () => {
         const path = FieldPath.create().withProperty("foo");
         expect(path.getData({ foo: "bar" })).toBe("bar");
@@ -23,7 +23,7 @@ describe("getValue", () => {
     })
 })
 
-describe("getValue for invalid path", () => {
+describe("getData for invalid path", () => {
     test("Try to access unknown property", () => {
         const path = FieldPath.create().withProperty("a");
         expect(path.getData({})).toBeUndefined();
