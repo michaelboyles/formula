@@ -5,6 +5,7 @@ import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../hooks/useForm.ts";
 import { Input } from "../Input.tsx";
 import { useIsBlurred } from "../../hooks/useIsBlurred.ts";
+import { type ComponentRef, useEffect, useRef } from "react";
 
 const user = userEvent.setup();
 
@@ -36,16 +37,12 @@ describe("Input", () => {
     it("tracks blur status", async () => {
         function Test() {
             const form = useForm({
-                initialValues: () => ({
-                    title: ""
-                }),
-                submit: async () => "done"
+                initialValues: { title: "" },
             })
-
             const titleField = form("title");
             const wasBlurred = useIsBlurred(titleField);
             return (
-                <form onSubmit={form.submit}>
+                <form>
                     <Input field={titleField} data-testid="input" />
                     { wasBlurred ? <div data-testid="blurred">blurred</div> : null }
                 </form>
@@ -57,5 +54,25 @@ describe("Input", () => {
         await user.click(input);
         await user.tab();
         expect(queryByTestId("blurred")).toBeInTheDocument();
+    })
+
+    it("supports a ref", () => {
+        function Test() {
+            const inputRef = useRef<ComponentRef<"input">>(null);
+            const form = useForm({
+                initialValues: { title: "" },
+            });
+            useEffect(() => {
+                if (inputRef.current) {
+                    inputRef.current.value = "my title";
+                }
+            }, [])
+
+            return (
+                <Input field={form("title")} ref={inputRef} data-testid="input" />
+            )
+        }
+        const { getByTestId } = render(<Test />);
+        expect(getByTestId("input")).toHaveValue("my title");
     })
 });
