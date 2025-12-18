@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { FormStateTree } from "../FormStateTree.ts";
+import { FieldStateTree } from "../FieldStateTree.ts";
 import { FieldPath } from "../FieldPath.ts";
 
-describe("FormStateTree", () => {
+describe("FieldStateTree", () => {
     test("Subscribe and notify of value", () => {
-        const tree = new FormStateTree();
+        const tree = new FieldStateTree();
         const rootPath = FieldPath.create();
         let notified = 0;
         const unsubscribe = tree.subscribeToValue(rootPath, () => {
@@ -21,7 +21,7 @@ describe("FormStateTree", () => {
     })
 
     test("Subscribe with complex path", () => {
-        const tree = new FormStateTree();
+        const tree = new FieldStateTree();
         const path = FieldPath.create().withProperty("foo").withProperty(5).withProperty("bar")
         let notified = 0;
         const unsubscribe = tree.subscribeToValue(path, () => {
@@ -34,7 +34,7 @@ describe("FormStateTree", () => {
     })
 
     test("Errors are retained after notifying value change", () => {
-        const tree = new FormStateTree();
+        const tree = new FieldStateTree();
         const path = FieldPath.create().withProperty("user").withProperty("name");
         tree.setErrors(path, ["Required"]);
         tree.notifyValueChanged(path, {});
@@ -42,7 +42,7 @@ describe("FormStateTree", () => {
     })
 
     test("Errors are retained if data shape matches", () => {
-        const tree = new FormStateTree();
+        const tree = new FieldStateTree();
         const userPath = FieldPath.create().withProperty("user");
         tree.setErrors(userPath.withProperty("name"), "Foo");
         tree.notifyValueChanged(userPath, { user: { name: "Michael" } });
@@ -50,7 +50,7 @@ describe("FormStateTree", () => {
     })
 
     test("Errors are discarded if data shape changes", () => {
-        const tree = new FormStateTree();
+        const tree = new FieldStateTree();
         const userPath = FieldPath.create().withProperty("user");
         tree.setErrors(userPath.withProperty("name"), "Foo");
         tree.notifyValueChanged(userPath, { user: {} });
@@ -58,7 +58,7 @@ describe("FormStateTree", () => {
     })
 
     test("Root subscribers are notified when a nested leaf changes", () => {
-        const tree = new FormStateTree();
+        const tree = new FieldStateTree();
         const rootPath = FieldPath.create();
         const leafPath = rootPath.withProperty("name");
 

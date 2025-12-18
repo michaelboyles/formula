@@ -2,7 +2,8 @@ import { FieldPath } from "./FieldPath.ts";
 
 const NO_ERRORS = Object.freeze([] as string[]);
 
-export class FormStateTree {
+// Holds state for each of the form's fields
+export class FieldStateTree {
     private root: TreeNode = {}
 
     hasError() {

@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useRef } from "react";
 import { type FormField, newFormField } from "../FormField.ts";
 import { FieldPath } from "../FieldPath.ts";
-import { FormStateTree, type Subscriber, type Unsubscribe } from "../FormStateTree.ts";
+import { FieldStateTree, type Subscriber, type Unsubscribe } from "../FieldStateTree.ts";
 import {
     type FormState,
     FormStateManager,
@@ -64,19 +64,19 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
 
     const self = useRef<FormWithInternals<Data> | null>(null);
     const data = useLazyRef(opts.initialValues);
-    const stateTree = useRef(new FormStateTree());
+    const fieldState = useRef(new FieldStateTree());
     const stateManager = useRef(new FormStateManager());
 
     function setData(path: FieldPath, value: any) {
         data.current = path.getDataWithValue(data.current, value);
-        stateTree.current.notifyValueChanged(path, data.current);
+        fieldState.current.notifyValueChanged(path, data.current);
         if (activeOpts.current.validateOnChange) {
             validateAll(data.current);
         }
     }
 
     const validateAll = async (values: Data) => {
-        stateTree.current.clearAllErrors();
+        fieldState.current.clearAllErrors();
 
         const pendingValidations: Array<Promise<Issue[]>> = [];
         const validators = activeOpts.current.validators;
@@ -90,7 +90,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         if (pendingValidations.length) {
             const issues = (await Promise.all(pendingValidations)).flatMap(a => a);
             issues.forEach(issue => {
-                stateTree.current.appendErrors(issue.path, [issue.message]);
+                fieldState.current.appendErrors(issue.path, [issue.message]);
             });
             return issues;
         }
@@ -157,32 +157,32 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
             setData(path, newValue);
         },
         subscribeToData: (path, subscriber) => {
-            const unsubscribe = stateTree.current.subscribeToValue(path, subscriber);
+            const unsubscribe = fieldState.current.subscribeToValue(path, subscriber);
             return () => unsubscribe();
         },
 
-        getErrors: path => stateTree.current.getErrors(path),
-        setErrors: (path, errors) => stateTree.current.setErrors(path, errors),
+        getErrors: path => fieldState.current.getErrors(path),
+        setErrors: (path, errors) => fieldState.current.setErrors(path, errors),
         subscribeToErrors: (path, subscriber) => {
-            const unsubscribe = stateTree.current.subscribeToErrors(path, subscriber);
+            const unsubscribe = fieldState.current.subscribeToErrors(path, subscriber);
             return () => unsubscribe();
         },
 
-        getDeepErrors: path => stateTree.current.getDeepErrors(path),
+        getDeepErrors: path => fieldState.current.getDeepErrors(path),
         subscribeToDeepErrors: (path, subscriber) => {
-            const unsubscribe = stateTree.current.subscribeToDeepErrors(path, subscriber);
+            const unsubscribe = fieldState.current.subscribeToDeepErrors(path, subscriber);
             return () => unsubscribe();
         },
 
-        blurred: path => stateTree.current.blurred(path),
+        blurred: path => fieldState.current.blurred(path),
         setBlurred: (path, blurred) => {
-            stateTree.current.setBlurred(path, blurred);
+            fieldState.current.setBlurred(path, blurred);
             if (activeOpts.current.validateOnBlur) {
                 validateAll(data.current);
             }
         },
         subscribeToBlurred: (path, subscriber) => {
-            const unsubscribe = stateTree.current.subscribeToBlurred(path, subscriber);
+            const unsubscribe = fieldState.current.subscribeToBlurred(path, subscriber);
             return () => unsubscribe();
         }
     };

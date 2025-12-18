@@ -1,6 +1,6 @@
 import type { FormAccess } from "./hooks/useForm.ts";
 import type { FieldPath } from "./FieldPath.ts";
-import type { Subscriber, Unsubscribe } from "./FormStateTree.ts";
+import type { Subscriber, Unsubscribe } from "./FieldStateTree.ts";
 
 export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): FormField<Data> {
     const field: FormField<Data> = Object.assign(
