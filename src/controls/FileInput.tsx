@@ -18,7 +18,9 @@ export const FileInput = forwardRef<HTMLInputElement, Props>((props, forwardedRe
     useEffect(() => {
         if (!ref.current) return;
         if (data) {
-            ref.current.files = data;
+            if (ref.current.files !== data) {
+                ref.current.files = data;
+            }
         }
         else {
             ref.current.value = "";
