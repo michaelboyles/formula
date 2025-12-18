@@ -18,7 +18,7 @@ const form = useForm({
 return (
     <form onSubmit={form.submit}>
         Name: <Input field={form("name")} />
-        Blurred: <IsBlurred>{ isBlurred => isBlurred ? "yes" : "no" }</IsBlurred>
+        Blurred? <IsBlurred>{ isBlurred => isBlurred ? "yes" : "no" }</IsBlurred>
     </form>
 )
 ```
@@ -31,5 +31,5 @@ function IsBlurred(props: {
     field: FormField<any>
     // A render function which will be passed the blur status
     children: (isBlurred: boolean) => ReactNode
-})
+}): ReactNode
 ```

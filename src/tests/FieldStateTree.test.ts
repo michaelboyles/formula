@@ -70,4 +70,32 @@ describe("FieldStateTree", () => {
         // THEN the count as incremented
         expect(rootNotified).toBe(1);
     });
+
+    describe("isChanged", () => {
+        test("setIsChanged(true)", () => {
+            const tree = new FieldStateTree();
+            const rootPath = FieldPath.create();
+            const leafPath = rootPath.withProperty("name");
+
+            // WHEN a leaf node is changed
+            tree.setIsChanged(leafPath, true);
+            // THEN both the leaf and parent are set as changed (change propagates upwards)
+            expect(tree.isChanged(rootPath)).toBe(true);
+            expect(tree.isChanged(leafPath)).toBe(true);
+        });
+
+        test("setIsChanged(false)", () => {
+            // GIVEN a tree where a leaf is changed
+            const tree = new FieldStateTree();
+            const rootPath = FieldPath.create();
+            const leafPath = rootPath.withProperty("name");
+            tree.setIsChanged(leafPath, true);
+
+            // WHEN a leaf node is changed
+            tree.setIsChanged(leafPath, true);
+            // THEN both the leaf and parent are set as changed (change propagates downwards)
+            expect(tree.isChanged(rootPath)).toBe(true);
+            expect(tree.isChanged(leafPath)).toBe(true);
+        });
+    })
 })

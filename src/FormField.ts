@@ -13,18 +13,24 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
         {
             toString: () => path.toString(),
             getData: () => formAccess.getData(path),
-            setData: (value: Data) => formAccess.setData(path, value),
+            setData: (value: Data) => {
+                formAccess.setData(path, value);
+                formAccess.setIsChanged(path, true);
+            },
             getErrors: () => formAccess.getErrors(path),
             setErrors: (errors: string | string[] | undefined) => formAccess.setErrors(path, errors),
             getDeepErrors: () => formAccess.getDeepErrors(path),
             blurred: () => formAccess.blurred(path),
             setBlurred: (blurred: boolean) => formAccess.setBlurred(path, blurred),
+            isChanged: () => formAccess.isChanged(path),
+            setIsChanged: (isChanged: boolean) => formAccess.setIsChanged(path, isChanged),
             narrow: () => field as any,
             _internal: {
                 subscribeToValue: (subscriber: Subscriber) => formAccess.subscribeToData(path, subscriber),
                 subscribeToErrors: (subscriber: Subscriber) => formAccess.subscribeToErrors(path, subscriber),
                 subscribeToDeepErrors: (subscriber: Subscriber) => formAccess.subscribeToDeepErrors(path, subscriber),
                 subscribeToBlurred: (subscriber: Subscriber) => formAccess.subscribeToBlurred(path, subscriber),
+                subscribeToIsChanged: (subscriber: Subscriber) => formAccess.subscribeToIsChanged(path, subscriber),
             }
         } satisfies BaseField<Data>, {
             push: (...element: any) => {
@@ -68,6 +74,10 @@ type BaseField<Data, SetData = Data> = {
     blurred: () => boolean
     // Set the current blur status for this field
     setBlurred: (blurred: boolean) => void
+    // Get the current changed status for this field
+    isChanged: () => boolean
+    // Set the current changed status for this field
+    setIsChanged: (isChanged: boolean) => void
     // Narrow the form field's type to a subtype. This is useful when your form data is
     // polymorphic.
     // You can optionally provide a "witness", which is unused except for type inference.
@@ -79,6 +89,7 @@ type BaseField<Data, SetData = Data> = {
         subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
         subscribeToDeepErrors: (subscriber: Subscriber) => Unsubscribe
         subscribeToBlurred: (subscriber: Subscriber) => Unsubscribe
+        subscribeToIsChanged: (subscriber: Subscriber) => Unsubscribe
     }
 }
 

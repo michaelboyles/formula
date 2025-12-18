@@ -25,6 +25,7 @@ return (
   "path": "name",
   "data": "",
   "blurred": false,
+  "isChanged": false,
   "errors": []
 }
 ```
@@ -35,5 +36,5 @@ return (
 function DebugField(props: {
     // The field to print debug info for
     field: FormField<any>
-})
+}): ReactNode
 ```

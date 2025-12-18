@@ -113,5 +113,6 @@ it more readable.
 | [useElements](/formula/hooks/useElements)               | [ForEachElement](/formula/components/ForEachElement)   |
 | [useFieldData](/formula/hooks/useFieldData)             | [FieldData](/formula/components/FieldData)             |
 | [useFieldErrors](/formula/hooks/useFieldErrors)         | [FieldErrors](/formula/components/FieldErrors)         |
+| [useIsChanged](/formula/hooks/useIsChanged)             | [IsSubmitting](/formula/components/IsChanged)          |
 | [useIsSubmitting](/formula/hooks/useIsSubmitting)       | [IsSubmitting](/formula/components/IsSubmitting)       |
 | [useSubmissionError](/formula/hooks/useSubmissionError) | [SubmissionError](/formula/components/SubmissionError) |

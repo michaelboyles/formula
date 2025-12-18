@@ -37,5 +37,5 @@ function SubmissionError(props: {
     form: Form<any>
     // A render function which will be passed the submission error, if any
     children: (submissionError: Error | undefined) => ReactNode
-})
+}): ReactNode
 ```

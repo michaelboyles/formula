@@ -156,23 +156,14 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
             const newValue = update(value);
             setData(path, newValue);
         },
-        subscribeToData: (path, subscriber) => {
-            const unsubscribe = fieldState.current.subscribeToValue(path, subscriber);
-            return () => unsubscribe();
-        },
+        subscribeToData: (path, subscriber) => fieldState.current.subscribeToValue(path, subscriber),
 
         getErrors: path => fieldState.current.getErrors(path),
         setErrors: (path, errors) => fieldState.current.setErrors(path, errors),
-        subscribeToErrors: (path, subscriber) => {
-            const unsubscribe = fieldState.current.subscribeToErrors(path, subscriber);
-            return () => unsubscribe();
-        },
+        subscribeToErrors: (path, subscriber) => fieldState.current.subscribeToErrors(path, subscriber),
 
         getDeepErrors: path => fieldState.current.getDeepErrors(path),
-        subscribeToDeepErrors: (path, subscriber) => {
-            const unsubscribe = fieldState.current.subscribeToDeepErrors(path, subscriber);
-            return () => unsubscribe();
-        },
+        subscribeToDeepErrors: (path, subscriber) => fieldState.current.subscribeToDeepErrors(path, subscriber),
 
         blurred: path => fieldState.current.blurred(path),
         setBlurred: (path, blurred) => {
@@ -184,7 +175,11 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         subscribeToBlurred: (path, subscriber) => {
             const unsubscribe = fieldState.current.subscribeToBlurred(path, subscriber);
             return () => unsubscribe();
-        }
+        },
+
+        isChanged: path => fieldState.current.isChanged(path),
+        setIsChanged: (path, isChanged) => fieldState.current.setIsChanged(path, isChanged),
+        subscribeToIsChanged: (path, subscriber) => fieldState.current.subscribeToIsChanged(path, subscriber),
     };
 
     return useMemo(() => {
@@ -264,6 +259,10 @@ export type FormAccess = {
     blurred: (path: FieldPath) => boolean
     setBlurred: (path: FieldPath, blurred: boolean) => void
     subscribeToBlurred: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+
+    isChanged: (path: FieldPath) => boolean
+    setIsChanged: (path: FieldPath, isChanged: boolean) => void
+    subscribeToIsChanged: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 }
 
 function convertSubmissionError(e: unknown) {

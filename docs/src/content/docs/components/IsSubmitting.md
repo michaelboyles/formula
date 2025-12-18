@@ -34,5 +34,5 @@ function IsSubmitting(props: {
     form: Form<any>
     // A render function which will be passed the isSubmitting status
     children: (isSubmitting: boolean) => ReactNode
-})
+}): ReactNode
 ```

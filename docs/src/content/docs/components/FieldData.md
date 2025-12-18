@@ -30,5 +30,5 @@ function FieldData<T>(props: {
     field: FormField<T>
     // A render function which will be passed the value
     children: (value: T) => ReactNode
-})
+}): ReactNode
 ```

@@ -36,5 +36,5 @@ function FieldErrors<T>(props: {
     field: FormField<T>
     // A render function which will be passed the errors
     children: (value: ReadonlyArray<string>) => ReactNode
-})
+}): ReactNode
 ```

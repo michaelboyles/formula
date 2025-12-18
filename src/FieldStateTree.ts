@@ -116,6 +116,35 @@ export class FieldStateTree {
         }
     }
 
+    isChanged(path: FieldPath): boolean {
+        const node = this.getNode(path);
+        return node?.isChanged ?? false;
+    }
+
+    setIsChanged(path: FieldPath, isChanged: boolean) {
+        if (isChanged) {
+            // Marking a leaf as changed propagates up the tree
+            for (let i = 0; i < path.keys.length + 1; ++i) {
+                const node = this.getOrCreateNode(path.sliceTo(i));
+                if (!node.isChanged) {
+                    node.isChanged = true;
+                    node.isChangedSubscribers?.forEach(notify => notify());
+                }
+            }
+        }
+        else {
+            // Marking a parent as unchanged propagates down the tree
+            const node = this.getNode(path);
+            if (!node) return;
+            this.visitAllChildren(node, n => {
+                if (n.isChanged) {
+                    delete n.isChanged;
+                    node.isChangedSubscribers?.forEach(notify => notify());
+                }
+            });
+        }
+    }
+
     subscribeToValue(path: FieldPath, subscriber: Subscriber): Unsubscribe {
         return this.subscribe(path, "valueSubscribers", subscriber);
     }
@@ -130,6 +159,10 @@ export class FieldStateTree {
 
     subscribeToBlurred(path: FieldPath, subscriber: Subscriber): Unsubscribe {
         return this.subscribe(path, "blurredSubscribers", subscriber);
+    }
+
+    subscribeToIsChanged(path: FieldPath, subscriber: Subscriber): Unsubscribe {
+        return this.subscribe(path, "isChangedSubscribers", subscriber);
     }
 
     private subscribe<K extends keyof Subscribers>(path: FieldPath, key: K, subscriber: Subscriber): Unsubscribe {
@@ -223,6 +256,7 @@ export class FieldStateTree {
                 if (nextData === undefined) {
                     delete child.errors;
                     delete child.blurred;
+                    delete child.isChanged;
                     if (this.isNodeEmpty(child)) {
                         delete node.propertyToNode[key];
                     }
@@ -236,6 +270,7 @@ export class FieldStateTree {
 
     private isNodeEmpty(node: TreeNode): boolean {
         const hasState = node.blurred === true
+            || node.isChanged === true
             || (node.errors && node.errors.length > 0)
             || (node.propertyToNode && Object.keys(node.propertyToNode).length > 0)
             || (node.valueSubscribers && node.valueSubscribers.length > 0)
@@ -250,12 +285,14 @@ type TreeNode = {
     errors?: string[]
     deepErrors?: CachedValue<string[]>
     blurred?: boolean
+    isChanged?: boolean
 } & Subscribers;
 type Subscribers = {
     valueSubscribers?: Subscriber[]
     errorSubscribers?: Subscriber[]
     deepErrorSubscribers?: Subscriber[]
     blurredSubscribers?: Subscriber[]
+    isChangedSubscribers?: Subscriber[]
 }
 
 export type Unsubscribe = () => void;
