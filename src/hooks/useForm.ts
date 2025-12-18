@@ -169,14 +169,14 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         getDeepErrors: path => fieldState.current.getDeepErrors(path),
         subscribeToDeepErrors: (path, subscriber) => fieldState.current.subscribeToDeepErrors(path, subscriber),
 
-        blurred: path => fieldState.current.blurred(path),
-        setBlurred: (path, blurred) => {
+        isBlurred: path => fieldState.current.blurred(path),
+        setIsBlurred: (path, blurred) => {
             fieldState.current.setBlurred(path, blurred);
             if (activeOpts.current.validateOnBlur) {
                 validateAll(data.current);
             }
         },
-        subscribeToBlurred: (path, subscriber) => {
+        subscribeToIsBlurred: (path, subscriber) => {
             const unsubscribe = fieldState.current.subscribeToBlurred(path, subscriber);
             return () => unsubscribe();
         },
@@ -259,9 +259,9 @@ export type FormAccess = {
     getDeepErrors: (path: FieldPath) => ReadonlyArray<string>
     subscribeToDeepErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
-    blurred: (path: FieldPath) => boolean
-    setBlurred: (path: FieldPath, blurred: boolean) => void
-    subscribeToBlurred: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+    isBlurred: (path: FieldPath) => boolean
+    setIsBlurred: (path: FieldPath, blurred: boolean) => void
+    subscribeToIsBlurred: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     isChanged: (path: FieldPath) => boolean
     setIsChanged: (path: FieldPath, isChanged: boolean) => void

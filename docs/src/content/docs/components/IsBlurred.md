@@ -7,7 +7,7 @@ slug: components/IsBlurred
 `<IsBlurred>` subscribes to the blur status of the given field and exposes it to a render prop. You can
 use it to watch the blur status without introducing unnecessary rerenders.
 
-The counterpart hook is [`useBlurred`](/formula/hooks/useBlurred).
+The counterpart hook is [`useIsBlurred`](/formula/hooks/useIsBlurred).
 
 ## Sample usage
 

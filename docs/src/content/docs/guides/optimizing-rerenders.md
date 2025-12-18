@@ -109,10 +109,10 @@ it more readable.
 
 | Hook                                                    | Component                                              |
 |---------------------------------------------------------|--------------------------------------------------------|
-| [useBlurred](/formula/hooks/useBlurred)                 | [IsBlurred](/formula/components/IsBlurred)             |
 | [useElements](/formula/hooks/useElements)               | [ForEachElement](/formula/components/ForEachElement)   |
 | [useFieldData](/formula/hooks/useFieldData)             | [FieldData](/formula/components/FieldData)             |
 | [useFieldErrors](/formula/hooks/useFieldErrors)         | [FieldErrors](/formula/components/FieldErrors)         |
+| [useIsBlurred](/formula/hooks/useIsBlurred)             | [IsBlurred](/formula/components/IsBlurred)             |
 | [useIsChanged](/formula/hooks/useIsChanged)             | [IsSubmitting](/formula/components/IsChanged)          |
 | [useIsSubmitting](/formula/hooks/useIsSubmitting)       | [IsSubmitting](/formula/components/IsSubmitting)       |
 | [useSubmissionError](/formula/hooks/useSubmissionError) | [SubmissionError](/formula/components/SubmissionError) |

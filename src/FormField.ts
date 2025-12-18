@@ -18,8 +18,8 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
             getErrors: () => formAccess.getErrors(path),
             setErrors: (errors: string | string[] | undefined) => formAccess.setErrors(path, errors),
             getDeepErrors: () => formAccess.getDeepErrors(path),
-            blurred: () => formAccess.blurred(path),
-            setBlurred: (blurred: boolean) => formAccess.setBlurred(path, blurred),
+            isBlurred: () => formAccess.isBlurred(path),
+            setIsBlurred: (isBlurred: boolean) => formAccess.setIsBlurred(path, isBlurred),
             isChanged: () => formAccess.isChanged(path),
             setIsChanged: (isChanged: boolean) => formAccess.setIsChanged(path, isChanged),
             narrow: () => field as any,
@@ -27,7 +27,7 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
                 subscribeToData: (subscriber: Subscriber) => formAccess.subscribeToData(path, subscriber),
                 subscribeToErrors: (subscriber: Subscriber) => formAccess.subscribeToErrors(path, subscriber),
                 subscribeToDeepErrors: (subscriber: Subscriber) => formAccess.subscribeToDeepErrors(path, subscriber),
-                subscribeToBlurred: (subscriber: Subscriber) => formAccess.subscribeToBlurred(path, subscriber),
+                subscribeToIsBlurred: (subscriber: Subscriber) => formAccess.subscribeToIsBlurred(path, subscriber),
                 subscribeToIsChanged: (subscriber: Subscriber) => formAccess.subscribeToIsChanged(path, subscriber),
             }
         } satisfies BaseField<Data>, {
@@ -69,9 +69,9 @@ type BaseField<Data, SetData = Data> = {
     // 2 errors, this will return an array containing 3 errors.
     getDeepErrors: () => ReadonlyArray<string>
     // Get the current blur status for this field, i.e. whether the field has lost focus.
-    blurred: () => boolean
+    isBlurred: () => boolean
     // Set the current blur status for this field
-    setBlurred: (blurred: boolean) => void
+    setIsBlurred: (blurred: boolean) => void
     // Get the current changed status for this field
     isChanged: () => boolean
     // Set the current changed status for this field
@@ -86,7 +86,7 @@ type BaseField<Data, SetData = Data> = {
         subscribeToData: (subscriber: Subscriber) => Unsubscribe
         subscribeToErrors: (subscriber: Subscriber) => Unsubscribe
         subscribeToDeepErrors: (subscriber: Subscriber) => Unsubscribe
-        subscribeToBlurred: (subscriber: Subscriber) => Unsubscribe
+        subscribeToIsBlurred: (subscriber: Subscriber) => Unsubscribe
         subscribeToIsChanged: (subscriber: Subscriber) => Unsubscribe
     }
 }

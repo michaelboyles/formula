@@ -4,7 +4,7 @@ import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../hooks/useForm.ts";
 import { Input } from "../Input.tsx";
-import { useBlurred } from "../../hooks/useBlurred.ts";
+import { useIsBlurred } from "../../hooks/useIsBlurred.ts";
 
 const user = userEvent.setup();
 
@@ -43,7 +43,7 @@ describe("Input", () => {
             })
 
             const titleField = form("title");
-            const wasBlurred = useBlurred(titleField);
+            const wasBlurred = useIsBlurred(titleField);
             return (
                 <form onSubmit={form.submit}>
                     <Input field={titleField} data-testid="input" />

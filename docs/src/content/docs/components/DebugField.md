@@ -24,7 +24,7 @@ return (
 {
   "path": "name",
   "data": "",
-  "blurred": false,
+  "isBlurred": false,
   "isChanged": false,
   "errors": []
 }

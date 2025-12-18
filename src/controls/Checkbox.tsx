@@ -20,7 +20,7 @@ export function Checkbox(props: Props) {
             }}
             checked={checked}
             onBlur={e => {
-                field.setBlurred(true);
+                field.setIsBlurred(true);
                 onBlur?.(e);
             }}
         />

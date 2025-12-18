@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { FormField } from "../FormField.ts";
-import { useBlurred } from "../hooks/useBlurred.ts";
+import { useIsBlurred } from "../hooks/useIsBlurred.ts";
 
 export type Props = {
     // The field to watch the blur status for
@@ -9,6 +9,6 @@ export type Props = {
     children: (isBlurred: boolean) => ReactNode
 }
 export function IsBlurred(props: Props) {
-    const isBlurred = useBlurred(props.field);
+    const isBlurred = useIsBlurred(props.field);
     return props.children(isBlurred);
 }

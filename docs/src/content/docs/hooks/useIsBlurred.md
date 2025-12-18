@@ -1,10 +1,10 @@
 ---
-title: useBlurred
+title: useIsBlurred
 description: A hook to get the blur state of a field
-slug: hooks/useBlurred
+slug: hooks/useIsBlurred
 ---
 
-`useBlurred` subscribes to the blur state of a field. It will only trigger a rerender when the status changes.
+`useIsBlurred` subscribes to the blur state of a field. It will only trigger a rerender when the status changes.
 
 [Blur](https://developer.mozilla.org/en-US/docs/Web/API/Element/blur_event) is defined as when a field loses focus.
 
@@ -17,11 +17,11 @@ parent object, and blurring an array element does not blur the entire array.
 const form = useForm({
     initialValues: { username: "admin" }
 });
-const isBlurred: boolean = useBlurred(form("username"));
+const isBlurred: boolean = useIsBlurred(form("username"));
 ```
 
 ## Type
 
 ```typescript
-function useBlurred(field: FormField<any>): boolean
+function useIsBlurred(field: FormField<any>): boolean
 ```

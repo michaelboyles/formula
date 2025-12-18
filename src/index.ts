@@ -5,12 +5,12 @@ export type { FormField } from "./FormField.ts"
 
 // Hooks
 
-export { useBlurred } from "./hooks/useBlurred.ts"
 export { useDeepFieldErrors } from "./hooks/useDeepFieldErrors.ts"
 export { useElements } from "./hooks/useElements.ts"
 export { useFieldData } from "./hooks/useFieldData.ts"
 export { useFieldErrors } from "./hooks/useFieldErrors.ts"
 export { useForm } from "./hooks/useForm.ts"
+export { useIsBlurred } from "./hooks/useIsBlurred.ts"
 export { useIsChanged } from "./hooks/useIsChanged.ts"
 export { useIsSubmitting } from "./hooks/useIsSubmitting.ts"
 export { useRadioButton } from "./hooks/useRadioButton.tsx"

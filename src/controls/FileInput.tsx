@@ -35,7 +35,7 @@ export const FileInput = forwardRef<HTMLInputElement, Props>((props, forwardedRe
                 onChange?.(e);
             }}
             onBlur={e => {
-                field.setBlurred(true);
+                field.setIsBlurred(true);
                 onBlur?.(e);
             }}
         />
