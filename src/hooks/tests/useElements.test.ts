@@ -2,11 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useForm } from "../useForm.ts";
 import { useElements } from "../../hooks/useElements.ts";
-import type { FormField } from "../../FormField.ts";
 
 describe("useElements", () => {
     const nativeErrorLog = console.error;
-    let errorLogs: any[] = [];
+    let errorLogs: unknown[] = [];
 
     beforeEach(() => {
         console.error = (...args) => {
@@ -25,9 +24,8 @@ describe("useElements", () => {
                 initialValues: { name: "the name" },
                 submit: () => {}
             });
-            // Deliberately fudge the type
-            const nameField = form("name") as any as FormField<string[]>;
-            const elements = useElements(nameField);
+            // @ts-expect-error - name is not an array
+            const elements = useElements(form("name"));
             return elements.length;
         });
         expect(result.current).toBe(0);
@@ -36,7 +34,8 @@ describe("useElements", () => {
 
     it("throws when given non-field", () => {
         expect(() => renderHook(() => {
-            useElements(null as any);
+            // @ts-expect-error - null is not a valid argument
+            useElements(null);
         })).toThrow("Field is null");
     })
 })

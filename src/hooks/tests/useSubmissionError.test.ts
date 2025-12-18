@@ -3,6 +3,9 @@ import { useSubmissionError } from "../useSubmissionError.ts";
 
 describe("useSubmissionError", () => {
     it("throws when given a form not created by useForm", () => {
-        expect(() => useSubmissionError({} as any)).toThrow();
+        expect(() => {
+            // @ts-expect-error
+            useSubmissionError({});
+        }).toThrow();
     })
 })

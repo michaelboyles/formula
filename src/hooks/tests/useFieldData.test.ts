@@ -6,7 +6,8 @@ import { useForm } from "../useForm.ts";
 describe("useFieldData", () => {
     it("throws when given non-field", () => {
         expect(() => renderHook(() => {
-            useFieldData(null as any);
+            // @ts-expect-error
+            useFieldData(null);
         })).toThrow("Field is null");
     })
 

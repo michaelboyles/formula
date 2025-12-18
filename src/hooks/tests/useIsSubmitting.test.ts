@@ -5,7 +5,10 @@ import { renderHook } from "@testing-library/react";
 
 describe("useIsSubmitting", () => {
     it("throws when given a form not created by useForm", () => {
-        expect(() => useIsSubmitting({} as any)).toThrow();
+        expect(() => {
+            // @ts-expect-error
+            useIsSubmitting({});
+        }).toThrow();
     })
 
     it("changes after submission", async () => {

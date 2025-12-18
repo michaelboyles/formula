@@ -5,7 +5,8 @@ import { renderHook } from "@testing-library/react";
 describe("useFieldErrors", () => {
     it("throws when given non-field", () => {
         expect(() => renderHook(() => {
-            useFieldErrors(null as any);
+            // @ts-expect-error
+            useFieldErrors(null);
         })).toThrow("Field is null");
     })
 })
