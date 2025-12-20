@@ -64,7 +64,7 @@ type BaseField<Data, SetData = Data> = {
     getErrors: () => ReadonlyArray<string>
     // Set the current validation errors for this field
     setErrors: (errors: string | string[] | undefined) => void
-    // Get ALL validation errors for this field, including any sub-fields. For example
+    // Get ALL validation errors for this field, including any subfields. For example
     // if the field is "users.0.username" and "users" has 1 error, "users.0" has
     // 2 errors, this will return an array containing 3 errors.
     getDeepErrors: () => ReadonlyArray<string>

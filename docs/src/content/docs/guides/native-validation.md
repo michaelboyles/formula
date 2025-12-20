@@ -26,7 +26,7 @@ All validators are optional. In the above example, the password field is not val
 ## Objects
 
 Objects can be validated just like primitives by providing a validator function. If you do so, the errors will be
-associated with the object field and not with any sub-fields.
+associated with the object field and not with any subfields.
 
 ```tsx
 const form = useForm({
@@ -41,7 +41,7 @@ const form = useForm({
 ```
 
 Often you'll want to validate the subfields of an object individually. This will associate the errors with those
-sub-fields. You can do so by providing an object which has the same properties as the object being validated.
+subfields. You can do so by providing an object which has the same properties as the object being validated.
 
 ```tsx del={4-6} ins={7-13}
 const form = useForm({

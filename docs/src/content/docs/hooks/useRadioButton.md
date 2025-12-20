@@ -24,7 +24,9 @@ return (
 
 If your field is not a string or a number, you must provide a mapping function that converts it to a string or number.
 
-```tsx
+You can also optionally provide a `name` attribute that will be applied to all radio buttons.
+
+```tsx {9-10}
 type Vehicle = { type: "bike" } | { type: "car" }
 
 const form = useForm({

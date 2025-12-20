@@ -1,10 +1,10 @@
 ---
 title: useDeepFieldErrors
-description: A hook to get the errors for a form field and its sub-fields
+description: A hook to get the errors for a form field and its subfields
 slug: hooks/useDeepFieldErrors
 ---
 
-`useDeepFieldErrors` subscribes to the validation errors for a field, as well as any sub-fields.
+`useDeepFieldErrors` subscribes to the validation errors for a field, as well as any subfields.
 
 ## Sample usage
 
