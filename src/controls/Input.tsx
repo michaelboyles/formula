@@ -1,6 +1,6 @@
 import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import type { InputType } from "./types.ts";
+import type { InputType } from "../types.ts";
 import { useFieldData } from "../hooks/useFieldData.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
