@@ -6,3 +6,12 @@ export type InputType = "button" | "checkbox" | "color" | "date" | "datetime" | 
     | "image" | "month" | "number" | "password" | "radio" | "range" | "reset" | "search" | "submit"
     | "tel" | "text" | "time" | "url" | "week";
 
+export type SetDataOpts = {
+    // Whether to validate the data after setting it.
+    // Default: will validate if `useForm#validateOnChange` is true.
+    shouldValidate?: boolean;
+
+    // The change status for the field after setting the data. 'retain' will leave the change status untouched
+    // Default: true
+    nextChangeStatus?: boolean | "retain";
+}

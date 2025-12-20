@@ -7,6 +7,7 @@ Formula is currently pre-v1. It's relatively stable, but I expect there will be 
 - BREAKING CHANGE: useBlurred renamed to useIsBlurred
 - feat: useIsChanged, `<IsChanged>`
 - feat: `<IsBlurred>`
+- feat: options for field#setData
 - fix: form::reset not clearing field states (changed, blurred, errors)
 
 # 0.0.7

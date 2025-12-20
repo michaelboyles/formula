@@ -19,7 +19,7 @@ type FormField<Data, SetData = Data> = {
     // Get the current data for the field
     getData: () => Readonly<Data>
     // Set the data for the field
-    setData: (value: SetData) => void
+    setData: (setter: Setter<SetData>, opts?: SetDataOpts) => void
     // Get the current validation errors for this field
     getErrors: () => ReadonlyArray<string>
     // Set the current validation errors for this field
@@ -40,6 +40,17 @@ type FormField<Data, SetData = Data> = {
     narrow: <SubType extends Data>(witness?: SubType) => FormField<SubType>
 }
 
+type Setter<T> = T | ((prevData: T) => T)
+
+type SetDataOpts = {
+    // Whether to validate the data after setting it.
+    // Default: will validate if `useForm#validateOnChange` is true.
+    shouldValidate?: boolean;
+
+    // The change status for the field after setting the data. 'retain' will leave the change status untouched
+    // Default: true
+    nextChangeStatus?: boolean | "retain";
+}
 ```
 
 ## Object fields

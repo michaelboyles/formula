@@ -1,7 +1,7 @@
 import type { FormAccess } from "./hooks/useForm.ts";
 import type { FieldPath } from "./FieldPath.ts";
 import type { Subscriber, Unsubscribe } from "./FieldStateTree.ts";
-import type { Setter } from "./types.ts";
+import type { SetDataOpts, Setter } from "./types.ts";
 
 export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): FormField<Data> {
     const field: FormField<Data> = Object.assign(
@@ -14,7 +14,7 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
         {
             toString: () => path.toString(),
             getData: () => formAccess.getData(path) as Data,
-            setData: setter => formAccess.setData(path, setter),
+            setData: (setter, opts) => formAccess.setData(path, setter, opts),
             getErrors: () => formAccess.getErrors(path),
             setErrors: (errors: string | string[] | undefined) => formAccess.setErrors(path, errors),
             getDeepErrors: () => formAccess.getDeepErrors(path),
@@ -59,7 +59,7 @@ type BaseField<Data, SetData = Data> = {
     // Get the current data for the field
     getData: () => Readonly<Data>
     // Set the data for the field
-    setData: (setter: Setter<SetData>) => void
+    setData: (setter: Setter<SetData>, opts?: SetDataOpts) => void
     // Get the current validation errors for this field
     getErrors: () => ReadonlyArray<string>
     // Set the current validation errors for this field

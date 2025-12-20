@@ -15,7 +15,7 @@ import { validateRecursive } from "../validate-native.ts";
 import type { Issue, Validator } from "../validate.ts";
 import { useLazyRef } from "./useLazyRef.ts";
 import { ValidationError } from "../ValidationError.ts";
-import type { Setter } from "../types.ts";
+import type { SetDataOpts, Setter } from "../types.ts";
 
 type UseFormOpts<Data, SubmitResponse> = {
     // The initial values for the form. This is the only required option.
@@ -143,7 +143,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
 
     const formAccess: FormAccess = {
         getData: path => path.getData(data.current),
-        setData: (path, setter) => {
+        setData: (path, setter, opts) => {
             if (typeof setter === "function") {
                 const prevData = path.getData(data.current);
                 const newData = setter(prevData);
@@ -153,8 +153,10 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
                 data.current = path.getDataWithValue(data.current, setter);
             }
             fieldState.current.notifyDataChanged(path, data.current);
-            fieldState.current.setIsChanged(path, true);
-            if (activeOpts.current.validateOnChange) {
+            if (opts?.nextChangeStatus !== "retain") {
+                fieldState.current.setIsChanged(path, opts?.nextChangeStatus ?? true);
+            }
+            if (opts?.shouldValidate || (activeOpts.current.validateOnChange && opts?.shouldValidate !== false)) {
                 validateAll(data.current);
             }
         },
@@ -249,7 +251,7 @@ const FORM_SYM = Symbol("FORMULA_FORM");
 
 export type FormAccess = {
     getData: (path: FieldPath) => unknown
-    setData: (path: FieldPath, setter: Setter<unknown>) => void
+    setData: (path: FieldPath, setter: Setter<unknown>, opts?: SetDataOpts) => void
     subscribeToData: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
 
     getErrors: (path: FieldPath) => ReadonlyArray<string>
