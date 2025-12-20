@@ -68,22 +68,6 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
     const fieldState = useRef(new FieldStateTree());
     const stateManager = useRef(new FormStateManager());
 
-    function setData(path: FieldPath, setter: Setter<unknown>) {
-        if (typeof setter === "function") {
-            const prevData = path.getData(data.current);
-            const newData = setter(prevData);
-            data.current = path.getDataWithValue(data.current, newData);
-        }
-        else {
-            data.current = path.getDataWithValue(data.current, setter);
-        }
-        fieldState.current.notifyDataChanged(path, data.current);
-        fieldState.current.setIsChanged(path, true);
-        if (activeOpts.current.validateOnChange) {
-            validateAll(data.current);
-        }
-    }
-
     const validateAll = async (data: Data) => {
         fieldState.current.clearAllErrors();
 
@@ -159,7 +143,21 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
 
     const formAccess: FormAccess = {
         getData: path => path.getData(data.current),
-        setData,
+        setData: (path, setter) => {
+            if (typeof setter === "function") {
+                const prevData = path.getData(data.current);
+                const newData = setter(prevData);
+                data.current = path.getDataWithValue(data.current, newData);
+            }
+            else {
+                data.current = path.getDataWithValue(data.current, setter);
+            }
+            fieldState.current.notifyDataChanged(path, data.current);
+            fieldState.current.setIsChanged(path, true);
+            if (activeOpts.current.validateOnChange) {
+                validateAll(data.current);
+            }
+        },
         subscribeToData: (path, subscriber) => fieldState.current.subscribeToData(path, subscriber),
 
         getErrors: path => fieldState.current.getErrors(path),
@@ -197,8 +195,10 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
             },
             reset: () => {
                 const initialValues = activeOpts.current.initialValues;
-                const newValues = typeof initialValues === "function" ? (initialValues as () => Data)() : initialValues;
-                setData(ROOT_PATH, newValues);
+                const newData = typeof initialValues === "function" ? (initialValues as () => Data)() : initialValues;
+                const oldData = data.current;
+                data.current = newData;
+                fieldState.current.resetData(oldData, newData);
             },
             submit,
             __internal: {

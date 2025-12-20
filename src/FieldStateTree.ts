@@ -235,6 +235,64 @@ export class FieldStateTree {
         }
     }
 
+    resetData(oldData: any, newData: any) {
+        this.resetNode(this.root, oldData, newData);
+    }
+
+    private resetNode(node: TreeNode, oldData: any, newData: any) {
+        if (!isEqual(oldData, newData)) {
+            node.dataSubscribers?.forEach(notify => notify());
+        }
+        if (node.errors?.length) {
+            delete node.errors;
+            node.errorSubscribers?.forEach(notify => notify());
+        }
+        if (node.deepErrors) {
+            delete node.deepErrors;
+            node.deepErrorSubscribers?.forEach(notify => notify());
+        }
+        if (node.blurred) {
+            delete node.blurred;
+            node.blurredSubscribers?.forEach(notify => notify());
+        }
+        if (node.isChanged) {
+            delete node.isChanged;
+            node.isChangedSubscribers?.forEach(notify => notify());
+        }
+
+        // Recurse into children
+        if (!node.propertyToNode) return;
+        for (const [key, child] of Object.entries(node.propertyToNode)) {
+            if (!Object.hasOwn(newData, key)) {
+                this.visitAllChildren(child, n => {
+                    n.dataSubscribers?.forEach(notify => notify());
+                    if (n.errors) {
+                        n.errorSubscribers?.forEach(notify => notify())
+                    }
+                    if (n.deepErrors) {
+                        n.deepErrorSubscribers?.forEach(notify => notify());
+                    }
+                    if (n.isChanged) {
+                        n.isChangedSubscribers?.forEach(notify => notify());
+                    }
+                    if (n.blurred) {
+                        n.blurredSubscribers?.forEach(notify => notify());
+                    }
+                })
+                delete node.propertyToNode[key];
+            }
+            else {
+                const nextOldData = (oldData as any)?.[key];
+                const nextNewData = (newData as any)?.[key];
+                this.resetNode(child, nextOldData, nextNewData);
+            }
+        }
+
+        if (Object.keys(node.propertyToNode).length === 0) {
+            delete node.propertyToNode;
+        }
+    }
+
     private visitAllChildren(node: TreeNode, visit: (n: TreeNode) => void) {
         visit(node);
         node.propertyToNode && Object.values(node.propertyToNode).forEach(child => {

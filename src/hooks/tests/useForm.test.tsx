@@ -16,6 +16,8 @@ import { FieldErrors } from "../../components/FieldErrors.tsx";
 import { lazy, type ObjectValidator } from "../../validate.ts";
 import { ValidationError } from "../../ValidationError.ts";
 import type { Setter } from "../../types.ts";
+import { useIsChanged } from "../../hooks/useIsChanged.ts";
+import { useIsBlurred } from "../../hooks/useIsBlurred.ts";
 
 const user = userEvent.setup();
 
@@ -842,6 +844,44 @@ describe("useForm", () => {
             expect(queryByText("nope")).not.toBeInTheDocument();
         })
     });
+
+    describe("Reset", () => {
+        it("clears field status on reset", async () => {
+            function Test() {
+                const form = useForm({
+                    initialValues: {
+                        title: "Initial"
+                    }
+                });
+                const isTitleChanged = useIsChanged(form("title"));
+                const isTitleBlurred = useIsBlurred(form("title"));
+
+                return (
+                    <form onReset={form.reset}>
+                        <Input field={form("title")} data-testid="input" />
+                        { isTitleBlurred ? <div data-testid="blurred">blurred</div> : null }
+                        { isTitleChanged ? <div data-testid="changed">changed</div> : null }
+                        <input type="reset" data-testid="reset" />
+                    </form>
+                )
+            }
+
+            // GIVEN a form where a simple text field is both changed and blurred
+            const { getByTestId, queryByTestId } = render(<Test />);
+            const input = getByTestId("input");
+            await user.type(input, "My Title");
+            await user.tab();
+            expect(queryByTestId("blurred")).toBeInTheDocument();
+            expect(queryByTestId("changed")).toBeInTheDocument();
+
+            // WHEN the form is reset
+            await user.click(getByTestId("reset"));
+
+            // THEN the blur and changed statuses are also reset
+            expect(queryByTestId("blurred")).not.toBeInTheDocument();
+            expect(queryByTestId("changed")).not.toBeInTheDocument();
+        });
+    })
 })
 
 // do nothing, just a target for "satisfies" expression without warnings at the call site

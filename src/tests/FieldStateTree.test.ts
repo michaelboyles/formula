@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { FieldStateTree } from "../FieldStateTree.ts";
 import { FieldPath } from "../FieldPath.ts";
 
@@ -106,4 +106,83 @@ describe("FieldStateTree", () => {
             expect(tree.isChanged(leafPath)).toBe(true);
         });
     })
+
+    describe("resetData", () => {
+        test("clears errors, blurred, and isChanged on existing nodes", () => {
+            const tree = new FieldStateTree();
+            const path = FieldPath.create().withProperty("foo");
+            tree.setErrors(path, "error");
+            tree.setBlurred(path, true);
+            tree.setIsChanged(path, true);
+
+            tree.resetData({ foo: "foo" }, { foo: "bar" });
+
+            expect(tree.getErrors(path)).toHaveLength(0);
+            expect(tree.blurred(path)).toBe(false);
+            expect(tree.isChanged(path)).toBe(false);
+        });
+
+        test("clears deep errors for parent nodes", () => {
+            const tree = new FieldStateTree();
+            const parent = FieldPath.create().withProperty("foo");
+            const child = parent.withProperty("bar");
+            tree.setErrors(child, "error");
+
+            const data = { foo: { bar: "baz" } };
+            tree.resetData(data, data);
+
+            expect(tree.getDeepErrors(parent)).toEqual([]);
+        });
+
+        test("removes nodes that no longer exist in new data", () => {
+            const tree = new FieldStateTree();
+            const path = FieldPath.create().withProperty("foo");
+            tree.setErrors(path, "error");
+            tree.setBlurred(path, true);
+            tree.setIsChanged(path, true);
+
+            tree.resetData({ foo: "foo" }, {}); // foo no longer exists
+
+            expect(tree.getErrors(path)).toHaveLength(0);
+            expect(tree.blurred(path)).toBe(false);
+            expect(tree.isChanged(path)).toBe(false);
+        });
+
+        test("notifies subscribers when state is cleared", () => {
+            const tree = new FieldStateTree();
+            const path = FieldPath.create().withProperty("foo");
+            tree.setErrors(path, "error");
+            tree.setBlurred(path, true);
+            tree.setIsChanged(path, true);
+            const errorSub = vi.fn();
+            const blurredSub = vi.fn();
+            const changedSub = vi.fn();
+            tree.subscribeToErrors(path, errorSub);
+            tree.subscribeToBlurred(path, blurredSub);
+            tree.subscribeToIsChanged(path, changedSub);
+
+            tree.resetData({ foo: "foo" }, { foo: "foo" });
+
+            expect(errorSub).toHaveBeenCalledTimes(1);
+            expect(blurredSub).toHaveBeenCalledTimes(1);
+            expect(changedSub).toHaveBeenCalledTimes(1);
+        });
+
+        test("does not notify subscribers if no state changed", () => {
+            const tree = new FieldStateTree();
+            const path = FieldPath.create().withProperty("bar");
+            const errorSub = vi.fn();
+            const blurredSub = vi.fn();
+            const changedSub = vi.fn();
+            tree.subscribeToErrors(path, errorSub);
+            tree.subscribeToBlurred(path, blurredSub);
+            tree.subscribeToIsChanged(path, changedSub);
+
+            tree.resetData({ bar: "bar"}, { bar: "bar" });
+
+            expect(errorSub).not.toHaveBeenCalled();
+            expect(blurredSub).not.toHaveBeenCalled();
+            expect(changedSub).not.toHaveBeenCalled();
+        });
+    });
 })
