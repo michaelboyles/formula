@@ -28,6 +28,7 @@ export default defineConfig({
 						"guides/installation",
 						"guides/fields",
 						"guides/array-fields",
+						"guides/controls",
 						"guides/native-validation",
 						"guides/optimizing-rerenders",
 					]
