@@ -8,9 +8,9 @@ export type Opts<T> = {
     // a convenience to avoid having to explicitly declare the name on each `input`.
     name?: string
 } & ([T] extends [string | number] ? {
-    mapToValue?: Mapper<T>
+    mapToValue?: Mapper<T, string | number>
 } : {
-    mapToValue: Mapper<T>
+    mapToValue: Mapper<T, string | number>
 });
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
@@ -29,7 +29,7 @@ export function useRadioButton<T>(field: FormField<T>, opts?: Opts<T>): FC<Input
             <RadioButton
                 {...rest}
                 field={field}
-                mapToValue={mapToValue as Mapper<T>}
+                mapToValue={mapToValue as Mapper<T, string | number>}
                 name={name ?? nameFromHook}
             />
         )

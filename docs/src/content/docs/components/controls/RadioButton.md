@@ -66,13 +66,13 @@ function RadioButton<T>(props: {
     value: T
 }
 & ([T] extends [string | number] ? {
-    mapToValue?: Mapper<T>
+    mapToValue?: Mapper<T, string | number>
 } : {
-    mapToValue: Mapper<T>
+    mapToValue: Mapper<T, string | number>
 })
 & Omit<DefaultInputProps, "type" | "value" | "checked">)
 
-type Mapper<T> = (value: T) => string | number
+type Mapper<In, Out> = (value: In) => Out
 ```
 
 ### Native props

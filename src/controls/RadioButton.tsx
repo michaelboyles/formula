@@ -1,7 +1,7 @@
 import type { FormField } from "../FormField.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 import { useFieldData } from "../hooks/useFieldData.ts";
-import { createMapper, type Mapper } from "./mapValue.ts";
+import { stringNumberMapper, type Mapper } from "./mapValue.ts";
 
 type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 export type Props<T> = {
@@ -11,15 +11,15 @@ export type Props<T> = {
     value: T
 }
 & ([T] extends [string | number] ? {
-    mapToValue?: Mapper<T>
+    mapToValue?: Mapper<T, string | number>
 } : {
-    mapToValue: Mapper<T>
+    mapToValue: Mapper<T, string | number>
 })
 & Omit<DefaultInputProps, "type" | "value" | "checked">
 
 export function RadioButton<T>(props: Props<T>) {
     const { field, value, onChange, onBlur, mapToValue, ...rest } = props;
-    const mapper = createMapper(mapToValue);
+    const mapper = stringNumberMapper(mapToValue);
     const selectedValue = useFieldData(field);
     const mappedValue = mapper(value);
     const isChecked = mappedValue === mapper(selectedValue);

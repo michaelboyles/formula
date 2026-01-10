@@ -46,10 +46,10 @@ type Option<T> = {
 
 type MapperProps<T> =
     [T] extends [string | number] ? {
-        // A mapper is optional if the value is already a string or number
+        // A mapper is optional if the field type is string or number
         mapToValue?: Mapper<T>
     } : {
-        // A mapper is required if the value is a complex type
+        // A mapper is required if the field type is not string or number
         mapToValue: Mapper<T>
     };
 ```
