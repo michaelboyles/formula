@@ -1,14 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { useFieldData } from "../../hooks/useFieldData.ts";
+import { useFieldData } from "../useFieldData.ts";
 import { renderHook } from "@testing-library/react";
 import { useForm } from "../useForm.ts";
 
 describe("useFieldData", () => {
-    it("throws when given non-field", () => {
-        expect(() => renderHook(() => {
-            // @ts-expect-error
-            useFieldData(null);
-        })).toThrow("Field is null");
+    it("returns null when given null", () => {
+        const { result } = renderHook(() => useFieldData(null));
+        expect(result.current satisfies null).toBeNull();
+    })
+
+    it("returns undefined when given undefined", () => {
+        const { result } = renderHook(() => useFieldData(undefined));
+        expect(result.current satisfies undefined).toBeUndefined();
     })
 
     it("supports the base form", () => {

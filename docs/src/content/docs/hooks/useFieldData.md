@@ -22,5 +22,7 @@ return (
 ## Type
 
 ```typescript
-function useFieldData<T>(field: FormField<T>): T
+function useFieldData<T>(field: FormField<T>): T;
+function useFieldData(field: null): null;
+function useFieldData(field: undefined): undefined;
 ```
