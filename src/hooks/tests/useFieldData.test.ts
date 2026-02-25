@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { useFieldData } from "../useFieldData.ts";
 import { renderHook } from "@testing-library/react";
 import { useForm } from "../useForm.ts";
+import type { FormField } from "../../FormField.ts";
 
 describe("useFieldData", () => {
     it("returns null when given null", () => {
@@ -12,6 +13,14 @@ describe("useFieldData", () => {
     it("returns undefined when given undefined", () => {
         const { result } = renderHook(() => useFieldData(undefined));
         expect(result.current satisfies undefined).toBeUndefined();
+    })
+
+    it("returns accepts field-or-null types", () => {
+        const { result } = renderHook(() => {
+            const field = null as FormField<string> | null;
+            return useFieldData(field);
+        });
+        expect(result.current satisfies string | null).toBeNull();
     })
 
     it("supports the base form", () => {

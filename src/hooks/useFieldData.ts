@@ -6,6 +6,9 @@ const noOp = () => {};
 export function useFieldData<T>(field: FormField<T>): T;
 export function useFieldData(field: null): null;
 export function useFieldData(field: undefined): undefined;
+export function useFieldData<T>(field: FormField<T> | null): T | null;
+export function useFieldData<T>(field: FormField<T> | undefined): T | undefined;
+export function useFieldData<T>(field: FormField<T> | undefined | null): T | undefined | null;
 export function useFieldData<T>(field: FormField<T> | undefined | null): T | undefined | null {
     return useSyncExternalStore(
         // Subscribe
