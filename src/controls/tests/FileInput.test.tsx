@@ -3,7 +3,7 @@ import { afterEach, expect, describe, it } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../hooks/useForm.ts";
-import { FileInput } from "../../controls/FileInput.tsx";
+import { FileInput } from "../FileInput.tsx";
 import { useFieldData } from "../../hooks/useFieldData.ts";
 
 afterEach(() => cleanup());

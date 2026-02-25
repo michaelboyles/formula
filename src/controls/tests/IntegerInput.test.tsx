@@ -3,7 +3,7 @@ import { afterEach, expect, describe, it } from 'vitest';
 import { cleanup, render } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { useForm } from "../../hooks/useForm.ts";
-import { IntegerInput } from "../../controls/IntegerInput.tsx";
+import { IntegerInput } from "../IntegerInput.tsx";
 import { useFieldData } from "../../hooks/useFieldData.ts";
 
 const user = userEvent.setup();

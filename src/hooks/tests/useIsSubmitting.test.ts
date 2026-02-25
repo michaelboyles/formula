@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { useIsSubmitting } from "../useIsSubmitting.ts";
-import { useForm } from "../../hooks/useForm.ts";
+import { useForm } from "../useForm.ts";
 import { renderHook } from "@testing-library/react";
 
 describe("useIsSubmitting", () => {
