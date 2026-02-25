@@ -27,8 +27,9 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest
       - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test
       - name: set package.json version
         run: npm version from-git --git-tag-version=false
       - run: npm run build
-      - run: npm run test
       - run: npm publish --provenance --access public
