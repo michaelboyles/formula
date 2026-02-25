@@ -1,6 +1,9 @@
 import { FieldPath } from "./FieldPath.ts";
+import type { Listener } from "./FormField.ts";
 
 const NO_ERRORS = Object.freeze([] as string[]);
+
+type ErrorList = ReadonlyArray<string>
 
 // Holds state for each of the form's fields
 export class FieldStateTree {
@@ -10,7 +13,7 @@ export class FieldStateTree {
         return hasError(this.root);
     }
 
-    getErrors(path: FieldPath): ReadonlyArray<string> {
+    getErrors(path: FieldPath): ErrorList {
         const node = this.getNode(path);
         if (node) {
             return node.errors ?? NO_ERRORS;
@@ -26,10 +29,10 @@ export class FieldStateTree {
             leaf.errors = [];
         }
         leaf.errors.push(...errors);
-        leaf.errorSubscribers?.forEach(notify => notify());
+        leaf.errorListeners?.forEach(notify => notify(leaf.errors));
         nodes.forEach(n => {
             n.deepErrors?.markStale();
-            n.deepErrorSubscribers?.forEach(notify => notify());
+            n.deepErrorListeners?.forEach(notify => notify());
         })
     }
 
@@ -48,10 +51,10 @@ export class FieldStateTree {
         }
 
         if (changed) {
-            leaf.errorSubscribers?.forEach(notify => notify());
+            leaf.errorListeners?.forEach(notify => notify(leaf.errors ?? NO_ERRORS));
             nodes.forEach(n => {
                 n.deepErrors?.markStale();
-                n.deepErrorSubscribers?.forEach(notify => notify());
+                n.deepErrorListeners?.forEach(notify => notify());
             });
         }
     }
@@ -64,7 +67,7 @@ export class FieldStateTree {
         const changed = (node.errors?.length ?? 0) > 0;
         delete node.errors;
         if (changed) {
-            node.errorSubscribers?.forEach(notify => notify());
+            node.errorListeners?.forEach(notify => notify(NO_ERRORS));
         }
 
         let childChanged = false;
@@ -76,13 +79,13 @@ export class FieldStateTree {
 
         if (changed || childChanged) {
             node.deepErrors?.markStale();
-            node.deepErrorSubscribers?.forEach(notify => notify());
+            node.deepErrorListeners?.forEach(notify => notify(NO_ERRORS));
             return true;
         }
         return false;
     }
 
-    getDeepErrors(path: FieldPath): ReadonlyArray<string> {
+    getDeepErrors(path: FieldPath): ErrorList {
         const node = this.getNode(path);
         if (!node) return NO_ERRORS;
 
@@ -111,7 +114,7 @@ export class FieldStateTree {
             const node = this.getOrCreateNode(path.sliceTo(i + 1));
             if (node.blurred !== blurred) {
                 node.blurred = blurred;
-                node.blurredSubscribers?.forEach(notify => notify());
+                node.blurredListeners?.forEach(notify => notify(blurred));
             }
         }
     }
@@ -128,7 +131,7 @@ export class FieldStateTree {
                 const node = this.getOrCreateNode(path.sliceTo(i));
                 if (!node.isChanged) {
                     node.isChanged = true;
-                    node.isChangedSubscribers?.forEach(notify => notify());
+                    node.isChangedListeners?.forEach(notify => notify(true));
                 }
             }
         }
@@ -139,37 +142,49 @@ export class FieldStateTree {
             this.visitAllChildren(node, n => {
                 if (n.isChanged) {
                     delete n.isChanged;
-                    node.isChangedSubscribers?.forEach(notify => notify());
+                    node.isChangedListeners?.forEach(notify => notify(false));
                 }
             });
         }
     }
 
-    subscribeToData(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        return this.subscribe(path, "dataSubscribers", subscriber);
-    }
-
-    subscribeToErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        return this.subscribe(path, "errorSubscribers", subscriber);
-    }
-
-    subscribeToDeepErrors(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        return this.subscribe(path, "deepErrorSubscribers", subscriber);
-    }
-
-    subscribeToBlurred(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        return this.subscribe(path, "blurredSubscribers", subscriber);
-    }
-
-    subscribeToIsChanged(path: FieldPath, subscriber: Subscriber): Unsubscribe {
-        return this.subscribe(path, "isChangedSubscribers", subscriber);
-    }
-
-    private subscribe<K extends keyof Subscribers>(path: FieldPath, key: K, subscriber: Subscriber): Unsubscribe {
+    addDataListener(path: FieldPath, listener: Listener<unknown>): Unsubscribe {
         const node = this.getOrCreateNode(path);
-        node[key] = pushOrCreateArray(node[key], subscriber);
+        node.dataListeners = pushOrCreateArray(node.dataListeners, listener);
         return () => {
-            node[key] = removeFromArray(node[key], subscriber);
+            node.dataListeners = removeFromArray(node.dataListeners, listener);
+        }
+    }
+
+    addErrorListener(path: FieldPath, listener: Listener<ErrorList>): Unsubscribe {
+        const node = this.getOrCreateNode(path);
+        node.errorListeners = pushOrCreateArray(node.errorListeners, listener);
+        return () => {
+            node.errorListeners = removeFromArray(node.errorListeners, listener);
+        }
+    }
+
+    addDeepErrorsListener(path: FieldPath, listener: Listener<ErrorList>): Unsubscribe {
+        const node = this.getOrCreateNode(path);
+        node.deepErrorListeners = pushOrCreateArray(node.deepErrorListeners, listener);
+        return () => {
+            node.deepErrorListeners = removeFromArray(node.deepErrorListeners, listener);
+        }
+    }
+
+    addBlurListener(path: FieldPath, listener: Listener<boolean>): Unsubscribe {
+        const node = this.getOrCreateNode(path);
+        node.blurredListeners = pushOrCreateArray(node.blurredListeners, listener);
+        return () => {
+            node.blurredListeners = removeFromArray(node.blurredListeners, listener);
+        }
+    }
+
+    addIsChangedListener(path: FieldPath, listener: Listener<boolean>): Unsubscribe {
+        const node = this.getOrCreateNode(path);
+        node.isChangedListeners = pushOrCreateArray(node.isChangedListeners, listener);
+        return () => {
+            node.isChangedListeners = removeFromArray(node.isChangedListeners, listener);
         }
     }
 
@@ -214,11 +229,11 @@ export class FieldStateTree {
         // Descend the tree and notify just the leaves along the way, until the final leaf, then finally notify all
         // children
         if (path.isRoot()) {
-            this.notifyAll(currentNode, n => n.dataSubscribers);
+            this.notifyAllData(currentNode, newData);
             this.clearStateAndPrune(currentNode, newData);
             return;
         }
-        currentNode.dataSubscribers?.forEach(notifySub => notifySub());
+        currentNode.dataListeners?.forEach(notify => notify(newData));
         for (let i = 0; i < path.keys.length; i++) {
             const key = path.keys[i];
             currentNode = currentNode.propertyToNode?.[key as string | number];
@@ -226,11 +241,11 @@ export class FieldStateTree {
 
             if (!currentNode) return;
             if (i === path.keys.length - 1) {
-                this.notifyAll(currentNode, n => n.dataSubscribers);
+                this.notifyAllData(currentNode, newData);
                 this.clearStateAndPrune(currentNode, newData);
             }
             else {
-                currentNode.dataSubscribers?.forEach(notifySub => notifySub());
+                currentNode.dataListeners?.forEach(notify => notify(newData));
             }
         }
     }
@@ -241,23 +256,23 @@ export class FieldStateTree {
 
     private resetNode(node: TreeNode, oldData: any, newData: any) {
         if (!isEqual(oldData, newData)) {
-            node.dataSubscribers?.forEach(notify => notify());
+            node.dataListeners?.forEach(notify => notify(newData));
         }
         if (node.errors?.length) {
             delete node.errors;
-            node.errorSubscribers?.forEach(notify => notify());
+            node.errorListeners?.forEach(notify => notify(NO_ERRORS));
         }
         if (node.deepErrors) {
             delete node.deepErrors;
-            node.deepErrorSubscribers?.forEach(notify => notify());
+            node.deepErrorListeners?.forEach(notify => notify(NO_ERRORS));
         }
         if (node.blurred) {
             delete node.blurred;
-            node.blurredSubscribers?.forEach(notify => notify());
+            node.blurredListeners?.forEach(notify => notify(false));
         }
         if (node.isChanged) {
             delete node.isChanged;
-            node.isChangedSubscribers?.forEach(notify => notify());
+            node.isChangedListeners?.forEach(notify => notify(false));
         }
 
         // Recurse into children
@@ -265,18 +280,18 @@ export class FieldStateTree {
         for (const [key, child] of Object.entries(node.propertyToNode)) {
             if (!Object.hasOwn(newData, key)) {
                 this.visitAllChildren(child, n => {
-                    n.dataSubscribers?.forEach(notify => notify());
+                    n.dataListeners?.forEach(notify => notify(undefined));
                     if (n.errors) {
-                        n.errorSubscribers?.forEach(notify => notify())
+                        n.errorListeners?.forEach(notify => notify(NO_ERRORS))
                     }
                     if (n.deepErrors) {
-                        n.deepErrorSubscribers?.forEach(notify => notify());
+                        n.deepErrorListeners?.forEach(notify => notify(NO_ERRORS));
                     }
                     if (n.isChanged) {
-                        n.isChangedSubscribers?.forEach(notify => notify());
+                        n.isChangedListeners?.forEach(notify => notify(false));
                     }
                     if (n.blurred) {
-                        n.blurredSubscribers?.forEach(notify => notify());
+                        n.blurredListeners?.forEach(notify => notify(false));
                     }
                 })
                 delete node.propertyToNode[key];
@@ -300,9 +315,18 @@ export class FieldStateTree {
         });
     }
 
-    private notifyAll(node: TreeNode, getSubscribers: (n: TreeNode) => Subscriber[] | undefined) {
-        this.visitAllChildren(node, n => {
-            getSubscribers(n)?.forEach(notifySub => notifySub());
+    private visitAllChildrenWithData(node: TreeNode, data: any, visit: (n: TreeNode, data: any) => void) {
+        visit(node, data);
+        if (!node.propertyToNode) return;
+        for (const [key, child] of Object.entries(node.propertyToNode)) {
+            const nextData = data?.[key];
+            this.visitAllChildrenWithData(child, nextData, visit);
+        }
+    }
+
+    private notifyAllData(node: TreeNode, data: any) {
+        this.visitAllChildrenWithData(node, data, (n, d) => {
+            n.dataListeners?.forEach(notify => notify(d));
         });
     }
 
@@ -331,9 +355,9 @@ export class FieldStateTree {
             || node.isChanged === true
             || (node.errors && node.errors.length > 0)
             || (node.propertyToNode && Object.keys(node.propertyToNode).length > 0)
-            || (node.dataSubscribers && node.dataSubscribers.length > 0)
-            || (node.errorSubscribers && node.errorSubscribers.length > 0)
-            || (node.blurredSubscribers && node.blurredSubscribers.length > 0);
+            || (node.dataListeners && node.dataListeners.length > 0)
+            || (node.errorListeners && node.errorListeners.length > 0)
+            || (node.blurredListeners && node.blurredListeners.length > 0);
         return !hasState;
     }
 }
@@ -344,13 +368,13 @@ type TreeNode = {
     deepErrors?: CachedValue<string[]>
     blurred?: boolean
     isChanged?: boolean
-} & Subscribers;
-type Subscribers = {
-    dataSubscribers?: Subscriber[]
-    errorSubscribers?: Subscriber[]
-    deepErrorSubscribers?: Subscriber[]
-    blurredSubscribers?: Subscriber[]
-    isChangedSubscribers?: Subscriber[]
+
+    // listeners
+    dataListeners?: Listener<any>[]
+    errorListeners?: Listener<ErrorList>[]
+    deepErrorListeners?: Listener<ErrorList>[]
+    blurredListeners?: Listener<boolean>[]
+    isChangedListeners?: Listener<boolean>[]
 }
 
 export type Unsubscribe = () => void;

@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useRef } from "react";
-import { type FormField, newFormField } from "../FormField.ts";
+import { type FormField, type Listener, newFormField } from "../FormField.ts";
 import { FieldPath } from "../FieldPath.ts";
-import { FieldStateTree, type Subscriber, type Unsubscribe } from "../FieldStateTree.ts";
+import { FieldStateTree, type Unsubscribe } from "../FieldStateTree.ts";
 import {
     type FormState,
     FormStateManager,
@@ -160,14 +160,14 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
                 validateAll(data.current);
             }
         },
-        subscribeToData: (path, subscriber) => fieldState.current.subscribeToData(path, subscriber),
+        addDataListener: (path, listener) => fieldState.current.addDataListener(path, listener),
 
         getErrors: path => fieldState.current.getErrors(path),
         setErrors: (path, errors) => fieldState.current.setErrors(path, errors),
-        subscribeToErrors: (path, subscriber) => fieldState.current.subscribeToErrors(path, subscriber),
+        addErrorListener: (path, listener) => fieldState.current.addErrorListener(path, listener),
 
         getDeepErrors: path => fieldState.current.getDeepErrors(path),
-        subscribeToDeepErrors: (path, subscriber) => fieldState.current.subscribeToDeepErrors(path, subscriber),
+        addDeepErrorsListener: (path, listener) => fieldState.current.addDeepErrorsListener(path, listener),
 
         isBlurred: path => fieldState.current.blurred(path),
         setIsBlurred: (path, blurred) => {
@@ -176,14 +176,14 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
                 validateAll(data.current);
             }
         },
-        subscribeToIsBlurred: (path, subscriber) => {
-            const unsubscribe = fieldState.current.subscribeToBlurred(path, subscriber);
+        addBlurListener: (path, subscriber) => {
+            const unsubscribe = fieldState.current.addBlurListener(path, subscriber);
             return () => unsubscribe();
         },
 
         isChanged: path => fieldState.current.isChanged(path),
         setIsChanged: (path, isChanged) => fieldState.current.setIsChanged(path, isChanged),
-        subscribeToIsChanged: (path, subscriber) => fieldState.current.subscribeToIsChanged(path, subscriber),
+        addIsChangedListener: (path, subscriber) => fieldState.current.addIsChangedListener(path, subscriber),
     };
 
     return useMemo(() => {
@@ -252,22 +252,22 @@ const FORM_SYM = Symbol("FORMULA_FORM");
 export type FormAccess = {
     getData: (path: FieldPath) => unknown
     setData: (path: FieldPath, setter: Setter<unknown>, opts?: SetDataOpts) => void
-    subscribeToData: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+    addDataListener: (path: FieldPath, listener: Listener<unknown>) => Unsubscribe
 
     getErrors: (path: FieldPath) => ReadonlyArray<string>
     setErrors: (path: FieldPath, errors: string | string[] | undefined) => void
-    subscribeToErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+    addErrorListener: (path: FieldPath, listener: Listener<ReadonlyArray<string>>) => Unsubscribe
 
     getDeepErrors: (path: FieldPath) => ReadonlyArray<string>
-    subscribeToDeepErrors: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+    addDeepErrorsListener: (path: FieldPath, listener: Listener<ReadonlyArray<string>>) => Unsubscribe
 
     isBlurred: (path: FieldPath) => boolean
     setIsBlurred: (path: FieldPath, blurred: boolean) => void
-    subscribeToIsBlurred: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+    addBlurListener: (path: FieldPath, listener: Listener<boolean>) => Unsubscribe
 
     isChanged: (path: FieldPath) => boolean
     setIsChanged: (path: FieldPath, isChanged: boolean) => void
-    subscribeToIsChanged: (path: FieldPath, subscriber: Subscriber) => Unsubscribe
+    addIsChangedListener: (path: FieldPath, listener: Listener<boolean>) => Unsubscribe
 }
 
 function convertSubmissionError(e: unknown) {

@@ -3,28 +3,28 @@ import { FieldStateTree } from "../FieldStateTree.ts";
 import { FieldPath } from "../FieldPath.ts";
 
 describe("FieldStateTree", () => {
-    test("Subscribe and notify of data", () => {
+    test("notifyDataChanged", () => {
         const tree = new FieldStateTree();
         const rootPath = FieldPath.create();
-        let notified = 0;
-        const unsubscribe = tree.subscribeToData(rootPath, () => notified++);
-        const unsubscribe2 = tree.subscribeToData(rootPath, () => notified++);
+        const listener = vi.fn();
+        const unsubscribe = tree.addDataListener(rootPath, listener);
+        const unsubscribe2 = tree.addDataListener(rootPath, listener);
         tree.notifyDataChanged(rootPath, {});
         unsubscribe();
         unsubscribe2();
 
-        expect(notified).toBe(2);
+        expect(listener).toHaveBeenCalledTimes(2);
     })
 
-    test("Subscribe with complex path", () => {
+    test("notifyDataChanged with complex path", () => {
         const tree = new FieldStateTree();
         const path = FieldPath.create().withProperty("foo").withProperty(5).withProperty("bar")
-        let notified = 0;
-        const unsubscribe = tree.subscribeToData(path, () => notified++);
+        const listener = vi.fn();
+        const unsubscribe = tree.addDataListener(path, listener);
         tree.notifyDataChanged(path, {});
         unsubscribe();
 
-        expect(notified).toBe(1);
+        expect(listener).toHaveBeenCalledOnce();
     })
 
     test("Errors are retained after notifying data change", () => {
@@ -51,18 +51,18 @@ describe("FieldStateTree", () => {
         expect(tree.getErrors(userPath.withProperty("name"))).toEqual([]);
     })
 
-    test("Root subscribers are notified when a nested leaf changes", () => {
+    test("Root listeners are called when a nested leaf changes", () => {
         const tree = new FieldStateTree();
         const rootPath = FieldPath.create();
         const leafPath = rootPath.withProperty("name");
 
-        // GIVEN a subscriber at the root node
-        let rootNotified = 0;
-        tree.subscribeToData(rootPath, () => rootNotified++);
-        // WHEN a leaf node is changed and subscribers are notified
+        // GIVEN a listener at the root node
+        const listener = vi.fn();
+        tree.addDataListener(rootPath, listener);
+        // WHEN a leaf node is changed and listeners are notified
         tree.notifyDataChanged(leafPath, { name: "Alice" });
-        // THEN the count as incremented
-        expect(rootNotified).toBe(1);
+        // THEN the listener was called
+        expect(listener).toHaveBeenCalledOnce();
     });
 
     test("Change status is discarded if data shape changes", () => {
@@ -78,6 +78,25 @@ describe("FieldStateTree", () => {
         // THEN foo is no longer changed, since the node has been dropped
         expect(tree.isChanged(fooPath)).toBe(false);
     });
+
+    test("addDataListener", () => {
+        const tree = new FieldStateTree();
+        const rootPath = FieldPath.create();
+        const fooPath = rootPath.withProperty("foo");
+        const barPath = rootPath.withProperty("bar");
+
+        const rootListener = vi.fn();
+        const fooListener = vi.fn();
+        const barListener = vi.fn();
+        tree.addDataListener(rootPath, rootListener);
+        tree.addDataListener(fooPath, fooListener);
+        tree.addDataListener(barPath, barListener);
+
+        tree.notifyDataChanged(fooPath, { foo: "newFoo" });
+        expect(rootListener).toHaveBeenCalledExactlyOnceWith({ foo: "newFoo" });
+        expect(fooListener).toHaveBeenCalledExactlyOnceWith("newFoo");
+        expect(barListener).not.toHaveBeenCalled();
+    })
 
     describe("isChanged", () => {
         test("setIsChanged(true)", () => {
@@ -148,7 +167,7 @@ describe("FieldStateTree", () => {
             expect(tree.isChanged(path)).toBe(false);
         });
 
-        test("notifies subscribers when state is cleared", () => {
+        test("notifies listeners when state is cleared", () => {
             const tree = new FieldStateTree();
             const path = FieldPath.create().withProperty("foo");
             tree.setErrors(path, "error");
@@ -157,26 +176,26 @@ describe("FieldStateTree", () => {
             const errorSub = vi.fn();
             const blurredSub = vi.fn();
             const changedSub = vi.fn();
-            tree.subscribeToErrors(path, errorSub);
-            tree.subscribeToBlurred(path, blurredSub);
-            tree.subscribeToIsChanged(path, changedSub);
+            tree.addErrorListener(path, errorSub);
+            tree.addBlurListener(path, blurredSub);
+            tree.addIsChangedListener(path, changedSub);
 
             tree.resetData({ foo: "foo" }, { foo: "foo" });
 
-            expect(errorSub).toHaveBeenCalledTimes(1);
-            expect(blurredSub).toHaveBeenCalledTimes(1);
-            expect(changedSub).toHaveBeenCalledTimes(1);
+            expect(errorSub).toHaveBeenCalledExactlyOnceWith([]);
+            expect(blurredSub).toHaveBeenCalledExactlyOnceWith(false);
+            expect(changedSub).toHaveBeenCalledExactlyOnceWith(false);
         });
 
-        test("does not notify subscribers if no state changed", () => {
+        test("does not notify listeners if no state changed", () => {
             const tree = new FieldStateTree();
             const path = FieldPath.create().withProperty("bar");
             const errorSub = vi.fn();
             const blurredSub = vi.fn();
             const changedSub = vi.fn();
-            tree.subscribeToErrors(path, errorSub);
-            tree.subscribeToBlurred(path, blurredSub);
-            tree.subscribeToIsChanged(path, changedSub);
+            tree.addErrorListener(path, errorSub);
+            tree.addBlurListener(path, blurredSub);
+            tree.addIsChangedListener(path, changedSub);
 
             tree.resetData({ bar: "bar"}, { bar: "bar" });
 

@@ -4,7 +4,7 @@ import type { FormField } from "../FormField.ts";
 export function useIsChanged(field: FormField<any>): boolean {
     return useSyncExternalStore(
         // Subscribe
-        useCallback((onStoreChange) => field._internal.subscribeToIsChanged(onStoreChange), [field]),
+        useCallback((onStoreChange) => field.addIsChangedListener(() => onStoreChange()), [field]),
         // Get snapshot
         () => field.isChanged(),
         // Get server snapshot

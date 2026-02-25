@@ -14,7 +14,7 @@ export function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T
 function useSyncNumElements(field: FormField<any[]>) {
     return useSyncExternalStore(
         // Subscribe
-        useCallback(onStoreChange => field._internal.subscribeToData(onStoreChange), [field]),
+        useCallback(onStoreChange => field.addDataListener(() => onStoreChange()), [field]),
         // Get snapshot
         () => getSafeLength(field.getData()),
         // Get server snapshot

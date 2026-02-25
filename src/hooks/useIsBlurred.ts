@@ -4,7 +4,7 @@ import type { FormField } from "../FormField.ts";
 export function useIsBlurred(field: FormField<any>): boolean {
     return useSyncExternalStore(
         // Subscribe
-        useCallback(onStoreChange => field._internal.subscribeToIsBlurred(onStoreChange), [field]),
+        useCallback(onStoreChange => field.addBlurListener(() => onStoreChange()), [field]),
         // Get snapshot
         () => field.isBlurred(),
         // Get server snapshot

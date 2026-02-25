@@ -14,7 +14,7 @@ export function useFieldData<T>(field: FormField<T> | undefined | null): T | und
         // Subscribe
         useCallback(onStoreChange => {
             if (field == null) return noOp;
-            return field._internal.subscribeToData(onStoreChange);
+            return field.addDataListener(() => onStoreChange());
         }, [field]),
         // Get snapshot
         () => field ? field.getData() : field,
