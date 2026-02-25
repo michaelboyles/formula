@@ -15,9 +15,9 @@ import { ForEachElement } from "../../components/ForEachElement.tsx";
 import { FieldErrors } from "../../components/FieldErrors.tsx";
 import { lazy, type ObjectValidator } from "../../validate.ts";
 import { ValidationError } from "../../ValidationError.ts";
-import type { Setter } from "../../types.ts";
-import { useIsChanged } from "../../hooks/useIsChanged.ts";
-import { useIsBlurred } from "../../hooks/useIsBlurred.ts";
+import type { SetDataOpts, Setter } from "../../types.ts";
+import { useIsChanged } from "../useIsChanged.ts";
+import { useIsBlurred } from "../useIsBlurred.ts";
 
 const user = userEvent.setup();
 
@@ -234,12 +234,12 @@ describe("useForm", () => {
                 expectTypeOf(tagsField.getData).toEqualTypeOf<() => Readonly<string[]>>();
                 const firstTag = form("tags")(1);
                 expectTypeOf(firstTag.getData).toEqualTypeOf<() => string | undefined>();
-                expectTypeOf(firstTag.setData).toEqualTypeOf<(value: Setter<string>) => void>();
+                expectTypeOf(firstTag.setData).toEqualTypeOf<(value: Setter<string>, opts?: SetDataOpts) => void>();
 
                 const elements = useElements(tagsField);
                 for (let element of elements) {
                     expectTypeOf(element.getData).toEqualTypeOf<() => string>();
-                    expectTypeOf(element.setData).toEqualTypeOf<(value: Setter<string>) => void>();
+                    expectTypeOf(element.setData).toEqualTypeOf<(value: Setter<string>, opts?: SetDataOpts) => void>();
                 }
             })
         })
