@@ -11,7 +11,8 @@ export type SetDataOpts = {
     // Default: will validate if `useForm#validateOnChange` is true.
     shouldValidate?: boolean;
 
-    // The change status for the field after setting the data. 'retain' will leave the change status untouched
+    // The change status for the field after setting the data. 'retain' will leave the
+    // change status untouched
     // Default: true
     nextChangeStatus?: boolean | "retain";
 }
