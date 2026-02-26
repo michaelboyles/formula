@@ -203,6 +203,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
                 fieldState.current.resetData(oldData, newData);
             },
             submit,
+            validate: () => validateAll(data.current).then(issues => issues.length < 1),
             __internal: {
                 [FORM_SYM]: 0 as const,
                 getState: <T extends FormStateType>(state: T) => stateManager.current.getValue(state),
@@ -228,6 +229,10 @@ export type Form<Data> = FormField<Data> & {
 
     // Discards the current form state and sets the value using `initialValues`
     reset: () => void
+
+    // Performs validation of the current form data. Returns a promise indicating
+    // whether the data was valid
+    validate: () => Promise<boolean>
 }
 
 export type FormWithInternals<Data = unknown> = Form<Data> & {

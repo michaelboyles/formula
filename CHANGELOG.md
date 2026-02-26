@@ -4,6 +4,7 @@ Formula is currently pre-v1. It's relatively stable, but I expect there will be 
 
 # Unreleased 
 
+- feat: useForm#validate method
 - feat: hooks which accept fields now accept null-ish fields
 - fix: useFieldData overload type issue
 

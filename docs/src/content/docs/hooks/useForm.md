@@ -80,6 +80,10 @@ type Form<Data> = FormField<Data> & {
 
     // Discards the current form state and sets the value using `initialValues`
     reset: () => void
+
+    // Performs validation of the current form data. Returns a promise indicating
+    // whether the data was valid
+    validate: () => Promise<boolean>
 }
 ```
 

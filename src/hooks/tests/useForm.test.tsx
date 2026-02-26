@@ -437,13 +437,19 @@ describe("useForm", () => {
                 return (
                     <form onSubmit={form.submit}>
                         <div>{ tagErrors.join(", ") }</div>
-                        <input type="submit" value="Submit" data-testid="submit" />
+                        <button
+                            type="button"
+                            onClick={() => form.validate()}
+                            data-testid="validate"
+                        >
+                            Validate
+                        </button>
                     </form>
                 )
             }
 
             const { getByTestId, queryByText } = render(<Test />);
-            await user.click(getByTestId("submit"));
+            await user.click(getByTestId("validate"));
             expect(queryByText("Must have at least 1 tag")).toBeInTheDocument();
         })
 
