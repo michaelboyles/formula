@@ -59,9 +59,7 @@ const ROOT_PATH = FieldPath.create();
 
 export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResponse>): Form<Data> {
     const activeOpts = useRef(opts);
-    useEffect(() => {
-        activeOpts.current = opts;
-    });
+    activeOpts.current = opts;
 
     const self = useRef<FormWithInternals<Data> | null>(null);
     const data = useLazyRef(opts.initialValues);

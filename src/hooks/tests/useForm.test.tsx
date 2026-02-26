@@ -10,7 +10,7 @@ import { useElements } from "../useElements.ts";
 import { useFieldData } from "../useFieldData.ts";
 import * as z from "zod";
 import type { FormField } from "../../FormField.ts";
-import { Fragment, useMemo } from "react";
+import { Fragment, useLayoutEffect, useMemo } from "react";
 import { ForEachElement } from "../../components/ForEachElement.tsx";
 import { FieldErrors } from "../../components/FieldErrors.tsx";
 import { lazy, type ObjectValidator } from "../../validate.ts";
@@ -385,6 +385,43 @@ describe("useForm", () => {
         await sleep(5);
         expect(result.current("name").getErrors()).toEqual(["Required"]);
     })
+
+    it("uses latest opts during layout effects (fails if activeOpts is updated in useEffect)", async () => {
+        function Test({ msg }: { msg: string }) {
+            const form = useForm({
+                initialValues: { name: "" },
+                validate: {
+                    name(name: string) {
+                        if (!name.length) return msg; // change validate output when msg changes
+                    },
+                },
+            });
+
+            const nameErrors = useFieldErrors(form("name"));
+
+            // Critical: layout effect runs before useEffect, so if useForm updates activeOpts in useEffect,
+            // submit() will see the previous msg here after rerender.
+            useLayoutEffect(() => {
+                form.validate();
+            }, [msg]);
+
+            return (
+                <div data-testid="error">
+                    { nameErrors.join(", ") }
+                </div>
+            );
+        }
+
+        const { rerender, getByTestId } = render(<Test msg="old" />);
+
+        // Let the initial layout-effect submission settle
+        await expect.poll(() => getByTestId("error").textContent).toBe("old");
+
+        // Change opts and immediately validate in layout effect
+        rerender(<Test msg="new" />);
+
+        await expect.poll(() => getByTestId("error").textContent).toBe("new");
+    });
 
     describe("Native validation", () => {
         it("validates a string", async () => {
