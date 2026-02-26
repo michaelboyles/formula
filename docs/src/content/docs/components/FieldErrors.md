@@ -31,9 +31,9 @@ return (
 ## Type
 
 ```typescript
-function FieldErrors<T>(props: {
+function FieldErrors(props: {
     // The field to watch the errors for
-    field: FormField<T>
+    field: FormField<any>
     // A render function which will be passed the errors
     children: (value: ReadonlyArray<string>) => ReactNode
 }): ReactNode
