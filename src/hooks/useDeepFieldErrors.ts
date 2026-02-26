@@ -1,17 +1,18 @@
 import { useCallback, useSyncExternalStore } from "react";
 import type { FormField } from "../FormField.ts";
+import type { Nullable } from "../types.ts";
+import { NO_ERRORS, noOp } from "../common.ts";
 
-export function useDeepFieldErrors(field: FormField<any>): ReadonlyArray<string> {
-    if (!field) throw new Error("Field is " + field);
+export function useDeepFieldErrors(field: Nullable<FormField<any>>): ReadonlyArray<string> {
     return useSyncExternalStore(
         // Subscribe
         useCallback((onStoreChange) => {
-            const unsubscribe = field._internal.addDeepErrorsListener(onStoreChange);
-            return () => unsubscribe();
+            if (field == null) return noOp;
+            return field._internal.addDeepErrorsListener(onStoreChange);
         }, [field]),
         // Get snapshot
-        () => field.getDeepErrors(),
+        () => field == null ? NO_ERRORS : field.getDeepErrors(),
         // Get server snapshot
-        () => field.getDeepErrors()
+        () => field == null ? NO_ERRORS : field.getDeepErrors(),
     );
 }

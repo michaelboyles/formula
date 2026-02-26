@@ -23,5 +23,5 @@ const isBlurred: boolean = useIsBlurred(form("username"));
 ## Type
 
 ```typescript
-function useIsBlurred(field: FormField<any>): boolean
+function useIsBlurred(field: Nullable<FormField<any>>): boolean
 ```

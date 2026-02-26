@@ -1,3 +1,5 @@
+export type Nullable<T> = T | undefined | null;
+
 // A value or replacement function used for updating a value
 export type Setter<T> = T | ((old: T) => T)
 

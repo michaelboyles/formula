@@ -26,5 +26,5 @@ const errors = useDeepFieldErrors(form("members"));
 ## Type
 
 ```typescript
-function useDeepFieldErrors(field: FormField<any>): ReadonlyArray<string>
+function useDeepFieldErrors(field: Nullable<FormField<any>>): ReadonlyArray<string>
 ```

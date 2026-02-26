@@ -1,14 +1,18 @@
 import { useCallback, useSyncExternalStore } from "react";
 import type { FormField } from "../FormField.ts";
+import { NO_ERRORS, noOp } from "../common.ts";
+import type { Nullable } from "../types.ts";
 
-export function useFieldErrors(field: FormField<any>): ReadonlyArray<string> {
-    if (!field) throw new Error("Field is " + field);
+export function useFieldErrors(field: Nullable<FormField<any>>): ReadonlyArray<string> {
     return useSyncExternalStore(
         // Subscribe
-        useCallback((onStoreChange) => field.addErrorListener(() => onStoreChange()), [field]),
+        useCallback((onStoreChange) => {
+            if (!field) return noOp;
+            return field.addErrorListener(() => onStoreChange());
+        }, [field]),
         // Get snapshot
-        () => field.getErrors(),
+        () => field == null ? NO_ERRORS : field.getErrors(),
         // Get server snapshot
-        () => field.getErrors()
+        () => field == null ? NO_ERRORS : field.getErrors(),
     );
 }

@@ -1,7 +1,6 @@
 import { FieldPath } from "./FieldPath.ts";
 import type { Listener } from "./FormField.ts";
-
-const NO_ERRORS = Object.freeze([] as string[]);
+import { NO_ERRORS } from "./common.ts";
 
 type ErrorList = ReadonlyArray<string>
 

@@ -3,10 +3,8 @@ import { useFieldErrors } from "../useFieldErrors.ts";
 import { renderHook } from "@testing-library/react";
 
 describe("useFieldErrors", () => {
-    it("throws when given non-field", () => {
-        expect(() => renderHook(() => {
-            // @ts-expect-error
-            useFieldErrors(null);
-        })).toThrow("Field is null");
+    it("returns empty array when given null", () => {
+        const { result } = renderHook(() => useFieldErrors(null));
+        expect(result.current).toEqual([]);
     })
 })

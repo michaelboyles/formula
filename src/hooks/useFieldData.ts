@@ -1,7 +1,6 @@
 import { useCallback, useSyncExternalStore } from "react";
 import type { FormField } from "../FormField.ts";
-
-const noOp = () => {};
+import { noOp } from "../common.ts";
 
 export function useFieldData<T>(field: FormField<T>): T;
 export function useFieldData(field: null): null;

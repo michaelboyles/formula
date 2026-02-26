@@ -1,7 +1,9 @@
 import { type Form, isInternalForm } from "./useForm.ts";
 import { useSyncState } from "./useSyncState.ts";
+import type { Nullable } from "../types.ts";
 
-export function useSubmissionError(form: Form<any>): Error | undefined {
+export function useSubmissionError(form: Nullable<Form<any>>): Error | undefined {
+    if (form == null) return undefined;
     if (!isInternalForm(form)) {
         throw new Error("Invalid form");
     }

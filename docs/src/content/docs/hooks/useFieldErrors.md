@@ -27,5 +27,5 @@ if (errors.length) {
 ## Type
 
 ```typescript
-function useFieldErrors(field: FormField<any>): ReadonlyArray<string>
+function useFieldErrors(field: Nullable<FormField<any>>): ReadonlyArray<string>
 ```

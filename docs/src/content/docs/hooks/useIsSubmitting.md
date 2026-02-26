@@ -24,5 +24,5 @@ return (
 ## Type
 
 ```typescript
-function useIsSubmitting(form: Form<any>): boolean
+function useIsSubmitting(form: Nullable<Form<any>>): boolean
 ```

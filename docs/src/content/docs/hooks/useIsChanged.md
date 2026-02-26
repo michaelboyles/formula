@@ -23,5 +23,5 @@ const isChanged: boolean = useIsChanged(form("username"));
 ## Type
 
 ```typescript
-function useIsChanged(field: FormField<any>): boolean
+function useIsChanged(field: Nullable<FormField<any>>): boolean
 ```

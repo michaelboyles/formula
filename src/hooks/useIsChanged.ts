@@ -1,13 +1,18 @@
 import { useCallback, useSyncExternalStore } from "react";
 import type { FormField } from "../FormField.ts";
+import type { Nullable } from "../types.ts";
+import { noOp } from "../common.ts";
 
-export function useIsChanged(field: FormField<any>): boolean {
+export function useIsChanged(field: Nullable<FormField<any>>): boolean {
     return useSyncExternalStore(
         // Subscribe
-        useCallback((onStoreChange) => field.addIsChangedListener(() => onStoreChange()), [field]),
+        useCallback((onStoreChange) => {
+            if (field == null) return noOp;
+            return field.addIsChangedListener(() => onStoreChange());
+        }, [field]),
         // Get snapshot
-        () => field.isChanged(),
+        () => field == null ? false : field.isChanged(),
         // Get server snapshot
-        () => field.isChanged()
+        () => field == null ? false : field.isChanged()
     );
 }
