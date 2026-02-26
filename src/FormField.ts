@@ -106,7 +106,7 @@ type BaseField<Data, SetData = Data> = {
     }
 }
 
-export type Listener<T> = (value?: T) => void;
+export type Listener<T> = (value: T) => void;
 
 type GetObjectKey<Data extends object> = <K extends keyof Data>(key: K) => FormField<Data[K]>;
 

@@ -28,10 +28,12 @@ export class FieldStateTree {
             leaf.errors = [];
         }
         leaf.errors.push(...errors);
-        leaf.errorListeners?.forEach(notify => notify(leaf.errors));
+        const newErrors = leaf.errors;
+        leaf.errorListeners?.forEach(notify => notify(newErrors));
         nodes.forEach(n => {
             n.deepErrors?.markStale();
-            n.deepErrorListeners?.forEach(notify => notify());
+            // TODO 2 currently only internals can listen and they don't use it
+            n.deepErrorListeners?.forEach(notify => notify(NO_ERRORS));
         })
     }
 
@@ -53,7 +55,8 @@ export class FieldStateTree {
             leaf.errorListeners?.forEach(notify => notify(leaf.errors ?? NO_ERRORS));
             nodes.forEach(n => {
                 n.deepErrors?.markStale();
-                n.deepErrorListeners?.forEach(notify => notify());
+                // TODO 2 currently only internals can listen and they don't use it
+                n.deepErrorListeners?.forEach(notify => notify(NO_ERRORS));
             });
         }
     }
