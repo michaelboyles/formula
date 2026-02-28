@@ -1,4 +1,4 @@
-import type { FormField } from "../FormField.ts";
+import type { ReadonlyFormField } from "../FormField.ts";
 import { useFieldData } from "../hooks/useFieldData.ts";
 import { useIsBlurred } from "../hooks/useIsBlurred.ts";
 import { useFieldErrors } from "../hooks/useFieldErrors.ts";
@@ -6,11 +6,11 @@ import { useIsChanged } from "../hooks/useIsChanged.ts";
 import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
 
 type DefaultPreProps = DetailedHTMLProps<InputHTMLAttributes<HTMLPreElement>, HTMLPreElement>;
-export type Props = {
+export type Props<T> = {
     // The field to print debug info for
-    field: FormField<any>
+    field: ReadonlyFormField<T>
 } & DefaultPreProps;
-export function DebugField({ field, ...rest }: Props) {
+export function DebugField<T>({ field, ...rest }: Props<T>) {
     const data = useFieldData(field);
     const isBlurred = useIsBlurred(field);
     const isChanged = useIsChanged(field);

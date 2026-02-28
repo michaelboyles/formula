@@ -1,14 +1,14 @@
 import type { ReactNode } from "react";
-import type { FormField } from "../FormField.ts";
+import type { ReadonlyFormField } from "../FormField.ts";
 import { useIsChanged } from "../hooks/useIsChanged.ts";
 
-export type Props = {
+export type Props<T> = {
     // The field to watch the change status for
-    field: FormField<any>
+    field: ReadonlyFormField<T>
     // A render function which will be passed the change status
     children: (isChanged: boolean) => ReactNode
 }
-export function IsChanged(props: Props) {
+export function IsChanged<T>(props: Props<T>) {
     const isChanged = useIsChanged(props.field);
     return props.children(isChanged);
 }

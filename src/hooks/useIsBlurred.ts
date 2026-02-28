@@ -1,9 +1,9 @@
 import { useCallback, useSyncExternalStore } from "react";
-import type { FormField } from "../FormField.ts";
+import type { ReadonlyFormField } from "../FormField.ts";
 import type { Nullable } from "../types.ts";
 import { noOp } from "../common.ts";
 
-export function useIsBlurred(field: Nullable<FormField<any>>): boolean {
+export function useIsBlurred<T>(field: Nullable<ReadonlyFormField<T>>): boolean {
     return useSyncExternalStore(
         // Subscribe
         useCallback(onStoreChange => {

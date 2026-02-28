@@ -108,7 +108,31 @@ type BaseField<Data, SetData = Data> = {
 
 export type Listener<T> = (value: T) => void;
 
-type GetObjectKey<Data extends object> = <K extends keyof Data>(key: K) => FormField<Data[K]>;
+type IsUnion<T, U = T> =
+    T extends any ? ([U] extends [T] ? false : true) : never;
+
+type DistributeOmit<T, K extends PropertyKey> =
+    T extends any ? Omit<T, K> : never;
+
+type MemberValue<T, K extends PropertyKey> =
+    T extends any ? (K extends keyof T ? T[K] : never) : never;
+
+// Safe-to-set rule for object key K on (possibly-union) object Data
+type SettableKey<Data extends object, K extends keyof Data> =
+    IsUnion<Data> extends true
+        ? (
+            // if the value varies across union members...
+            IsUnion<MemberValue<Data, K>> extends true
+                // ...only allow setting if the "rest of the object" does NOT vary
+                ? (IsUnion<DistributeOmit<Data, K>> extends true ? never : MemberValue<Data, K>)
+                // if the value doesn't vary across members, always safe
+                : MemberValue<Data, K>
+            )
+        : Data[K];
+
+type GetObjectKey<Data extends object> =
+    <K extends keyof Data>(key: K) =>
+        FormField<Data[K], SettableKey<Data, K>>;
 
 type GetArrayIndex<E> = (idx: number) => FormField<E | undefined, E>;
 type ArrayMethods<E> = {
@@ -120,5 +144,10 @@ type ArrayMethods<E> = {
 
 export type FormField<Data, SetData = Data> =
     BaseField<Data, SetData> &
-    (Data extends ReadonlyArray<infer E> ? (GetArrayIndex<E> & ArrayMethods<E>)
-        : Data extends object ? GetObjectKey<Data> : {});
+    ([Data] extends [ReadonlyArray<infer E>] ? (GetArrayIndex<E> & ArrayMethods<E>)
+        : [Data] extends [object] ? GetObjectKey<Data> : {});
+
+export type ReadonlyFormField<Data> =
+    Omit<BaseField<Data, never>, "setData"> &
+    ([Data] extends [ReadonlyArray<infer E>] ? GetArrayIndex<E>
+        : [Data] extends [object] ? GetObjectKey<Data> : {});

@@ -491,7 +491,7 @@ describe("useForm", () => {
         })
 
         it("validates an array by elements", async () => {
-            function ErrorComp(props: { field: FormField<any>, id: number }) {
+            function ErrorComp<T>(props: { field: FormField<T>, id: number }) {
                 const errors = useFieldErrors(props.field);
                 return (
                     errors.map((err, i) => <div key={i} data-testid={`tag-${props.id}-error-${i}`}>{ err }</div>)

@@ -18,7 +18,7 @@ type FavoriteAnimal = {
     type: "animal"
     animal: string
 }
-type FormData = {
+type FoodOrAnimal = {
     favorite: FavoriteFood | FavoriteAnimal
 }
 
@@ -40,7 +40,7 @@ function FavoriteFoodInput(props: { field: FormField<FavoriteFood> }) {
 describe("Polymorphism", () => {
     it("supports field narrowing", async () => {
         function Test() {
-            const form = useForm<FormData, unknown>({
+            const form = useForm<FoodOrAnimal, never>({
                 initialValues: { favorite: { type: "food", food: "" } },
             });
             const favorite = useFieldData(form("favorite"));
