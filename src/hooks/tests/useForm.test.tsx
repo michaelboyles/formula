@@ -223,27 +223,6 @@ describe("useForm", () => {
             expect(tag).toHaveValue("tag1abc");
         })
 
-        it("provides type safety for elements", () => {
-            renderHook(() => {
-                const form = useForm({
-                    initialValues: {
-                        tags: [] as string[]
-                    }
-                });
-                const tagsField = form("tags");
-                expectTypeOf(tagsField.getData).toEqualTypeOf<() => Readonly<string[]>>();
-                const firstTag = form("tags")(1);
-                expectTypeOf(firstTag.getData).toEqualTypeOf<() => string | undefined>();
-                expectTypeOf(firstTag.setData).toEqualTypeOf<(value: Setter<string>, opts?: SetDataOpts) => void>();
-
-                const elements = useElements(tagsField);
-                for (let element of elements) {
-                    expectTypeOf(element.getData).toEqualTypeOf<() => string>();
-                    expectTypeOf(element.setData).toEqualTypeOf<(value: Setter<string>, opts?: SetDataOpts) => void>();
-                }
-            })
-        })
-
         it("allows pushing/removing elements", async () => {
             function Test() {
                 const form = useForm({

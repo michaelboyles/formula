@@ -35,7 +35,7 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
             _internal: {
                 addDeepErrorsListener: (subscriber: Subscriber) => formAccess.addDeepErrorsListener(path, subscriber),
             }
-        } satisfies BaseField<Data>, {
+        } satisfies BaseField<Data, true>, {
             push: (...element: any) => {
                 formAccess.setData(path, (data: unknown[]) => {
                     const copy = [...data];
@@ -58,14 +58,12 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
     return field;
 }
 
-type BaseField<Data, SetData = Data> = {
+type BaseField<Data, Writable extends boolean> = {
     // Get the path of the field, joined with periods, e.g. "users.0.username"
     toString: () => string
 
     // Get the current data for the field
     getData: () => Readonly<Data>
-    // Set the data for the field
-    setData: (setter: Setter<SetData>, opts?: SetDataOpts) => void
     // Add a callback which will be called when the data for this field changes
     addDataListener: (listener: Listener<Data>) => Unsubscribe
 
@@ -104,7 +102,10 @@ type BaseField<Data, SetData = Data> = {
     _internal: {
         addDeepErrorsListener: (subscriber: Subscriber) => Unsubscribe
     }
-}
+} & (Writable extends true ? {
+    // Set the data for the field
+    setData: (setter: Setter<Data>, opts?: SetDataOpts) => void
+} : {});
 
 export type Listener<T> = (value: T) => void;
 
@@ -118,23 +119,23 @@ type MemberValue<T, K extends PropertyKey> =
     T extends any ? (K extends keyof T ? T[K] : never) : never;
 
 // Safe-to-set rule for object key K on (possibly-union) object Data
-type SettableKey<Data extends object, K extends keyof Data> =
+type KeyWritable<Data extends object, K extends keyof Data> =
     IsUnion<Data> extends true
         ? (
-            // if the value varies across union members...
+            // does the property's value type vary across union members?
             IsUnion<MemberValue<Data, K>> extends true
-                // ...only allow setting if the "rest of the object" does NOT vary
-                ? (IsUnion<DistributeOmit<Data, K>> extends true ? never : MemberValue<Data, K>)
-                // if the value doesn't vary across members, always safe
-                : MemberValue<Data, K>
+                // if yes, only writable if the rest of the object does NOT vary
+                ? (IsUnion<DistributeOmit<Data, K>> extends true ? false : true)
+                // if value doesn't vary, writable
+                : true
             )
-        : Data[K];
+        // non-union object: writable
+        : true;
 
-type GetObjectKey<Data extends object> =
-    <K extends keyof Data>(key: K) =>
-        FormField<Data[K], SettableKey<Data, K>>;
+type GetObjectKey<Data extends object, Writable extends boolean> =
+    <K extends keyof Data>(key: K) => FormField<Data[K], Writable extends true ? KeyWritable<Data, K> : false>;
 
-type GetArrayIndex<E> = (idx: number) => FormField<E | undefined, E>;
+type GetArrayIndex<E> = (idx: number) => FormField<E | undefined, false>;
 type ArrayMethods<E> = {
     // Push one or more elements onto the end of the array
     push: (...items: E[]) => void
@@ -142,12 +143,12 @@ type ArrayMethods<E> = {
     remove: (index: number) => void
 }
 
-export type FormField<Data, SetData = Data> =
-    BaseField<Data, SetData> &
-    ([Data] extends [ReadonlyArray<infer E>] ? (GetArrayIndex<E> & ArrayMethods<E>)
-        : [Data] extends [object] ? GetObjectKey<Data> : {});
+export type FormField<Data, Writable extends boolean = true> =
+    BaseField<Data, Writable> &
+    ([Data] extends [ReadonlyArray<infer E>]
+        ? (GetArrayIndex<E> & (Writable extends true ? ArrayMethods<E> : {}))
+        : [Data] extends [object]
+            ? GetObjectKey<Extract<Data, object>, Writable>
+            : {});
 
-export type ReadonlyFormField<Data> =
-    Omit<BaseField<Data, never>, "setData"> &
-    ([Data] extends [ReadonlyArray<infer E>] ? GetArrayIndex<E>
-        : [Data] extends [object] ? GetObjectKey<Data> : {});
+export type ReadonlyFormField<Data> = FormField<Data, false>;
