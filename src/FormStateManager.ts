@@ -6,6 +6,9 @@ export type FormStateType = keyof FormState;
 export type UnsubscribeFromState = () => void;
 export type StateSubscriber = () => void;
 
+/**
+ * Manages top-level form state, like whether the form is submitting, or submission caused an error.
+ */
 export class FormStateManager {
     private state: FormState = {
         isSubmitting: false,

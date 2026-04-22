@@ -4,7 +4,10 @@ import { NO_ERRORS } from "./common.ts";
 
 type ErrorList = ReadonlyArray<string>
 
-// Holds state for each of the form's fields
+/**
+ * Holds state for each of the form's fields. Perhaps surprisingly, it doesn't keep the data as a tree. The tree only
+ * holds listeners and metadata (errors, touched, blurred, etc).
+ */
 export class FieldStateTree {
     private root: TreeNode = {}
 

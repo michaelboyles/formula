@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useMemo, useRef } from "react";
+import { type FormEvent, useMemo, useRef } from "react";
 import { type FormField, type Listener, newFormField } from "../FormField.ts";
 import { FieldPath } from "../FieldPath.ts";
 import { FieldStateTree, type Unsubscribe } from "../FieldStateTree.ts";
@@ -16,6 +16,7 @@ import type { Issue, Validator } from "../validate.ts";
 import { useLazyRef } from "./useLazyRef.ts";
 import { ValidationError } from "../ValidationError.ts";
 import type { SetDataOpts, Setter } from "../types.ts";
+import { useHistory } from "./useHistory.ts";
 
 type UseFormOpts<Data, SubmitResponse> = {
     // The initial values for the form. This is the only required option.
@@ -53,6 +54,12 @@ type UseFormOpts<Data, SubmitResponse> = {
 
     // Whether to perform validation after a field is changed. Default: false
     validateOnChange?: boolean
+
+    // Undo/redo options
+    history?: {
+        // The max number of changes to store in the undo history. Default: 0 (no history)
+        maxSize?: number
+    }
 }
 
 const ROOT_PATH = FieldPath.create();
@@ -139,16 +146,26 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         }
     }
 
+    const { canUndo, canRedo, undo, redo, push: pushHistory } = useHistory({
+        maxSize: opts.history?.maxSize ?? 10,
+        setData: (path, value) => {
+            data.current = path.getDataWithValue(data.current, value);
+            fieldState.current.notifyDataChanged(path, data.current);
+        }
+    });
+
     const formAccess: FormAccess = {
         getData: path => path.getData(data.current),
         setData: (path, setter, opts) => {
+            const prevData = path.getData(data.current);
             if (typeof setter === "function") {
-                const prevData = path.getData(data.current);
                 const newData = setter(prevData);
                 data.current = path.getDataWithValue(data.current, newData);
+                pushHistory({ path, prevValue: prevData, newValue: newData });
             }
             else {
                 data.current = path.getDataWithValue(data.current, setter);
+                pushHistory({ path, prevValue: prevData, newValue: setter });
             }
             fieldState.current.notifyDataChanged(path, data.current);
             if (opts?.nextChangeStatus !== "retain") {
@@ -202,6 +219,12 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
             },
             submit,
             validate: () => validateAll(data.current).then(issues => issues.length < 1),
+            history: {
+                canUndo,
+                canRedo,
+                undo,
+                redo,
+            },
             __internal: {
                 [FORM_SYM]: 0 as const,
                 getState: <T extends FormStateType>(state: T) => stateManager.current.getValue(state),
@@ -213,7 +236,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         });
         self.current = form satisfies FormWithInternals<Data>;
         return form;
-    }, []);
+    }, [canUndo, canRedo, undo, redo]);
 }
 
 export type Form<Data> = FormField<Data> & {
@@ -231,6 +254,14 @@ export type Form<Data> = FormField<Data> & {
     // Performs validation of the current form data. Returns a promise indicating
     // whether the data was valid
     validate: () => Promise<boolean>
+
+    // Undo/redo state and functions
+    history: {
+        canUndo: boolean
+        undo: () => void
+        canRedo: boolean
+        redo: () => void
+    }
 }
 
 export type FormWithInternals<Data = unknown> = Form<Data> & {
