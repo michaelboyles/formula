@@ -24,13 +24,16 @@ export function useHistory({ maxSize, setData }: Opts) {
         setState(prev => {
             // Slice off any "future" entries if we're mid-stack, then append
             const base = prev.stack.slice(0, prev.pointer + 1);
-            const next = [...base, change];
+            const last = base[base.length - 1];
 
-            // Trim to maxSize from the front
-            const trimmed = next.length > maxSize ? next.slice(next.length - maxSize) : next;
+            const merged = last && last.path.equals(change.path)
+                ? [...base.slice(0, -1), { ...last, newValue: change.newValue }]
+                : [...base, change];
 
-            const newState: HistoryState = { stack: trimmed, pointer: trimmed.length - 1 };
-            return newState;
+            const trimmed =
+                merged.length > maxSize ? merged.slice(merged.length - maxSize) : merged;
+
+            return { stack: trimmed, pointer: trimmed.length - 1 };
         });
     }, [maxSize]);
 

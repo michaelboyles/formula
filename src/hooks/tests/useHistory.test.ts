@@ -4,9 +4,12 @@ import { useHistory } from "../useHistory.ts";
 import { FieldPath } from "../../FieldPath.ts";
 
 const path = new FieldPath(["some", "field", "path"]);
-function makeChange(prev: unknown, next: unknown) {
-    return { path, prevValue: prev, newValue: next }
-}
+const otherPath = new FieldPath(["other", "field", "path"]);
+const makeChange = (prev: unknown, next: unknown, thePath = path) => ({
+    path: thePath,
+    prevValue: prev,
+    newValue: next,
+});
 
 describe("useHistory", () => {
     const setup = (maxSize = 10) => {
@@ -37,24 +40,95 @@ describe("useHistory", () => {
         it("discards future entries when pushing mid-stack", () => {
             const { hook, setData } = setup();
             act(() => hook.result.current.push(makeChange("a", "b")));
-            act(() => hook.result.current.push(makeChange("b", "c")));
+            act(() => hook.result.current.push(makeChange("b", "c", otherPath))); // different path to avoid conflation
             act(() => hook.result.current.undo()); // pointer at 0
-            act(() => hook.result.current.push(makeChange("b", "z"))); // replaces "b->c"
+            act(() => hook.result.current.push(makeChange("b", "z", otherPath))); // replaces "b->c"
+
             expect(hook.result.current.canRedo).toBe(false);
-            act(() => hook.result.current.undo());
-            expect(setData).toHaveBeenLastCalledWith(path, "b");
+
+            act(() => hook.result.current.undo()); // restores "b"
+            expect(setData).toHaveBeenLastCalledWith(otherPath, "b");
+
+            act(() => hook.result.current.undo()); // restores "a"
+            expect(setData).toHaveBeenLastCalledWith(path, "a");
+
+            expect(hook.result.current.canUndo).toBe(false);
         });
 
         it("respects maxSize by dropping the oldest entry", () => {
             const { hook, setData } = setup(2);
-            act(() => hook.result.current.push(makeChange("a", "b")));
-            act(() => hook.result.current.push(makeChange("b", "c")));
-            act(() => hook.result.current.push(makeChange("c", "d"))); // "a->b" dropped
-            // undo twice — should only reach "b", not "a"
+            // use distinct paths so nothing conflates
+            const p1 = new FieldPath(["f", "one"]);
+            const p2 = new FieldPath(["f", "two"]);
+            const p3 = new FieldPath(["f", "three"]);
+            act(() => hook.result.current.push(makeChange("a", "b", p1)));
+            act(() => hook.result.current.push(makeChange("b", "c", p2)));
+            act(() => hook.result.current.push(makeChange("c", "d", p3))); // p1 entry dropped
             act(() => hook.result.current.undo());
             act(() => hook.result.current.undo());
             expect(hook.result.current.canUndo).toBe(false);
-            expect(setData).not.toHaveBeenCalledWith(path, "a");
+            expect(setData).not.toHaveBeenCalledWith(p1, "a");
+        });
+    });
+
+    describe("conflation", () => {
+        it("merges consecutive pushes on the same path into one entry", () => {
+            const { hook, setData } = setup();
+            act(() => hook.result.current.push(makeChange("", "a")));
+            act(() => hook.result.current.push(makeChange("a", "ab")));
+            act(() => hook.result.current.push(makeChange("ab", "abc")));
+
+            // only one undo step should exist
+            act(() => hook.result.current.undo());
+            expect(setData).toHaveBeenLastCalledWith(path, "");
+            expect(hook.result.current.canUndo).toBe(false);
+        });
+
+        it("preserves the original prevValue across multiple conflations", () => {
+            const { hook, setData } = setup();
+            act(() => hook.result.current.push(makeChange("original", "x")));
+            act(() => hook.result.current.push(makeChange("x", "xy")));
+            act(() => hook.result.current.push(makeChange("xy", "xyz")));
+
+            act(() => hook.result.current.undo());
+            expect(setData).toHaveBeenLastCalledWith(path, "original");
+        });
+
+        it("does not conflate pushes on different paths", () => {
+            const { hook, setData } = setup();
+            act(() => hook.result.current.push(makeChange("a", "b", path)));
+            act(() => hook.result.current.push(makeChange("x", "y", otherPath)));
+
+            act(() => hook.result.current.undo());
+            expect(setData).toHaveBeenLastCalledWith(otherPath, "x");
+            act(() => hook.result.current.undo());
+            expect(setData).toHaveBeenLastCalledWith(path, "a");
+            expect(hook.result.current.canUndo).toBe(false);
+        });
+
+        it("does not conflate after an undo — push on same path starts a new entry", () => {
+            const { hook, setData } = setup();
+            act(() => hook.result.current.push(makeChange("", "a")));
+            act(() => hook.result.current.push(makeChange("a", "ab")));
+            act(() => hook.result.current.undo()); // back to ""
+            act(() => hook.result.current.push(makeChange("", "z"))); // new branch, no conflation with discarded
+
+            act(() => hook.result.current.undo());
+            expect(setData).toHaveBeenLastCalledWith(path, "");
+            expect(hook.result.current.canUndo).toBe(false);
+        });
+
+        it("conflation produces a single redoable entry", () => {
+            const { hook, setData } = setup();
+            act(() => hook.result.current.push(makeChange("", "a")));
+            act(() => hook.result.current.push(makeChange("a", "ab")));
+            act(() => hook.result.current.push(makeChange("ab", "abc")));
+            act(() => hook.result.current.undo());
+
+            expect(hook.result.current.canRedo).toBe(true);
+            act(() => hook.result.current.redo());
+            expect(setData).toHaveBeenLastCalledWith(path, "abc");
+            expect(hook.result.current.canRedo).toBe(false);
         });
     });
 
@@ -88,10 +162,10 @@ describe("useHistory", () => {
 
         it("undoes changes in reverse order", () => {
             const { hook, setData } = setup();
-            act(() => hook.result.current.push(makeChange("a", "b")));
-            act(() => hook.result.current.push(makeChange("b", "c")));
+            act(() => hook.result.current.push(makeChange("a", "b", path)));
+            act(() => hook.result.current.push(makeChange("x", "y", otherPath))); // different path
             act(() => hook.result.current.undo());
-            expect(setData).toHaveBeenLastCalledWith(path, "b");
+            expect(setData).toHaveBeenLastCalledWith(otherPath, "x");
             act(() => hook.result.current.undo());
             expect(setData).toHaveBeenLastCalledWith(path, "a");
         });
@@ -123,23 +197,26 @@ describe("useHistory", () => {
 
         it("redoes changes in forward order", () => {
             const { hook, setData } = setup();
-            act(() => hook.result.current.push(makeChange("a", "b")));
-            act(() => hook.result.current.push(makeChange("b", "c")));
+            act(() => hook.result.current.push(makeChange("a", "b", path)));
+            act(() => hook.result.current.push(makeChange("x", "y", otherPath)));
             act(() => hook.result.current.undo());
             act(() => hook.result.current.undo());
             act(() => hook.result.current.redo());
             expect(setData).toHaveBeenLastCalledWith(path, "b");
             act(() => hook.result.current.redo());
-            expect(setData).toHaveBeenLastCalledWith(path, "c");
+            expect(setData).toHaveBeenLastCalledWith(otherPath, "y");
         });
     });
 
     describe("undo/redo roundtrip", () => {
         it("full undo then full redo restores the original sequence", () => {
             const { hook, setData } = setup();
-            act(() => hook.result.current.push(makeChange(1, 2)));
-            act(() => hook.result.current.push(makeChange(2, 3)));
-            act(() => hook.result.current.push(makeChange(3, 4)));
+            const p1 = new FieldPath(["f", "one"]);
+            const p2 = new FieldPath(["f", "two"]);
+            const p3 = new FieldPath(["f", "three"]);
+            act(() => hook.result.current.push(makeChange(1, 2, p1)));
+            act(() => hook.result.current.push(makeChange(2, 3, p2)));
+            act(() => hook.result.current.push(makeChange(3, 4, p3)));
 
             act(() => hook.result.current.undo());
             act(() => hook.result.current.undo());
@@ -151,7 +228,7 @@ describe("useHistory", () => {
             act(() => hook.result.current.redo());
             expect(hook.result.current.canRedo).toBe(false);
 
-            expect(setData).toHaveBeenLastCalledWith(path, 4);
+            expect(setData).toHaveBeenLastCalledWith(p3, 4);
         });
     });
 });

@@ -11,6 +11,14 @@ export class FieldPath {
         return new FieldPath([]);
     }
 
+    equals(other: FieldPath): boolean {
+        if (this.keys.length !== other.keys.length) return false;
+        for (let i = 0; i < this.keys.length; i++) {
+            if (this.keys[i] !== other.keys[i]) return false;
+        }
+        return true;
+    }
+
     withProperty(key: string | number | symbol): FieldPath {
         return new FieldPath([...this.keys, key]);
     }

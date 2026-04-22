@@ -2,6 +2,12 @@ Formula uses [semantic versioning](https://semver.org/).
 
 Formula is currently pre-v1. It's relatively stable, but I expect there will be some breaking changes before v1.
 
+# 0.0.11
+
+- feat: undo/redo support
+- feat: improved polymorphism
+  - Allows accessing common fields across unions, possibly disallowing setting
+
 # 0.0.10
 
 - feat: useForm#validate method
