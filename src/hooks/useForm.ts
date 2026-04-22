@@ -147,7 +147,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
     }
 
     const { canUndo, canRedo, undo, redo, push: pushHistory } = useHistory({
-        maxSize: opts.history?.maxSize ?? 10,
+        maxSize: opts.history?.maxSize ?? 0,
         setData: (path, value) => {
             data.current = path.getDataWithValue(data.current, value);
             fieldState.current.notifyDataChanged(path, data.current);

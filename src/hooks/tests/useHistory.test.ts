@@ -31,6 +31,12 @@ describe("useHistory", () => {
             expect(hook.result.current.canUndo).toBe(true);
         });
 
+        it("does not enable undo after a push if maxSize is 0", () => {
+            const { hook } = setup(0);
+            act(() => hook.result.current.push(makeChange("a", "b")));
+            expect(hook.result.current.canUndo).toBe(false);
+        });
+
         it("does not enable redo after a plain push", () => {
             const { hook } = setup();
             act(() => hook.result.current.push(makeChange("a", "b")));
