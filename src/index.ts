@@ -1,7 +1,8 @@
 // noinspection JSUnusedGlobalSymbols
 
 export type { Form } from "./hooks/useForm.ts"
-export type { FormField } from "./FormField.ts"
+export type { FormField, ReadonlyFormField } from "./FormField.ts"
+export type { FormSubmitResult } from "./types.ts"
 
 // Hooks
 

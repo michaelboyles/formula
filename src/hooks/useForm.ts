@@ -15,7 +15,7 @@ import { validateRecursive } from "../validate-native.ts";
 import type { Issue, Validator } from "../validate.ts";
 import { useLazyRef } from "./useLazyRef.ts";
 import { ValidationError } from "../ValidationError.ts";
-import type { SetDataOpts, Setter } from "../types.ts";
+import type { FormSubmitResult, SetDataOpts, Setter } from "../types.ts";
 import { useHistory } from "./useHistory.ts";
 
 type UseFormOpts<Data, SubmitResponse> = {
@@ -95,11 +95,11 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         return [];
     }
 
-    async function submit(e?: FormEvent) {
+    async function submit(e?: FormEvent): Promise<FormSubmitResult> {
         e?.preventDefault();
 
         if (stateManager.current.getValue("isSubmitting")) {
-            return;
+            return { type: "already-submitting" };
         }
         stateManager.current.setValue("isSubmitting", true);
         stateManager.current.setValue("submissionError", undefined);
@@ -111,7 +111,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
                 const error = new ValidationError(issues);
                 stateManager.current.setValue("submissionError", error);
                 activeOpts.current.onSubmitFailure?.({ error, data: submitData, form: self.current! });
-                return;
+                return { type: "validation-error", error };
             }
 
             const submitForm = activeOpts.current.submit;
@@ -136,14 +136,15 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
             }
             else {
                 throw new Error(
-                    "Form is not submittable. You must either provide a 'submit' option to useForm, or " +
-                    "pass an event to form.submit"
+                    "Form is not submittable. You must either declare a 'submit' function in useForm, or " +
+                    "provide a FormEvent when you call 'submit()'"
                 );
             }
         }
         finally {
             stateManager.current.setValue("isSubmitting", false);
         }
+        return { type: "success" }
     }
 
     const { canUndo, canRedo, undo, redo, push: pushHistory } = useHistory({
@@ -242,8 +243,12 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
 export type Form<Data> = FormField<Data> & {
     // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`,
     // but there may be cases where you call it programmatically.
-    // If an event is passed
-    submit: (e?: FormEvent) => void
+    //
+    // If an event is provided, `preventDefault` will be called on it.
+    //
+    // The returned promise can be used to know whether submission succeeded when
+    // you submit programmatically, and can be safely ignored otherwise.
+    submit: (e?: FormEvent) => Promise<FormSubmitResult>
 
     // Get a field, ignoring type-safety. Generally you should use 'get' instead.
     getUnsafeField: (path: (string | number)[]) => FormField<unknown>

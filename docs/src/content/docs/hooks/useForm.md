@@ -72,8 +72,12 @@ function useForm<Data extends BaseForm, SubmitResponse>(opts: {
 type Form<Data> = FormField<Data> & {
     // Submits the form. You will likely wire this to `<form onSubmit={form.submit}>`,
     // but there may be cases where you call it programmatically.
-    // If an event is passed
-    submit: (e?: FormEvent) => void
+    // 
+    // If an event is provided, `preventDefault` will be called on it.
+    // 
+    // The returned promise can be used to know whether submission succeeded when
+    // you submit programmatically, and can be safely ignored otherwise. 
+    submit: (e?: FormEvent) => Promise<FormSubmitResult>
 
     // Get a field, ignoring type-safety. Generally you should use 'get' instead.
     getUnsafeField: (path: (string | number)[]) => FormField<unknown>

@@ -1,3 +1,5 @@
+import type { ValidationError } from "./ValidationError.ts";
+
 export type Nullable<T> = T | undefined | null;
 
 // A value or replacement function used for updating a value
@@ -17,4 +19,15 @@ export type SetDataOpts = {
     // change status untouched
     // Default: true
     nextChangeStatus?: boolean | "retain";
+}
+
+export type FormSubmitResult = {
+    type: "success"
+} | {
+    // The form was already part-way through submitting. Subsequent submissions are ignored
+    type: "already-submitting"
+} | {
+    // There were validation errors that prevented the form from being submitted
+    type: "validation-error"
+    error: ValidationError
 }
