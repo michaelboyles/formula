@@ -11,7 +11,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 type Issue = StandardSchemaV1.Issue;
 
-export async function validateRecursive<T, R>(rootData: R, data: T, validator: Validator<T, R>, path: FieldPath): Promise<Issue[]> {
+export async function validateNative<T, R>(rootData: R, data: T, validator: Validator<T, R>, path: FieldPath): Promise<Issue[]> {
     if (!validator) return [];
 
     const issues: Promise<Issue[]>[] = [];
@@ -36,7 +36,7 @@ export async function validateRecursive<T, R>(rootData: R, data: T, validator: V
         if (eachValidator) {
             for (let i = 0; i < data.length; i++) {
                 const item = data[i];
-                issues.push(validateRecursive(rootData, item, eachValidator, path.withProperty(i)));
+                issues.push(validateNative(rootData, item, eachValidator, path.withProperty(i)));
             }
         }
     }
@@ -54,7 +54,7 @@ export async function validateRecursive<T, R>(rootData: R, data: T, validator: V
             if (key === "_self") continue;
             const fieldData = (data as any)[key];
             issues.push(
-                validateRecursive(rootData, fieldData, keyValidator, path.withProperty(key))
+                validateNative(rootData, fieldData, keyValidator, path.withProperty(key))
             );
         }
     }

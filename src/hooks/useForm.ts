@@ -9,9 +9,9 @@ import {
     type StateSubscriber,
     type UnsubscribeFromState
 } from "../FormStateManager.ts";
-import { getValidationIssues } from "../validate-std-schema.ts";
+import { validateStandardSchema } from "../validate-std-schema.ts";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { validateRecursive } from "../validate-native.ts";
+import { validateNative } from "../validate-native.ts";
 import type { Validator } from "../validate.ts";
 import { useLazyRef } from "./useLazyRef.ts";
 import { ValidationError } from "../ValidationError.ts";
@@ -79,11 +79,11 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         const pendingValidations: Array<Promise<StandardSchemaV1.Issue[]>> = [];
         const validators = activeOpts.current.validators;
         if (validators) {
-            pendingValidations.push(getValidationIssues(data, validators));
+            pendingValidations.push(validateStandardSchema(data, validators));
         }
         const validate = activeOpts.current.validate;
         if (validate) {
-            pendingValidations.push(validateRecursive(data, data, validate, ROOT_PATH));
+            pendingValidations.push(validateNative(data, data, validate, ROOT_PATH));
         }
         if (pendingValidations.length) {
             const issues = (await Promise.all(pendingValidations)).flatMap(a => a);
