@@ -35,5 +35,5 @@ function ForEachElement<T>(props: {
     // `element`: the child to render
     // `idx`: the index of the child to render. Mostly useful for removing by index
     children: (element: FormField<T>, idx: number) => ReactNode
-}): ReactNode
+}): ReactNode[]
 ```

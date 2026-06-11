@@ -11,13 +11,9 @@ export type Props<T> = {
     // `idx`: the index of the child to render. Mostly useful for removing by index
     children: (element: FormField<NoInfer<T>>, idx: number) => ReactNode;
 }
-export function ForEachElement<T>({ field, children }: Props<T>) {
+export function ForEachElement<T>({ field, children }: Props<T>): ReactNode[] {
     const elements = useElements(field);
     return (
-        <>
-        {
-            elements.map((element, idx) => <Fragment key={idx}>{ children(element, idx) }</Fragment>)
-        }
-        </>
+        elements.map((element, idx) => <Fragment key={idx}>{ children(element, idx) }</Fragment>)
     );
 }
