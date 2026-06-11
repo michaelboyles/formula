@@ -25,15 +25,13 @@ type FormField<Data, SetData = Data> = {
     addDataListener: (listener: Listener<Data>) => Unsubscribe
 
     // Get the current validation errors for this field
-    getErrors: () => ReadonlyArray<string>
+    getErrors: () => ReadonlyArray<StandardSchemaV1.Issue>
     // Set the current validation errors for this field
-    setErrors: (errors: string | string[] | undefined) => void
+    setErrors: (errors: ReadonlyArray<string | StandardSchemaV1.Issue>) => void
     // Add a callback which will be called when the errors for this field change
-    addErrorListener: (listener: Listener<ReadonlyArray<string>>) => Unsubscribe
-    // Get ALL validation errors for this field, including any subfields. For example
-    // if the field is "users.0.username" and "users" has 1 error, "users.0" has
-    // 2 errors, this will return an array containing 3 errors.
-    getDeepErrors: () => ReadonlyArray<string>
+    addErrorListener: (listener: Listener<ReadonlyArray<StandardSchemaV1.Issue>>) => Unsubscribe
+    // Get ALL validation errors for this field, including errors for subfields
+    getDeepErrors: () => ReadonlyArray<StandardSchemaV1.Issue>
 
     // Get the current blur status for this field, i.e. whether the field has lost focus.
     isBlurred: () => boolean

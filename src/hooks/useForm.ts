@@ -12,7 +12,7 @@ import {
 import { getValidationIssues } from "../validate-std-schema.ts";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { validateRecursive } from "../validate-native.ts";
-import type { Issue, Validator } from "../validate.ts";
+import type { Validator } from "../validate.ts";
 import { useLazyRef } from "./useLazyRef.ts";
 import { ValidationError } from "../ValidationError.ts";
 import type { FormSubmitResult, SetDataOpts, Setter } from "../types.ts";
@@ -76,7 +76,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
     const validateAll = async (data: Data) => {
         fieldState.current.clearAllErrors();
 
-        const pendingValidations: Array<Promise<Issue[]>> = [];
+        const pendingValidations: Array<Promise<StandardSchemaV1.Issue[]>> = [];
         const validators = activeOpts.current.validators;
         if (validators) {
             pendingValidations.push(getValidationIssues(data, validators));
@@ -88,7 +88,9 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
         if (pendingValidations.length) {
             const issues = (await Promise.all(pendingValidations)).flatMap(a => a);
             issues.forEach(issue => {
-                fieldState.current.appendErrors(issue.path, [issue.message]);
+                if (issue.path) {
+                    fieldState.current.appendErrors(FieldPath.fromStdSchema(issue.path), [issue.message]);
+                }
             });
             return issues;
         }
@@ -293,12 +295,12 @@ export type FormAccess = {
     setData: (path: FieldPath, setter: Setter<unknown>, opts?: SetDataOpts) => void
     addDataListener: (path: FieldPath, listener: Listener<unknown>) => Unsubscribe
 
-    getErrors: (path: FieldPath) => ReadonlyArray<string>
-    setErrors: (path: FieldPath, errors: string | string[] | undefined) => void
-    addErrorListener: (path: FieldPath, listener: Listener<ReadonlyArray<string>>) => Unsubscribe
+    getErrors: (path: FieldPath) => ReadonlyArray<StandardSchemaV1.Issue>
+    setErrors: (path: FieldPath, errors: ReadonlyArray<string | StandardSchemaV1.Issue>) => void
+    addErrorListener: (path: FieldPath, listener: Listener<ReadonlyArray<StandardSchemaV1.Issue>>) => Unsubscribe
 
-    getDeepErrors: (path: FieldPath) => ReadonlyArray<string>
-    addDeepErrorsListener: (path: FieldPath, listener: Listener<ReadonlyArray<string>>) => Unsubscribe
+    getDeepErrors: (path: FieldPath) => ReadonlyArray<StandardSchemaV1.Issue>
+    addDeepErrorsListener: (path: FieldPath, listener: Listener<ReadonlyArray<StandardSchemaV1.Issue>>) => Unsubscribe
 
     isBlurred: (path: FieldPath) => boolean
     setIsBlurred: (path: FieldPath, blurred: boolean) => void

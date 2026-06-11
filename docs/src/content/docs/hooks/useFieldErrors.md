@@ -14,11 +14,11 @@ const form = useForm({
     initialValues: { username: "" }
 });
 const errors = useFieldErrors(form("username"));
-//^? ReadonlyArray<string>
+//^? ReadonlyArray<StandardSchemaV1.Issue>
 if (errors.length) {
     return (
         <div>
-            Issues: { errors.join(", ") }
+            Issues: { errors.map(error => error.message).join(", ") }
         </div>
     )
 }
@@ -27,5 +27,5 @@ if (errors.length) {
 ## Type
 
 ```typescript
-function useFieldErrors(field: Nullable<FormField<any>>): ReadonlyArray<string>
+function useFieldErrors<T>(field: Nullable<ReadonlyFormField<T>>): ReadonlyArray<StandardSchemaV1.Issue>
 ```

@@ -2,6 +2,12 @@ Formula uses [semantic versioning](https://semver.org/).
 
 Formula is currently pre-v1. It's relatively stable, but I expect there will be some breaking changes before v1.
 
+# 0.0.13
+
+- BREAKING CHANGE: `useFieldErrors`, `useDeepFieldErrors`, `<FieldErrors>`, `FormField.getErrors`, now return 
+  StandardSchema Issues instead of `string`. `FormField` imperative methods (`getErrors`, `setErrors`,
+  `addErrorListener`, `getDeepErrors`) accept/return the same
+
 # 0.0.12
 
 - feat: `form.submit` returns a Promise for checking result

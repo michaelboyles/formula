@@ -2,6 +2,7 @@ import type { FormAccess } from "./hooks/useForm.ts";
 import type { FieldPath } from "./FieldPath.ts";
 import type { Subscriber, Unsubscribe } from "./FieldStateTree.ts";
 import type { SetDataOpts, Setter } from "./types.ts";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): FormField<Data> {
     const field: FormField<Data> = Object.assign(
@@ -18,17 +19,17 @@ export function newFormField<Data>(path: FieldPath, formAccess: FormAccess): For
             addDataListener: listener => formAccess.addDataListener(path, listener as Listener<unknown>),
 
             getErrors: () => formAccess.getErrors(path),
-            setErrors: (errors: string | string[] | undefined) => formAccess.setErrors(path, errors),
+            setErrors: errors => formAccess.setErrors(path, errors),
             addErrorListener: listener => formAccess.addErrorListener(path, listener),
 
             getDeepErrors: () => formAccess.getDeepErrors(path),
 
             isBlurred: () => formAccess.isBlurred(path),
-            setIsBlurred: (isBlurred: boolean) => formAccess.setIsBlurred(path, isBlurred),
+            setIsBlurred: isBlurred => formAccess.setIsBlurred(path, isBlurred),
             addBlurListener: listener => formAccess.addBlurListener(path, listener),
 
             isChanged: () => formAccess.isChanged(path),
-            setIsChanged: (isChanged: boolean) => formAccess.setIsChanged(path, isChanged),
+            setIsChanged: isChanged => formAccess.setIsChanged(path, isChanged),
             addIsChangedListener: listener => formAccess.addIsChangedListener(path, listener),
 
             narrow: () => field as any,
@@ -68,15 +69,13 @@ type BaseField<Data, Writable extends boolean> = {
     addDataListener: (listener: Listener<Data>) => Unsubscribe
 
     // Get the current validation errors for this field
-    getErrors: () => ReadonlyArray<string>
+    getErrors: () => ReadonlyArray<StandardSchemaV1.Issue>
     // Set the current validation errors for this field
-    setErrors: (errors: string | string[] | undefined) => void
+    setErrors: (errors: ReadonlyArray<string | StandardSchemaV1.Issue>) => void
     // Add a callback which will be called when the errors for this field change
-    addErrorListener: (listener: Listener<ReadonlyArray<string>>) => Unsubscribe
-    // Get ALL validation errors for this field, including any subfields. For example
-    // if the field is "users.0.username" and "users" has 1 error, "users.0" has
-    // 2 errors, this will return an array containing 3 errors.
-    getDeepErrors: () => ReadonlyArray<string>
+    addErrorListener: (listener: Listener<ReadonlyArray<StandardSchemaV1.Issue>>) => Unsubscribe
+    // Get ALL validation errors for this field, including errors for subfields
+    getDeepErrors: () => ReadonlyArray<StandardSchemaV1.Issue>
 
     // Get the current blur status for this field, i.e. whether the field has lost focus.
     isBlurred: () => boolean

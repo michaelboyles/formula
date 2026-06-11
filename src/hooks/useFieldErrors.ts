@@ -2,8 +2,9 @@ import { useCallback, useSyncExternalStore } from "react";
 import type { ReadonlyFormField } from "../FormField.ts";
 import { NO_ERRORS, noOp } from "../common.ts";
 import type { Nullable } from "../types.ts";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-export function useFieldErrors<T>(field: Nullable<ReadonlyFormField<T>>): ReadonlyArray<string> {
+export function useFieldErrors<T>(field: Nullable<ReadonlyFormField<T>>): ReadonlyArray<StandardSchemaV1.Issue> {
     return useSyncExternalStore(
         // Subscribe
         useCallback((onStoreChange) => {

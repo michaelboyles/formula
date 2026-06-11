@@ -1,8 +1,22 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { FieldStateTree } from "../FieldStateTree.ts";
 import { FieldPath } from "../FieldPath.ts";
 
 describe("FieldStateTree", () => {
+    const nativeErrorLog = console.error;
+    let errorLogs: unknown[] = [];
+
+    beforeEach(() => {
+        console.error = (...args) => {
+            errorLogs.push(args);
+        }
+    });
+
+    afterEach(() => {
+        errorLogs = [];
+        console.error = nativeErrorLog;
+    });
+
     test("notifyDataChanged", () => {
         const tree = new FieldStateTree();
         const rootPath = FieldPath.create();
@@ -32,21 +46,21 @@ describe("FieldStateTree", () => {
         const path = FieldPath.create().withProperty("user").withProperty("name");
         tree.setErrors(path, ["Required"]);
         tree.notifyDataChanged(path, {});
-        expect(tree.getErrors(path)).toEqual(["Required"]);
+        expect(tree.getErrors(path)).toEqual([{ message: "Required", path: ["user", "name"] }]);
     })
 
     test("Errors are retained if data shape matches", () => {
         const tree = new FieldStateTree();
         const userPath = FieldPath.create().withProperty("user");
-        tree.setErrors(userPath.withProperty("name"), "Foo");
+        tree.setErrors(userPath.withProperty("name"), ["Foo"]);
         tree.notifyDataChanged(userPath, { user: { name: "Michael" } });
-        expect(tree.getErrors(userPath.withProperty("name"))).toEqual(["Foo"]);
+        expect(tree.getErrors(userPath.withProperty("name"))).toEqual([{ message: "Foo", path: ["user", "name"] }]);
     })
 
     test("Errors are discarded if data shape changes", () => {
         const tree = new FieldStateTree();
         const userPath = FieldPath.create().withProperty("user");
-        tree.setErrors(userPath.withProperty("name"), "Foo");
+        tree.setErrors(userPath.withProperty("name"), ["Foo"]);
         tree.notifyDataChanged(userPath, { user: {} });
         expect(tree.getErrors(userPath.withProperty("name"))).toEqual([]);
     })
@@ -98,6 +112,23 @@ describe("FieldStateTree", () => {
         expect(barListener).not.toHaveBeenCalled();
     })
 
+    describe("setErrors", () => {
+        test("Issue without path will get one", () => {
+            const tree = new FieldStateTree();
+            const userPath = FieldPath.create().withProperty("user");
+            tree.setErrors(userPath, [{ message: "error" }]);
+            expect(tree.getErrors(userPath)).toEqual([{ message: "error", path: ["user"] }]);
+        });
+
+        test("Issue with wrong path will be ignored", () => {
+            const tree = new FieldStateTree();
+            const userPath = FieldPath.create().withProperty("user");
+            tree.setErrors(userPath, [{ message: "error", path: ["wrong"] }]);
+            expect(tree.getErrors(userPath)).toEqual([]);
+            expect(errorLogs).toContainEqual(["Tried to set errors for field 'user', but issue has path: 'wrong'"]);
+        });
+    });
+
     describe("isChanged", () => {
         test("setIsChanged(true)", () => {
             const tree = new FieldStateTree();
@@ -130,7 +161,7 @@ describe("FieldStateTree", () => {
         test("clears errors, blurred, and isChanged on existing nodes", () => {
             const tree = new FieldStateTree();
             const path = FieldPath.create().withProperty("foo");
-            tree.setErrors(path, "error");
+            tree.setErrors(path, ["error"]);
             tree.setBlurred(path, true);
             tree.setIsChanged(path, true);
 
@@ -145,7 +176,7 @@ describe("FieldStateTree", () => {
             const tree = new FieldStateTree();
             const parent = FieldPath.create().withProperty("foo");
             const child = parent.withProperty("bar");
-            tree.setErrors(child, "error");
+            tree.setErrors(child, ["error"]);
 
             const data = { foo: { bar: "baz" } };
             tree.resetData(data, data);
@@ -156,7 +187,7 @@ describe("FieldStateTree", () => {
         test("removes nodes that no longer exist in new data", () => {
             const tree = new FieldStateTree();
             const path = FieldPath.create().withProperty("foo");
-            tree.setErrors(path, "error");
+            tree.setErrors(path, ["error"]);
             tree.setBlurred(path, true);
             tree.setIsChanged(path, true);
 
@@ -170,7 +201,7 @@ describe("FieldStateTree", () => {
         test("notifies listeners when state is cleared", () => {
             const tree = new FieldStateTree();
             const path = FieldPath.create().withProperty("foo");
-            tree.setErrors(path, "error");
+            tree.setErrors(path, [{ message: "error" }]);
             tree.setBlurred(path, true);
             tree.setIsChanged(path, true);
             const errorSub = vi.fn();

@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach, expect, expectTypeOf, describe, it, test } from 'vitest';
+import { afterEach, expect, describe, it, test } from 'vitest';
 import { cleanup, render, renderHook } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { type Form, useForm } from "../useForm.ts";
@@ -15,9 +15,9 @@ import { ForEachElement } from "../../components/ForEachElement.tsx";
 import { FieldErrors } from "../../components/FieldErrors.tsx";
 import { lazy, type ObjectValidator } from "../../validate.ts";
 import { ValidationError } from "../../ValidationError.ts";
-import type { SetDataOpts, Setter } from "../../types.ts";
 import { useIsChanged } from "../useIsChanged.ts";
 import { useIsBlurred } from "../useIsBlurred.ts";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 const user = userEvent.setup();
 
@@ -155,18 +155,18 @@ describe("useForm", () => {
                 <form onSubmit={form.submit}>
                     <Input field={form("title")} data-testid="input" />
                     <input type="submit" value="Submit" data-testid="submit" />
-                    { titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err }</div>) }
-                    { firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err }</div>) }
+                    { titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err.message }</div>) }
+                    { firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err.message }</div>) }
                 </form>
             )
         }
 
-        const { getByTestId, getAllByTestId } = render(<Test />);
+        const { getByTestId, queryAllByTestId } = render(<Test />);
         await user.type(getByTestId("input"), "abcdef");
         await user.click(getByTestId("submit"));
 
-        expect(getAllByTestId("title-error").length).toBe(1);
-        expect(getAllByTestId("tag-error").length).toBe(1);
+        expect(queryAllByTestId("title-error").length).toBe(1);
+        expect(queryAllByTestId("tag-error").length).toBe(1);
     })
 
     test("getData, setData, reset", async () => {
@@ -281,7 +281,7 @@ describe("useForm", () => {
             const tagFields = useElements(tagsField);
             function addErrors() {
                 tagFields.forEach(tagField => {
-                    tagField.setErrors("Invalid tag");
+                    tagField.setErrors(["Invalid tag"]);
                 })
             }
 
@@ -296,11 +296,9 @@ describe("useForm", () => {
                     <button onClick={addErrors} data-testid="addErrors">Add errors</button>
                     <button onClick={swapTags} data-testid="swap">Swap</button>
                     <ForEachElement field={tagsField}>
-                    { tagField => (
-                        <FieldErrors field={tagField}>
-                            { errors => errors && errors.length ? <div>Errors: { errors }</div> : null }
-                        </FieldErrors>
-                    )}
+                    {
+                        tagField => <FieldErrors field={tagField}>{ errors => <div>Errors: { joinErrors(errors) }</div> }</FieldErrors>
+                    }
                     </ForEachElement>
                 </>
             )
@@ -362,7 +360,7 @@ describe("useForm", () => {
         result.current.setData({ name: "" });
         // Just a hack. Validation is async, and this ensures it's done
         await sleep(5);
-        expect(result.current("name").getErrors()).toEqual(["Required"]);
+        expect(result.current("name").getErrors()).toEqual([{ path: ["name"], message: "Required" }]);
     })
 
     it("uses latest opts during layout effects (fails if activeOpts is updated in useEffect)", async () => {
@@ -384,11 +382,7 @@ describe("useForm", () => {
                 form.validate();
             }, [msg]);
 
-            return (
-                <div data-testid="error">
-                    { nameErrors.join(", ") }
-                </div>
-            );
+            return (<div data-testid="error">{ joinErrors(nameErrors) }</div>);
         }
 
         const { rerender, getByTestId } = render(<Test msg="old" />);
@@ -421,7 +415,7 @@ describe("useForm", () => {
                     <form onSubmit={form.submit}>
                         <Input field={form("title")} data-testid="input" />
                         <input type="submit" value="Submit" data-testid="submit" />
-                        { titleErrors.map((err, idx) => <div key={idx}>{ err }</div>) }
+                        { titleErrors.map((err, idx) => <div key={idx}>{ err.message }</div>) }
                     </form>
                 )
             }
@@ -452,7 +446,7 @@ describe("useForm", () => {
                 const tagErrors = useFieldErrors(form("tags"));
                 return (
                     <form onSubmit={form.submit}>
-                        <div>{ tagErrors.join(", ") }</div>
+                        <div>{ joinErrors(tagErrors) }</div>
                         <button
                             type="button"
                             onClick={() => form.validate()}
@@ -473,7 +467,7 @@ describe("useForm", () => {
             function ErrorComp<T>(props: { field: FormField<T>, id: number }) {
                 const errors = useFieldErrors(props.field);
                 return (
-                    errors.map((err, i) => <div key={i} data-testid={`tag-${props.id}-error-${i}`}>{ err }</div>)
+                    errors.map((err, i) => <div key={i} data-testid={`tag-${props.id}-error-${i}`}>{ err.message }</div>)
                 )
             }
 
@@ -510,7 +504,7 @@ describe("useForm", () => {
                             ))
                         }
                         <button type="button" onClick={() => tags.push("")} data-testid="add-tag">Add tag</button>
-                        { tagErrors.length > 0 ? <div data-testid="tagErrors">{ tagErrors.join(", ") }</div> : null }
+                        { tagErrors.length > 0 ? <div data-testid="tagErrors">{ joinErrors(tagErrors) }</div> : null }
                         <input type="submit" value="Submit" data-testid="submit" />
                     </form>
                 )
@@ -549,9 +543,7 @@ describe("useForm", () => {
                 const addressErrors = useFieldErrors(form("address"));
                 return (
                     <form onSubmit={form.submit}>
-                        {
-                            addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
-                        }
+                        <div>{ joinErrors(addressErrors) }</div>
                         <input type="submit" value="Submit" data-testid="submit" />
                     </form>
                 )
@@ -595,15 +587,9 @@ describe("useForm", () => {
                 const unixTimestampErrors = useFieldErrors(form("meta")("createdAt")("unixTimestamp"));
                 return (
                     <form onSubmit={form.submit}>
-                        {
-                            metaErrors.length ? <div>{ metaErrors.join(", ")} </div> : null
-                        }
-                        {
-                            humanReadableErrors.length ? <div>{ humanReadableErrors.join(", ")} </div> : null
-                        }
-                        {
-                            unixTimestampErrors.length ? <div>{ unixTimestampErrors.join(", ")} </div> : null
-                        }
+                        <div>{ joinErrors(metaErrors) }</div>
+                        <div>{ joinErrors(humanReadableErrors) }</div>
+                        <div>{ joinErrors(unixTimestampErrors) }</div>
                         <input type="submit" value="Submit" data-testid="submit" />
                     </form>
                 )
@@ -638,8 +624,8 @@ describe("useForm", () => {
                 return (
                     <form onSubmit={form.submit}>
                         <ForEachElement field={form("tags")}>
-                        {tagField =>
-                            <FieldErrors field={tagField("name")}>{errors => <div>{ errors.join(",") }</div>}</FieldErrors>
+                        {
+                            tagField => <FieldErrors field={tagField("name")}>{ errors => joinErrors(errors) }</FieldErrors>
                         }
                         </ForEachElement>
                         <input type="submit" value="Submit" data-testid="submit" />
@@ -673,9 +659,7 @@ describe("useForm", () => {
                 const errors = useFieldErrors(form("value"));
                 return (
                     <form onSubmit={form.submit}>
-                        {
-                            errors.length ? <div>{ errors.join(", ")} </div> : null
-                        }
+                        <div>{ joinErrors(errors) }</div>
                         <input type="submit" value="Submit" data-testid="submit" />
                     </form>
                 )
@@ -706,9 +690,7 @@ describe("useForm", () => {
                 const errors = useFieldErrors(form(1));
                 return (
                     <form onSubmit={form.submit}>
-                        {
-                            errors.length ? <div>{ errors.join(", ")} </div> : null
-                        }
+                        <div>{ joinErrors(errors) }</div>
                         <input type="submit" value="Submit" data-testid="submit" />
                     </form>
                 )
@@ -734,7 +716,7 @@ describe("useForm", () => {
                 return (
                     <div>
                         <h2>Node { nodeId }</h2>
-                        Errors: <div>{ nodeIdErrors.join(", ") }</div>
+                        Errors: <div>{ joinErrors(nodeIdErrors) }</div>
                         Children:
                         <ForEachElement field={nodeField("children")}>
                         {childNodeField => <TreeNodeDisplay nodeField={childNodeField} />}
@@ -825,9 +807,7 @@ describe("useForm", () => {
                 return (
                     <form>
                         <Input field={form("address")("number")} data-testid="input" />
-                        {
-                            addressErrors.length ? <div>{ addressErrors.join(", ")} </div> : null
-                        }
+                        <div>{ joinErrors(addressErrors) }</div>
                     </form>
                 )
             }
@@ -852,7 +832,7 @@ describe("useForm", () => {
                 return (
                     <form>
                         <Input field={form("name")} data-testid="input" />
-                        <FieldErrors field={form("name")}>{ err => err.join(",") }</FieldErrors>
+                        <FieldErrors field={form("name")}>{ errors => joinErrors(errors) }</FieldErrors>
                     </form>
                 )
             }
@@ -915,4 +895,8 @@ function sleep(millis: number): Promise<void> {
     return new Promise(resolve => {
         setTimeout(resolve, millis);
     });
+}
+
+function joinErrors(errors: ReadonlyArray<StandardSchemaV1.Issue>) {
+    return errors.map(error => error.message).join(", ");
 }

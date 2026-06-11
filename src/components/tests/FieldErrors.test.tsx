@@ -28,7 +28,7 @@ describe("FieldErrors", () => {
                 <form onSubmit={form.submit}>
                     <button type="submit" data-testid="submit">Submit</button>
                     <FieldErrors field={form("name")}>
-                        { errors => errors ? errors.join(", ") : null }
+                    { errors => errors.map(error => error.message).join(", ") }
                     </FieldErrors>
                 </form>
             )

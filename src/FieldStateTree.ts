@@ -1,8 +1,9 @@
 import { FieldPath } from "./FieldPath.ts";
 import type { Listener } from "./FormField.ts";
 import { NO_ERRORS } from "./common.ts";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-type ErrorList = ReadonlyArray<string>
+type ErrorList = ReadonlyArray<StandardSchemaV1.Issue>
 
 /**
  * Holds state for each of the form's fields. Perhaps surprisingly, it doesn't keep the data as a tree. The tree only
@@ -23,14 +24,22 @@ export class FieldStateTree {
         return NO_ERRORS;
     }
 
-    appendErrors(path: FieldPath, errors: string[]) {
-        if (!errors || errors.length < 1) return;
+    appendErrors(path: FieldPath, errors: ReadonlyArray<string | StandardSchemaV1.Issue>) {
+        const filteredErrors = filterErrorsForPath(path, errors);
+        if (filteredErrors.length < 1) return;
         const nodes = this.getOrCreateNodes(path);
         const leaf = nodes[nodes.length - 1];
         if (!leaf.errors) {
             leaf.errors = [];
         }
-        leaf.errors.push(...errors);
+        for (const error of filteredErrors) {
+            if (typeof error === "string") {
+                leaf.errors.push({ path: path.toStdSchema(), message: error });
+            }
+            else {
+                leaf.errors.push(error);
+            }
+        }
         const newErrors = leaf.errors;
         leaf.errorListeners?.forEach(notify => notify(newErrors));
         nodes.forEach(n => {
@@ -40,7 +49,7 @@ export class FieldStateTree {
         })
     }
 
-    setErrors(path: FieldPath, errors: string | string[] | undefined) {
+    setErrors(path: FieldPath, errors: ReadonlyArray<string | StandardSchemaV1.Issue>) {
         const nodes = this.getOrCreateNodes(path);
         const leaf = nodes[nodes.length - 1];
         let changed: boolean;
@@ -50,7 +59,7 @@ export class FieldStateTree {
         }
         else {
             const prev = leaf.errors;
-            leaf.errors = typeof errors === "string" ? [errors] : [...errors];
+            leaf.errors = filterErrorsForPath(path, errors);
             changed = !isEqual(prev, leaf.errors);
         }
 
@@ -95,7 +104,7 @@ export class FieldStateTree {
         if (!node) return NO_ERRORS;
 
         const computeErrors = () => {
-            const errors: string[] = [];
+            const errors: StandardSchemaV1.Issue[] = [];
             this.visitAllChildren(node, n => {
                 if (n.errors && n.errors.length) {
                     errors.push(...n.errors);
@@ -369,8 +378,8 @@ export class FieldStateTree {
 
 type TreeNode = {
     propertyToNode?: Record<string, TreeNode>
-    errors?: string[]
-    deepErrors?: CachedValue<string[]>
+    errors?: StandardSchemaV1.Issue[]
+    deepErrors?: CachedValue<StandardSchemaV1.Issue[]>
     blurred?: boolean
     isChanged?: boolean
 
@@ -480,4 +489,30 @@ function isArrayEquals(first: unknown[], second: unknown[]): boolean {
         if (!isEqual(first[i], second[i])) return false;
     }
     return true;
+}
+
+// The path in the standard schema issue may be omitted or not match. This ensures all issues have paths
+function filterErrorsForPath(path: FieldPath, errors: ReadonlyArray<string | StandardSchemaV1.Issue>): StandardSchemaV1.Issue[] {
+    if (!errors || errors.length < 1) return [];
+
+    const stdSchemaPath = path.toStdSchema();
+    const filtered: StandardSchemaV1.Issue[] = [];
+    for (const error of errors) {
+        if (typeof error === "string") {
+            filtered.push({ path: stdSchemaPath, message: error });
+        }
+        else if (!error.path) {
+            filtered.push({ ...error, path: stdSchemaPath });
+        }
+        else {
+            const errorPath = FieldPath.fromStdSchema(error.path);
+            if (errorPath.equals(path)) {
+                filtered.push(error);
+            }
+            else {
+                console.error(`Tried to set errors for field '${path}', but issue has path: '${errorPath}'`);
+            }
+        }
+    }
+    return filtered;
 }

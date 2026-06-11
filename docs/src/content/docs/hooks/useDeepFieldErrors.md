@@ -15,16 +15,19 @@ const form = useForm({
     }
 });
 useEffect(() => {
-    form("members").setErrors("Team must include at least 2 users");
-    form("members")(0).setErrors("User not found");
+    form("members").setErrors(["Team must include at least 2 users"]);
+    form("members")(0).setErrors(["User not found"]);
 }, []);
 
 const errors = useDeepFieldErrors(form("members"));
-// ["Team must include at least 2 users", "User not found"]
+// [
+//   { path: ["members],     message: "Team must include at least 2 users" },
+//   { path: ["members", 0], message: "User not found"
+// ]
 ```
 
 ## Type
 
 ```typescript
-function useDeepFieldErrors(field: Nullable<FormField<any>>): ReadonlyArray<string>
+function useDeepFieldErrors<T>(field: Nullable<ReadonlyFormField<T>>): ReadonlyArray<StandardSchemaV1.Issue>
 ```

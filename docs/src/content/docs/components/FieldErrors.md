@@ -20,7 +20,7 @@ return (
     <FieldErrors field={form("name")}>
     { errors => errors.length ?
         <ul>
-            { errors.map((err, idx) => <li key={idx}>{ err }</li>) }  
+            { errors.map((err, idx) => <li key={idx}>{ err.message }</li>) }  
         </ul>
         : null
     }
@@ -31,10 +31,10 @@ return (
 ## Type
 
 ```typescript
-function FieldErrors(props: {
+function FieldErrors<T>(props: {
     // The field to watch the errors for
-    field: FormField<any>
+    field: ReadonlyFormField<T>
     // A render function which will be passed the errors
-    children: (value: ReadonlyArray<string>) => ReactNode
+    children: (value: ReadonlyArray<StandardSchemaV1.Issue>) => ReactNode
 }): ReactNode
 ```

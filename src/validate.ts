@@ -1,10 +1,3 @@
-import { FieldPath } from "./FieldPath.ts";
-
-export type Issue = {
-    readonly path: FieldPath
-    readonly message: string
-}
-
 export type Validator<T, AllValues = unknown> =
     ValueValidator<T, AllValues> |
         ([T] extends [Array<infer U>] ? Supplier<ArrayValidator<U, AllValues>> :

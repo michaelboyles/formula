@@ -2,12 +2,14 @@ import { FieldPath } from "./FieldPath.ts";
 import {
     type ArrayValidator,
     isLazy,
-    type Issue,
     type ObjectValidator,
     type Supplier,
     type Validator,
     type ValueValidator
 } from "./validate.ts";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
+
+type Issue = StandardSchemaV1.Issue;
 
 export async function validateRecursive<T, R>(rootData: R, data: T, validator: Validator<T, R>, path: FieldPath): Promise<Issue[]> {
     if (!validator) return [];
@@ -68,9 +70,9 @@ async function runValidator(path: FieldPath, func: () => ValidatorReturn): Promi
 function mapToIssues(path: FieldPath, msgs: string | string[] | undefined | null | void): Issue[] {
     if (!msgs) return [];
     if (typeof msgs === "string") {
-        return [{ path, message: msgs }];
+        return [{ path: path.toStdSchema(), message: msgs }];
     }
-    return msgs.map(message => ({ path, message }));
+    return msgs.map(message => ({ path: path.toStdSchema(), message }));
 }
 
 function resolve<T>(supplier: Supplier<T>): T {

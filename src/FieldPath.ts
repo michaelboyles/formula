@@ -1,14 +1,18 @@
-type Key = string | number | symbol;
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
 export class FieldPath {
-    readonly keys: ReadonlyArray<Key>;
+    readonly keys: ReadonlyArray<PropertyKey>;
 
-    constructor(keys: Key[]) {
+    constructor(keys: PropertyKey[]) {
         this.keys = keys;
     }
 
     static create() {
         return new FieldPath([]);
+    }
+
+    static fromStdSchema(path: NonNullable<StandardSchemaV1.Issue["path"]>) {
+        return new FieldPath(path.map(segment => typeof segment === "object" ? segment.key : segment));
     }
 
     equals(other: FieldPath): boolean {
@@ -82,9 +86,13 @@ export class FieldPath {
         }
         return new FieldPath([...this.keys.slice(0, parts)]);
     }
+
+    toStdSchema(): Required<StandardSchemaV1.Issue["path"]> {
+        return [...this.keys];
+    }
 }
 
-function getPropertyOrIndex(data: any, key: Key): any {
+function getPropertyOrIndex(data: any, key: PropertyKey): any {
     if (data == null) return undefined;
     if (typeof data !== "object") {
         throw "is not an object";

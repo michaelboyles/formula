@@ -22,9 +22,9 @@ describe("useDeepFieldErrors", () => {
             const animalErrors = useDeepFieldErrors(form("animal"));
             return { form, animalErrors };
         });
-        result.current.form("animal")("species").setErrors("error");
+        result.current.form("animal")("species").setErrors(["error"]);
         rerender();
-        expect(result.current.animalErrors).toStrictEqual(["error"])
+        expect(result.current.animalErrors).toStrictEqual([{ message: "error", path: ["animal", "species"] }]);
     });
 
     it("responds to dynamic validation", async () => {
@@ -48,7 +48,7 @@ describe("useDeepFieldErrors", () => {
             return (
                 <form>
                     <Input field={form("animal")("species")} data-testid="input" />
-                    Errors: <div>{ deepErrors.join(", ") }</div>
+                    Errors: <div>{ deepErrors.map(error => error.message).join(", ") }</div>
                 </form>
             )
         }
