@@ -1,10 +1,10 @@
 ---
 title: useFieldErrors
-description: A hook to get the errors for a form field
+description: A hook which subscribes to the validation errors for a field
 slug: hooks/useFieldErrors
 ---
 
-`useFieldErrors` subscribes to the validation errors for a field. It will only trigger a rerender when the errors
+A hook which subscribes to the validation errors for a field. It will only trigger a rerender when the errors
 change.
 
 ## Sample usage

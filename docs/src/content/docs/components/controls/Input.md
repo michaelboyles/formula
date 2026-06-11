@@ -25,11 +25,11 @@ return (
 
 ```typescript
 function Input(props: {
-   // The field to associate with this input
+   /** The field to associate with this input */
    field: FormField<string>
-   // The type of the input. Supports all types which have a true string value
+   /** The type of the input. Supports all types which have a true string value */
    type?: Exclude<InputType, "button" | "checkbox" | "file" | "image" | "radio" | "reset" | "submit">
-} & Omit<DefaultInputProps, "type" | "value">)
+} & Omit<ComponentProps<"input">, "type" | "value">)
 ```
 
 ### Native props

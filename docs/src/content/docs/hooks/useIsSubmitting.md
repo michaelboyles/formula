@@ -4,13 +4,15 @@ description: A Formula hook to monitor submission status
 slug: hooks/useIsSubmitting
 ---
 
-`useIsSubmitting` accepts a form and returns a boolean indicating whether the form is in the process of being submitted.
+A hook which returns whether the given form is in the process of being submitted. This includes pre-submission
+validation and submission itself (e.g. async API request).
 
 ## Sample usage
 
 ```tsx
 const form = useForm({
-    initialValues: { username: "" }
+    initialValues: { username: "" },
+    submit: data => sendRequest(data)
 });
 const isSubmitting: boolean = useIsSubmitting(form);
 return (

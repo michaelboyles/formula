@@ -60,9 +60,9 @@ return (
 
 ```typescript
 function RadioButton<T>(props: {
-    // The field to associate with this radio button
+    /** The field to associate with this radio button */
     field: FormField<T>
-    // The value that will be used if this radio button is selected
+    /** The value that will be used if this radio button is selected */
     value: T
 }
 & ([T] extends [string | number] ? {
@@ -70,7 +70,7 @@ function RadioButton<T>(props: {
 } : {
     mapToValue: Mapper<T, string | number>
 })
-& Omit<DefaultInputProps, "type" | "value" | "checked">)
+& Omit<ComponentProps<"input">, "type" | "value" | "checked">)
 
 type Mapper<In, Out> = (value: In) => Out
 ```

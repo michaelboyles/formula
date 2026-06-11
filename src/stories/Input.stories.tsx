@@ -2,11 +2,11 @@
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Input, type Props } from '../controls/Input.tsx';
+import { Input, type InputProps } from '../controls/Input.tsx';
 import { useForm } from "../hooks/useForm.ts";
 import { DebugField } from "../components/DebugField.tsx";
 
-function InputWrapper(props: Omit<Props, "field">) {
+function InputWrapper(props: Omit<InputProps, "field">) {
     const form = useForm({
         initialValues: { value: "" }
     });

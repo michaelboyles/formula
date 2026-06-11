@@ -2,6 +2,11 @@ import { useCallback, useSyncExternalStore } from "react";
 import type { ReadonlyFormField } from "../FormField.ts";
 import { noOp } from "../common.ts";
 
+/**
+ * A hook to subscribe to a field's data. It will only trigger a rerender when the value changes.
+ *
+ * @param field The field to get the current data for. If falsey, the result will be the supplied value.
+ */
 export function useFieldData<T>(field: ReadonlyFormField<T>): T;
 export function useFieldData(field: null): null;
 export function useFieldData(field: undefined): undefined;

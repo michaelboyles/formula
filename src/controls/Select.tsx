@@ -1,33 +1,34 @@
 import type { FormField } from "../FormField.ts";
-import type { DetailedHTMLProps, OptionHTMLAttributes, SelectHTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 import { useFieldData } from "../hooks/useFieldData.ts";
-import { stringNumberMapper, type Mapper } from "./mapValue.ts";
+import { type Mapper, stringNumberMapper } from "./mapValue.ts";
 
-type DefaultSelectProps = DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>;
-type DefaultOptionProps = DetailedHTMLProps<OptionHTMLAttributes<HTMLOptionElement>, HTMLOptionElement>;
-
-export type Props<T> = {
-    // The field to associate with this 'select' control
+export type SelectProps<T> = {
+    /** The field to associate with this 'select' control */
     field: FormField<T>
-    // The options to be included
+    /** The options to be included */
     options: ReadonlyArray<Option<NoInfer<T>>>
 }
 & MapperProps<T>
-& DefaultSelectProps;
+& ComponentProps<"select">;
 
 type MapperProps<T> =
     [T] extends [string | number] ? {
-        // A mapper is optional if the field type is string or number
+        /** A mapper is optional if the field type is string or number */
         mapToValue?: Mapper<T, string | number>
     } : {
-        // A mapper is required if the field type is not string or number
+        /** A mapper is required if the field type is not string or number */
         mapToValue: Mapper<T, string | number>
     };
 type Option<T> = {
+    /**
+     * The (unmapped) value to use for this option. Unlike a native option,
+     * this is not required to be string-ish, since non-strings can be mapped.
+     */
     value: T
-} & Omit<DefaultOptionProps, "value">
+} & Omit<ComponentProps<"option">, "value">
 
-export function Select<T>(props: Props<T>) {
+export function Select<T>(props: SelectProps<T>) {
     const { field, mapToValue, options, onChange, onBlur, ...rest } = props;
     const mapper = stringNumberMapper(mapToValue);
 

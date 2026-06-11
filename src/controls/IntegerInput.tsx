@@ -1,13 +1,12 @@
 import type { FormField } from "../FormField.ts";
 import { useFieldData } from "../hooks/useFieldData.ts";
-import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 
-type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
-export type Props = {
-    // The field to associate with this input
+export type IntegerInputProps = {
+    /** The field to associate with this input */
     field: FormField<number>
-} & Omit<DefaultInputProps, "type" | "value">;
-export function IntegerInput(props: Props) {
+} & Omit<ComponentProps<"input">, "type" | "value">;
+export function IntegerInput(props: IntegerInputProps) {
     const { field, onChange, onBlur, ...rest } = props;
     const value = useFieldData(field);
 

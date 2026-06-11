@@ -27,9 +27,9 @@ return (
 
 ```typescript
 function NumberInput(props: {
-    // The field to associate with this input
+    /** The field to associate with this input */
     field: FormField<number>
-} & Omit<DefaultInputProps, "type" | "value">)
+} & Omit<ComponentProps<"input">, "type" | "value">)
 ```
 
 ### Native props

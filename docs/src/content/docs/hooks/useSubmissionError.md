@@ -6,7 +6,7 @@ slug: hooks/useSubmissionError
 
 `useSubmissionError` accepts a form and returns the
 [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) that was thrown when the
-form was last submitted, or `undefined`.
+form was last submitted. Returns `undefined` if the last submission was successful, or submission hasn't been attempted.
 
 If a non-Error was thrown, then the value which was thrown will be wrapped in an Error and
 [Error#cause](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause) will be set.

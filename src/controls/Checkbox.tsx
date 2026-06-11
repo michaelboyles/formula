@@ -1,13 +1,12 @@
 import type { FormField } from "../FormField.ts";
-import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 import { useFieldData } from "../hooks/useFieldData.ts";
 
-type DefaultCheckboxProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
-export type Props = {
-    // The field to associate with this checkbox
+export type CheckboxProps = {
+    /** The field to associate with this checkbox */
     field: FormField<boolean>
-} & Omit<DefaultCheckboxProps, "type" | "checked">;
-export function Checkbox(props: Props) {
+} & Omit<ComponentProps<"input">, "type" | "checked">;
+export function Checkbox(props: CheckboxProps) {
     const { field, onChange, onBlur, ...rest } = props;
     const checked = useFieldData(field);
     return (

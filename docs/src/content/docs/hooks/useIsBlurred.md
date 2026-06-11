@@ -1,10 +1,10 @@
 ---
 title: useIsBlurred
-description: A hook to get the blur state of a field
+description: A hook to subscribe to the blur state of a field
 slug: hooks/useIsBlurred
 ---
 
-`useIsBlurred` subscribes to the blur state of a field. It will only trigger a rerender when the status changes.
+A hook to subscribe to the blur state of a field. It will only trigger a rerender when the status changes.
 
 [Blur](https://developer.mozilla.org/en-US/docs/Web/API/Element/blur_event) is defined as when a field loses focus.
 

@@ -54,19 +54,30 @@ function useRadioButton<T extends string | number>(field: FormField<T>, opts?: O
 // else a mapper is required
 function useRadioButton<T>(field: FormField<T>, opts: Opts<T>): FC<InputProps<T>>;
 
-type Opts<T> = {
-    // If you supply a name, the `name` attribute will be set on each `input`. This is
-    // a convenience to avoid having to explicitly declare the name on each `input`.
+/** useRadioButton options */
+export type Opts<T> = {
+    /**
+     * If you supply a name, the `name` attribute will be set on each `input`. This is
+     * a convenience to avoid having to explicitly declare the name on each `input`.
+     */
     name?: string
 } & ([T] extends [string | number] ? {
-    mapToValue?: Mapper<T>
+    /**
+     * If the field type in the form state is a string or number, a mapper is optional. This is used to put different
+     * values in the DOM than is stored in form state (e.g. `<input value="mapResult">`).
+     */
+    mapToValue?: Mapper<T, string | number>
 } : {
-    mapToValue: Mapper<T>
-})
+    /**
+     * If the field type is not a string or number, a map function is required to "stringify" the field value into
+     * something that can be put in an `<input value="">`.
+     */
+    mapToValue: Mapper<T, string | number>
+});
 
-type InputProps<T> = {
-    // The value that will be used if this radio button is selected
+type DynamicRadioBtnProps<T> = {
+    /** The value that will be used if this radio button is selected */
     value: T
 }
-& Omit<DefaultInputProps, "type" | "value" | "checked">
+& Omit<ComponentProps<"input">, "type" | "value" | "checked">;
 ```

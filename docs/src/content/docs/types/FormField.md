@@ -13,58 +13,77 @@ compared to other `FormField`s.
 ## Type
 
 ```typescript
-type FormField<Data, SetData = Data> = {
-    // Get the path of the field, joined with periods, e.g. "users.0.username"
+type FormField<Data, Writable extends boolean> = {
+    /** Get the path of the field, joined with periods, e.g. "users.0.username" */
     toString: () => string
 
-    // Get the current data for the field
+    /** Get the current data for the field */
     getData: () => Readonly<Data>
-    // Set the data for the field
-    setData: (setter: Setter<SetData>, opts?: SetDataOpts) => void
-    // Add a callback which will be called when the data for this field changes
+    /** Add a callback which will be called when the data for this field changes */
     addDataListener: (listener: Listener<Data>) => Unsubscribe
 
-    // Get the current validation errors for this field
+    /** Get the current validation errors for this field */
     getErrors: () => ReadonlyArray<StandardSchemaV1.Issue>
-    // Set the current validation errors for this field
+    /** Set the current validation errors for this field */
     setErrors: (errors: ReadonlyArray<string | StandardSchemaV1.Issue>) => void
-    // Add a callback which will be called when the errors for this field change
-    addErrorListener: (listener: Listener<ReadonlyArray<StandardSchemaV1.Issue>>) => Unsubscribe
-    // Get ALL validation errors for this field, including errors for subfields
+    /** Add a callback which will be called when the errors for this field change */
+    addErrorListener:
+        (listener: Listener<ReadonlyArray<StandardSchemaV1.Issue>>) => Unsubscribe
+    /** Get ALL validation errors for this field, including errors for subfields */
     getDeepErrors: () => ReadonlyArray<StandardSchemaV1.Issue>
 
-    // Get the current blur status for this field, i.e. whether the field has lost focus.
+    /**
+     * Get the current blur status for this field, i.e. whether the field has lost
+     * focus
+     */
     isBlurred: () => boolean
-    // Set the current blur status for this field
+    /** Set the current blur status for this field */
     setIsBlurred: (blurred: boolean) => void
-    // Add a callback which will be called when the blur status for this field changes
+    /**
+     * Add a callback which will be called when the blur status for this field
+     * changes
+     */
     addBlurListener: (listener: Listener<boolean>) => Unsubscribe
 
-    // Get the current changed status for this field
+    /** Get the current changed status for this field */
     isChanged: () => boolean
-    // Set the current changed status for this field
+    /** Set the current changed status for this field */
     setIsChanged: (isChanged: boolean) => void
-    // Add a callback which will be called when the change status for this field changes
+    /**
+     * Add a callback which will be called when the change status for this field
+     * changes
+     */
     addIsChangedListener: (listener: Listener<boolean>) => Unsubscribe
 
-    // Narrow the form field's type to a subtype. This is useful when your form data is
-    // polymorphic. 
-    // You can optionally provide a "witness", which is unused except for type inference.
-    // The witness is likely the result of observing the field data with useFieldData
-    // and narrowing its type based on some condition.
+    /**
+     * Narrow the form field's type to a subtype. This is useful when your form data is
+     * polymorphic.
+     *
+     * @param witness (optional). This is unused except for type inference. The witness
+     *   is likely the result of observing the field data with `useFieldData` and
+     *   narrowing its type based on some condition
+     */
     narrow: <SubType extends Data>(witness?: SubType) => FormField<SubType>
-}
+} & (Writable extends true ? {
+    /** Set the data for the field */
+    setData: (setter: Setter<Data>, opts?: SetDataOpts) => void
+} : {});
 
+/** A value or replacement function used for updating a value */
 type Setter<T> = T | ((prevData: T) => T)
 
 type SetDataOpts = {
-    // Whether to validate the data after setting it.
-    // Default: will validate if `useForm#validateOnChange` is true.
+    /**
+     * Whether to validate the data after setting it. If not specified,
+     * will validate if `useForm#validateOnChange` is true.
+     */
     shouldValidate?: boolean;
 
-    // The change status for the field after setting the data. 'retain' will leave the
-    // change status untouched
-    // Default: true
+    /**
+     * The change status for the field after setting the data.
+     * 'retain' will leave the change status untouched
+     * @default true
+     */
     nextChangeStatus?: boolean | "retain";
 }
 ```
@@ -89,9 +108,9 @@ There are also convenience methods for common operations.
 ```typescript
 type GetArrayIndex<E> = (idx: number) => FormField<E | undefined, E>;
 type ArrayMethods<E> = {
-    // Push one or more elements onto the end of the array
+    /** Push one or more elements onto the end of the array */
     push: (...items: E[]) => void
-    // Remove the element at the specified index
+    /** Remove the element at the specified index */
     remove: (index: number) => void
 }
 ```

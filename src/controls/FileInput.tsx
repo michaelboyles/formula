@@ -1,15 +1,14 @@
 import type { FormField } from "../FormField.ts";
-import { type DetailedHTMLProps, forwardRef, type InputHTMLAttributes, useEffect, useRef } from "react";
+import { type ComponentProps, forwardRef, useEffect, useRef } from "react";
 import { useForkRef } from "../hooks/useForkRef.ts";
 import { useFieldData } from "../hooks/useFieldData.ts";
 
-type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
-export type Props = {
-    // The field to associate with this file input
+export type FileInputProps = {
+    /** The field to associate with this file input */
     field: FormField<FileList | null>
-} & Omit<DefaultInputProps, "type">;
+} & Omit<ComponentProps<"input">, "type">;
 
-export const FileInput = forwardRef<HTMLInputElement, Props>((props, forwardedRef) => {
+export const FileInput = forwardRef<HTMLInputElement, FileInputProps>((props, forwardedRef) => {
     const { field, onChange, onBlur, ...rest } = props;
     const ref = useRef<HTMLInputElement>(null);
     const forkedRef = useForkRef(forwardedRef, ref);

@@ -1,13 +1,12 @@
 import type { FormField } from "../FormField.ts";
-import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 import { useFieldData } from "../hooks/useFieldData.ts";
 
-type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>;
-export type Props = {
-    // The field to associate with this textarea
+export type TextAreaProps = {
+    /** The field to associate with this textarea */
     field: FormField<string>
-} & Omit<DefaultInputProps, "value">;
-export function TextArea(props: Props) {
+} & Omit<ComponentProps<"textarea">, "value">;
+export function TextArea(props: TextAreaProps) {
     const { field, onChange, onBlur, ...rest } = props;
     const value = useFieldData(field);
     return (

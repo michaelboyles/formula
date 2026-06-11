@@ -22,9 +22,9 @@ return (
 
 ```typescript
 function TextArea(props: {
-    // The field to associate with this textarea
+    /** The field to associate with this textarea */
     field: FormField<string>
-} & Omit<DefaultInputProps, "value">)
+} & Omit<ComponentProps<"textarea">, "value">)
 ```
 
 ### Native props

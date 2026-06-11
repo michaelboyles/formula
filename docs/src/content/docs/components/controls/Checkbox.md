@@ -22,10 +22,10 @@ return (
 
 ```typescript
 function Checkbox(props: {
-    // The field to associate with this checkbox
+    /** The field to associate with this checkbox */
     field: FormField<boolean>
 }
-& Omit<DefaultCheckboxProps, "type" | "checked">)
+& Omit<ComponentProps<"input">, "type" | "checked">)
 ```
 
 ### Native props

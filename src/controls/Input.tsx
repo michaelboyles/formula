@@ -1,16 +1,15 @@
 import type { FormField } from "../FormField.ts";
-import type { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 import type { InputType } from "../types.ts";
 import { useFieldData } from "../hooks/useFieldData.ts";
 
-type DefaultInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
-export type Props = {
-    // The field to associate with this input
+export type InputProps = {
+    /** The field to associate with this input */
     field: FormField<string>
-    // The type of the input. Supports all types which have a true string value
+    /** The type of the input. Supports all types which have a true string value */
     type?: Exclude<InputType, "button" | "checkbox" | "file" | "image" | "radio" | "reset" | "submit">
-} & Omit<DefaultInputProps, "type" | "value">;
-export function Input(props: Props) {
+} & Omit<ComponentProps<"input">, "type" | "value">;
+export function Input(props: InputProps) {
     const { field, type = "text", onChange, onBlur, ...rest } = props;
     const value = useFieldData(field);
     return (

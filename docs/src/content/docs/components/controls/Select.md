@@ -32,24 +32,28 @@ return (
 
 ```typescript
 function Select<T>(props: {
-    // The field to associate with this 'select' control
+    /** The field to associate with this 'select' control */
     field: FormField<T>
-    // The options to be included
+    /** The options to be included */
     options: Array<Option<T>>
 }
 & MapperProps<T>
-& DefaultSelectProps)
+& ComponentProps<"select">)
 
 type Option<T> = {
+    /**
+     * The (unmapped) value to use for this option. Unlike a native option,
+     * this is not required to be string-ish, since non-strings can be mapped.
+     */
     value: T
-} & Omit<DefaultOptionProps, "value">
+} & Omit<ComponentProps<"option">, "value">
 
 type MapperProps<T> =
     [T] extends [string | number] ? {
-        // A mapper is optional if the field type is string or number
+        /** A mapper is optional if the field type is string or number */
         mapToValue?: Mapper<T>
     } : {
-        // A mapper is required if the field type is not string or number
+        /** A mapper is required if the field type is not string or number */
         mapToValue: Mapper<T>
     };
 ```

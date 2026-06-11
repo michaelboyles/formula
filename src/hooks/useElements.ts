@@ -1,6 +1,15 @@
 import type { FormField } from "../FormField.ts";
 import { useCallback, useSyncExternalStore } from "react";
 
+/**
+ * A hook to map over the elements of an array field in a typesafe way. It effectively converts `FormField<T[]>`
+ * to `FormField<T>[]`.
+ *
+ * This hook will only trigger a rerender when the number of elements changes. Changes to the values in the array will
+ * not trigger a rerender.
+ *
+ * @param field The array field to get the elements for
+ */
 export function useElements<T>(field: FormField<T[]>): ReadonlyArray<FormField<T>> {
     if (!field) throw new Error("Field is " + field);
     const lengthOrFieldType = useSyncNumElements(field);

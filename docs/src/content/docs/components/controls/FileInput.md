@@ -28,9 +28,9 @@ return (
 
 ```typescript
 function FileInput(props: {
-    // The field to associate with this file input
+    /** The field to associate with this file input */
     field: FormField<FileList | null>
-} & Omit<DefaultInputProps, "type">) 
+} & Omit<ComponentProps<"input">, "type">) 
 ```
 
 ### Native props
