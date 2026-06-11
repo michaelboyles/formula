@@ -3,7 +3,7 @@
   "version": "0.0.1-local-dev",
   "type": "module",
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm",
+    "build": "tsdown src/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "storybook": "storybook dev -p 6006"
@@ -24,16 +24,16 @@
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.8",
     "jsdom": "^29.1.1",
-    "tsup": "^8.5.1",
-    "typescript": "5.9.3",
+    "tsdown": "^0.22.2",
+    "typescript": "6.0.3",
     "vitest": "^4.1.8",
     "zod": "^4.4.3"
   },
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
   "description": "Type-safe forms in React",
   "repository": {
     "type": "git",
