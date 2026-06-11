@@ -35,11 +35,11 @@ export default defineConfig({
 				},
                 {
                     label: "Types",
-                    autogenerate: { directory: "types" },
+					items: [{ autogenerate: { directory: "types" } }],
                 },
 				{
 					label: "Hooks",
-					autogenerate: { directory: "hooks" },
+					items: [{ autogenerate: { directory: "hooks" } }],
 				},
 				{
 					label: "Components",
@@ -53,7 +53,7 @@ export default defineConfig({
 						"components/SubmissionError",
 						{
 							label: "Form controls",
-							autogenerate: { directory: "components/controls" }
+							items: [{ autogenerate: { directory: "components/controls" } }],
 						}
 					]
 				},
