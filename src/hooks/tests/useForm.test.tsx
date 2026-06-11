@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach, expect, describe, it, test } from 'vitest';
+import { afterEach, expect, describe, it, test, expectTypeOf } from 'vitest';
 import { cleanup, render, renderHook } from "@testing-library/react";
 import { userEvent } from '@testing-library/user-event'
 import { type Form, useForm } from "../useForm.ts";
@@ -32,9 +32,9 @@ describe("useForm", () => {
                 initialValues: { name: "" },
                 submit: () => ({ result: "done" }),
                 onSubmitSuccess: ({ result, data, form }) => {
-                    sink(result satisfies { result: string });
-                    sink(data satisfies { name: string });
-                    sink(form satisfies Form<{ name: string }>);
+                    expectTypeOf(result).toEqualTypeOf<{ result: string }>();
+                    expectTypeOf(data).toEqualTypeOf<{ name: string }>();
+                    expectTypeOf(form).toEqualTypeOf<Form<{ name: string }>>();
                     called = true;
                 }
             })
@@ -60,9 +60,9 @@ describe("useForm", () => {
                         throw new Error("Submission failed");
                     },
                     onSubmitFailure: ({ error, data, form }) => {
-                        sink(error satisfies Error);
-                        sink(data satisfies { name: string });
-                        sink(form satisfies Form<{ name: string }>);
+                        expectTypeOf(error).toEqualTypeOf<Error>();
+                        expectTypeOf(data).toEqualTypeOf<{ name: string }>();
+                        expectTypeOf(form).toEqualTypeOf<Form<{ name: string }>>();
                         providedError = error;
                     }
                 })
@@ -885,11 +885,6 @@ describe("useForm", () => {
         });
     })
 })
-
-// do nothing, just a target for "satisfies" expression without warnings at the call site
-// @ts-ignore
-function sink<T>(_value: T) {
-}
 
 function sleep(millis: number): Promise<void> {
     return new Promise(resolve => {
