@@ -107,7 +107,7 @@ export function useForm<Data, SubmitResponse>(opts: UseFormOpts<Data, SubmitResp
             const issues = (await Promise.all(pendingValidations)).flatMap(a => a);
             issues.forEach(issue => {
                 if (issue.path) {
-                    fieldState.current.appendErrors(FieldPath.fromStdSchema(issue.path), [issue.message]);
+                    fieldState.current.appendErrors(FieldPath.fromStdSchema(issue.path), [issue]);
                 }
             });
             return issues;

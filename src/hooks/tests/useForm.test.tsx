@@ -155,18 +155,21 @@ describe("useForm", () => {
                 <form onSubmit={form.submit}>
                     <Input field={form("title")} data-testid="input" />
                     <input type="submit" value="Submit" data-testid="submit" />
-                    { titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ err.message }</div>) }
-                    { firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ err.message }</div>) }
+                    { titleErrors.map((err, idx) => <div key={idx} data-testid="title-error">{ JSON.stringify(err) }</div>) }
+                    { firstTagErrors.map((err, idx) => <div key={idx} data-testid="tag-error">{ JSON.stringify(err) }</div>) }
                 </form>
             )
         }
 
-        const { getByTestId, queryAllByTestId } = render(<Test />);
+        const { getByTestId, queryByTestId } = render(<Test />);
         await user.type(getByTestId("input"), "abcdef");
         await user.click(getByTestId("submit"));
 
-        expect(queryAllByTestId("title-error").length).toBe(1);
-        expect(queryAllByTestId("tag-error").length).toBe(1);
+        // the error is JSON.stringified to show that non-standard schema properties like code are present
+        expect(queryByTestId("title-error"))
+            .toHaveTextContent(`{"origin":"string","code":"too_big","maximum":5,"inclusive":true,"path":["title"],"message":"Too big: expected string to have <=5 characters"}`)
+        expect(queryByTestId("tag-error"))
+            .toHaveTextContent(`{"origin":"string","code":"too_big","maximum":5,"inclusive":true,"path":["tags",0],"message":"Too big: expected string to have <=5 characters"}`)
     })
 
     test("getData, setData, reset", async () => {
