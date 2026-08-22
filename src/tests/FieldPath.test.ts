@@ -1,6 +1,18 @@
 import { test, expect, describe } from 'vitest';
 import { FieldPath } from "../FieldPath.ts";
 
+describe("name", () => {
+    test("Property name", () => {
+        const path = FieldPath.create().withProperty("foo");
+        expect(path.name()).toBe("foo");
+    })
+
+    test("Root name", () => {
+        const path = FieldPath.create();
+        expect(path.name()).toBe("<form-root>");
+    })
+})
+
 describe("getData", () => {
     test('Single object property', () => {
         const path = FieldPath.create().withProperty("foo");

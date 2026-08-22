@@ -14,6 +14,13 @@ compared to other `FormField`s.
 
 ```typescript
 type FormField<Data, Writable extends boolean> = {
+    /**
+     * The field's name relative to its parent.
+     *
+     * For example, a field with the path `user.username` has the name `username`.
+     */
+    name: string
+
     /** Get the path of the field, joined with periods, e.g. "users.0.username" */
     toString: () => string
 

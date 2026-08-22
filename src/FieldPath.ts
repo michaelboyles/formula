@@ -15,6 +15,11 @@ export class FieldPath {
         return new FieldPath(path.map(segment => typeof segment === "object" ? segment.key : segment));
     }
 
+    name(): string {
+        if (!this.keys.length) return "<form-root>";
+        return String(this.keys[this.keys.length - 1]);
+    }
+
     equals(other: FieldPath): boolean {
         if (this.keys.length !== other.keys.length) return false;
         for (let i = 0; i < this.keys.length; i++) {

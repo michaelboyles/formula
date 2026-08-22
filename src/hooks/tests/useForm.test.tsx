@@ -399,6 +399,21 @@ describe("useForm", () => {
         await expect.poll(() => getByTestId("error").textContent).toBe("new");
     });
 
+    describe("Fields", () => {
+        it("has a name", () => {
+            const { result } = renderHook(() => {
+                return useForm({
+                    initialValues: () => {
+                        return { foo: "", bar: { baz: "" } }
+                    }
+                })
+            });
+            expect(result.current.name).toBe("<form-root>");
+            expect(result.current("foo").name).toBe("foo");
+            expect(result.current("bar")("baz").name).toBe("baz");
+        })
+    })
+
     describe("Native validation", () => {
         it("validates a string", async () => {
             function Test() {
